@@ -6,21 +6,21 @@ deps = [
         sptk = library_dependency("libSPTK")
         ]
         
-const sptkversion = "3.7.0"
+const version = "3.7.0"
 
 provides(Sources,
-         URI("https://github.com/r9y9/SPTK/archive/v$(sptkversion).tar.gz"),
+         URI("https://github.com/r9y9/SPTK/archive/v$(version).tar.gz"),
          sptk,
-         unpacked_dir="SPTK-$(sptkversion)")
+         unpacked_dir="SPTK-$(version)")
          
 prefix=joinpath(BinDeps.depsdir(sptk), "usr")
-sptksrcdir = joinpath(BinDeps.depsdir(sptk),"src", "SPTK-$(sptkversion)")
+srcdir = joinpath(BinDeps.depsdir(sptk),"src", "SPTK-$(version)")
 
 provides(SimpleBuild,
           (@build_steps begin
               GetSources(sptk)
               @build_steps begin
-                  ChangeDirectory(sptksrcdir)
+                  ChangeDirectory(srcdir)
                   `./waf configure --prefix=$prefix`
                   `./waf build`
                   `./waf install`
