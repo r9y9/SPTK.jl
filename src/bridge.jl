@@ -1,4 +1,5 @@
-# const libSPTK = "libSPTK"
+# Defined in deps.jl
+@assert isdefined(:libSPTK)
 
 # mcep preforms Mel-Cepstrum analysis.
 function mcep(x::Vector{Float64};
