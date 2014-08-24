@@ -8,7 +8,7 @@ module SPTK
 export mcep, mgcep, fftcep, mfcc
 
 # Conversions
-export mc2b, b2mc, c2ir, gc2gc, gnorm, ignorm, freqt, mgc2mgc
+export mgc2b, mc2b, b2mc, c2ir, gc2gc, gnorm, ignorm, freqt, mgc2mgc
 
 # F0 estimation
 export swipe
