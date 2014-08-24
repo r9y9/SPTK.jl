@@ -87,7 +87,7 @@ function synthesis!(f::WaveformGenerationFilter,
         current_mgc = mgc_sequence[i,:][:]
 
         s, e = (i-1)*hopsize+1, i*hopsize
-        if e >= length(excite)
+        if e > length(excite)
             break
         end
 
