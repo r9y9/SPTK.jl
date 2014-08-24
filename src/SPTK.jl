@@ -13,6 +13,9 @@ export mc2b, b2mc, c2ir, gc2gc, gnorm, ignorm, freqt, mgc2mgc
 # F0 estimation
 export swipe
 
+# Waveform generation filters
+export mlsadf, mglsadf
+
 deps = joinpath(Pkg.dir("SPTK"), "deps", "deps.jl")
 if isfile(deps)
     include(deps)

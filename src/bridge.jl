@@ -199,3 +199,19 @@ function swipe(x::Vector{Float64}, samplerate::Int;
     return f0
 end
 
+# mlsadf performs Mel Log Spectrum Approximation (MLSA) digital filtering.
+function mlsadf(x::Float64, b::Vector{Float64}, alpha::Float64, pd::Int,
+                delay::Vector{Float64})
+    ccall((:mlsadf, libSPTK), Float64,
+          (Float64, Ptr{Float64}, Int, Float64, Int, Ptr{Float64}),
+          x, b, length(b)-1, alpha, pd, delay)
+end
+
+# mglsadf performs Mel Generalized Log Spectrum Approximation (MGLSA) digital
+# filtering.
+function mglsadf(x::Float64, b::Vector{Float64}, alpha::Float64, stage::Int,
+                 delay::Vector{Float64})
+    ccall((:mglsadf, libSPTK), Float64,
+          (Float64, Ptr{Float64}, Int, Float64, Int, Ptr{Float64}),
+          x, b, length(b)-1, alpha, stage, delay)
+end

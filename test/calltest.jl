@@ -28,6 +28,20 @@ function check_no_segfault()
 
     # F0 estimation
     swipe(dummy_input, 16000)
+
+    # Waveform generation filters
+    # mlsadf
+    pd::Int = 5
+    order::Int = length(dummy_ceps)-1
+    # see mlsadf.c in original SPTK for this magic allocation
+    delay_mlsadf = zeros(3*(pd+1) + pd*(order+2))
+    mlsadf(dummy_input[1], dummy_ceps, 0.41, pd, delay_mlsadf)
+
+    # mlgasdf
+    stage = 12
+    # see mglsadf.c in original SPTK for this magic allocation
+    delay_mglsadf = zeros((order+1)*stage)
+    mglsadf(dummy_input[1], dummy_ceps, 0.41, stage, delay_mglsadf)
 end
 
 check_no_segfault()
