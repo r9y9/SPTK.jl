@@ -16,6 +16,9 @@ export swipe
 # Waveform generation filters
 export mlsadf, mglsadf
 
+# Waveform generation filters (more convenient types and methods)
+export MLSADF, filter!, MLSASynthesizer, synthesis_one_frame!, synthesis!
+
 deps = joinpath(Pkg.dir("SPTK"), "deps", "deps.jl")
 if isfile(deps)
     include(deps)
@@ -24,5 +27,6 @@ else
 end
 
 include("bridge.jl")
+include("waveform_generation.jl")
 
 end # module SPTK
