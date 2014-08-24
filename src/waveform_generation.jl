@@ -6,12 +6,12 @@ type MLSADF
 end
 
 # see mlsadf.c in the original SPTK for this magic allocation
-mlsadf_delay(order, pd) = zeros(3*(pd+1)+pd*(order+2))
+mlsadf_delay(order::Int, pd::Int) = zeros(3*(pd+1)+pd*(order+2))
 
-MLSADF(order; pd=5) = MLSADF(order, pd, mlsadf_delay(order, pd))
+MLSADF(order::Int; pd::Int=5) = MLSADF(order, pd, mlsadf_delay(order, pd))
 
 # filter! modifies MLSADF delay.
-function filter!(m::MLSADF, x::Real, b::Vector{Float64}, alpha=0.41)
+function filter!(m::MLSADF, x::Real, b::Vector{Float64}, alpha::Float64=0.41)
     order = length(b) - 1
     order == m.order ||
         throw(DimensionMismatch("Order of mel-cepstrum may be wrong."))
@@ -26,13 +26,14 @@ type MLSASynthesizer
     f::MLSADF
 end
 
-MLSASynthesizer(order; pd=5) = MLSASynthesizer(MLSADF(order, pd=pd))
+MLSASynthesizer(order::Int; pd::Int=5) = MLSASynthesizer(MLSADF(order, pd=pd))
 
 # synthesis_one_frame! generates speech waveform for one frame speech signal
 # given a excitation signal and successive two mel-cepstrum.
 function synthesis_one_frame!(s::MLSASynthesizer, excite::Vector{Float64},
-                          previous_mcep::Vector{Float64},
-                          current_mcep::Vector{Float64}, alpha=0.41)
+                              previous_mcep::Vector{Float64},
+                              current_mcep::Vector{Float64},
+                              alpha::Float64=0.41)
 
     previous_coef = mc2b(previous_mcep, alpha)
     current_coef = mc2b(current_mcep, alpha)
@@ -55,7 +56,8 @@ end
 # synthesis! generates a speech waveform given a excitation signal and
 # a sequence of mel-cepstrum.
 function synthesis!(s::MLSASynthesizer, excite::Vector{Float64},
-                    mcep_sequence::Matrix{Float64}, alpha=0.41, hopsize=80)
+                    mcep_sequence::Matrix{Float64},
+                    alpha::Float64=0.41, hopsize::Int=80)
     synthesized = zeros(length(excite))
 
     previous_mcep = mcep_sequence[1]
