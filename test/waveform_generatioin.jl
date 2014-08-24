@@ -17,6 +17,27 @@ function mlsadf_test()
     end
 end
 
+function synthesis()
+    srand(98765)
+    dummy_input = rand(4096)
+    order = 20
+    timelength = 10
+    dummy_ceps = rand(timelength, order+1)
+
+    # MLSADF based synthesis
+    m = MLSADF(order)
+    result = synthesis!(m, dummy_input, dummy_ceps, 0.41, 80)
+    @test !any(isnan(result))
+
+    # MGLSADF based synthesis
+    stage = 12
+    gamma = float(1/stage)
+    g = MGLSADF(order, stage)
+    result = synthesis!(g, dummy_input, dummy_ceps, 0.41, 80, gamma)
+    @test !any(isnan(result))
+end
+
 # TODO test for real data
 
 mlsadf_test()
+synthesis()
