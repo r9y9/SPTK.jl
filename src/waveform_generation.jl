@@ -76,7 +76,7 @@ function synthesis!(f::WaveformGenerationFilter,
                     mgc_sequence::Matrix{Float64},
                     alpha::Float64,
                     hopsize::Int,
-                    gamma::Float64=0.0)
+                    gamma::Float64)
     synthesized = zeros(length(excite))
 
     previous_mgc = mgc_sequence[1,:][:]
@@ -99,3 +99,7 @@ function synthesis!(f::WaveformGenerationFilter,
 
     return synthesized
 end
+
+# Special case
+synthesis!(f::MLSADF, excite, mgc_sequence, alpha, hopsize) =
+    synthesis!(f, excite, mgc_sequence, alpha, hopsize, 0.0)
