@@ -163,12 +163,12 @@ end
 
 # freqt performs frequency tranformation on cepstrum. It can be used to
 # convert linear frequency cepstrum to mel frequency cepstrum.
-function freqt(c::Vector{Float64}, desiredOrder::Int, alpha::Float64)
+function freqt(c::Vector{Float64}, order::Int, alpha::Float64)
     originalOrder = length(c)-1
-    transformed = zeros(desiredOrder+1)
+    transformed = zeros(order+1)
     ccall((:freqt, libSPTK), Void,
           (Ptr{Float64}, Int, Ptr{Float64}, Int, Float64),
-          c, originalOrder, transformed, desiredOrder, alpha)
+          c, originalOrder, transformed, order, alpha)
     return transformed
 end
 
@@ -189,8 +189,8 @@ function swipe(x::Vector{Float64}, samplerate::Int;
                hopsize::Int=80,
                min::Float64=50.0, max::Float64=800.0,
                st::Float64=0.3, otype::Int=1)
-    expected_len = length(x)/hopsize + 1
-    f0 = zeros(int(expected_len))
+    expectedlen = length(x)/hopsize + 1
+    f0 = zeros(int(expectedlen))
     ccall((:swipe, libSPTK), Void,
           (Ptr{Float64}, Ptr{Float64}, Int, Int, Int, Float64, Float64,
            Float64, Int),
