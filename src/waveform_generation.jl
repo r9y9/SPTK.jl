@@ -50,7 +50,7 @@ function synthesis_one_frame!(f::WaveformGenerationFilter,
                               previous_mgc::Vector{Float64},
                               current_mgc::Vector{Float64},
                               alpha::Float64,
-                              gamma::Float64=0.0)
+                              gamma::Float64)
     previous_coef = mgc2b(previous_mgc, alpha, gamma)
     current_coef = mgc2b(current_mgc, alpha, gamma)
 
@@ -68,6 +68,10 @@ function synthesis_one_frame!(f::WaveformGenerationFilter,
 
     return part_of_speech
 end
+
+# Special case
+synthesis_one_frame!(f::MLSADF, excite, previous_mgc, current_mgc, alpha) =
+    synthesis_one_frame!(f, excite, previous_mgc, current_mgc, alpha, 0.0)
 
 # synthesis! generates a speech waveform given a excitation signal and
 # a sequence of mel generalized cepstrum.
