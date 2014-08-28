@@ -12,7 +12,7 @@ mlsadf_delay(order::Int, pd::Int) = zeros(3*(pd+1)+pd*(order+2))
 
 MLSADF(order::Int; pd::Int=5) = MLSADF(order, pd, mlsadf_delay(order, pd))
 
-# filter! modifies MLSADF delay.
+# Note that filter! will modify MLSADF delay.
 function filter!(m::MLSADF, x::Real, b::Vector{Float64}, alpha::Float64)
     order = length(b) - 1
     order == m.order ||
