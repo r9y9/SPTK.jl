@@ -2,7 +2,7 @@
 function mgc2b(mgc::Vector{Float64}, alpha::Float64, gamma::Float64)
     b = mc2b(mgc, alpha)
 
-    # mel-generalized cespstrum corresponds to mel cepstrum
+    # when gamma = 0, mel-generalized cespstrum corresponds to mel cepstrum
     if gamma == 0.0
         return b
     end
