@@ -83,12 +83,12 @@ function synthesis!(f::WaveformGenerationFilter,
                     gamma::Float64)
     synthesized = zeros(length(excite))
 
-    previous_mgc = mgc_sequence[1,:][:]
-    for i=1:size(mgc_sequence, 1)
+    previous_mgc = mgc_sequence[:,1]
+    for i=1:size(mgc_sequence, 2)
         if i > 1
-            previous_mgc = mgc_sequence[i-1,:][:]
+            previous_mgc = mgc_sequence[:,i-1]
         end
-        current_mgc = mgc_sequence[i,:][:]
+        current_mgc = mgc_sequence[:,i]
 
         s, e = (i-1)*hopsize+1, i*hopsize
         if e > length(excite)

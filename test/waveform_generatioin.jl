@@ -22,7 +22,7 @@ function synthesis()
     dummy_input = rand(4096)
     order = 20
     timelength = 10
-    dummy_ceps = rand(timelength, order+1)
+    dummy_ceps = rand(order+1, timelength)
 
     # MLSADF based synthesis
     m = MLSADF(order)
