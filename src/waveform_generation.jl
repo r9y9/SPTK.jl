@@ -14,7 +14,7 @@ MLSADF(order::Int; pd::Int=5) = MLSADF(order, pd, mlsadf_delay(order, pd))
 
 # Note that filter! will modify MLSADF delay.
 function filter!(m::MLSADF, x::Real, b::Vector{Float64}, alpha::Float64)
-    order = length(b) - 1
+    const order = length(b) - 1
     order == m.order ||
         throw(DimensionMismatch("Order of mel-cepstrum may be wrong."))
 
@@ -36,7 +36,7 @@ MGLSADF(order::Int, stage::Int) =
     MGLSADF(order, stage, mglsadf_delay(order, stage))
 
 function filter!(m::MGLSADF, x::Real, b::Vector{Float64}, alpha::Float64)
-    order = length(b) - 1
+    const order = length(b) - 1
     order == m.order ||
         throw(DimensionMismatch("Order of mel generalized cepstrum may be wrong."))
 
@@ -56,7 +56,7 @@ function synthesis_one_frame!(f::WaveformGenerationFilter,
 
     slope = (current_coef - previous_coef) / float(length(excite))
 
-    part_of_speech = zeros(length(excite))
+    part_of_speech = Array(eltype(excite), length(excite))
     interpolated_coef = copy(previous_coef)
 
     for i=1:endof(excite)
@@ -81,7 +81,8 @@ function synthesis!(f::WaveformGenerationFilter,
                     alpha::Float64,
                     hopsize::Int,
                     gamma::Float64)
-    synthesized = zeros(length(excite))
+    const T = length(excite)
+    synthesized = zeros(T)
 
     previous_mgc = mgc_sequence[:,1]
     for i=1:size(mgc_sequence, 2)
@@ -90,8 +91,8 @@ function synthesis!(f::WaveformGenerationFilter,
         end
         current_mgc = mgc_sequence[:,i]
 
-        s, e = (i-1)*hopsize+1, i*hopsize
-        if e > length(excite)
+        const s, e = (i-1)*hopsize+1, i*hopsize
+        if e > T
             break
         end
 
