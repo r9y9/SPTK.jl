@@ -13,7 +13,7 @@ provides(Sources,
          sptk,
          unpacked_dir="SPTK-$(version)")
          
-prefix=joinpath(BinDeps.depsdir(sptk), "usr")
+prefix = joinpath(BinDeps.depsdir(sptk), "usr")
 srcdir = joinpath(BinDeps.depsdir(sptk),"src", "SPTK-$(version)")
 
 provides(SimpleBuild,
