@@ -2,4 +2,4 @@
 
 [![Build Status](https://travis-ci.org/r9y9/SPTK.jl.svg?branch=master)](https://travis-ci.org/r9y9/SPTK.jl)
 
-Julia wrapper for Speech Signal Processing Toolkit (SPTK)
+Julia wrapper for the [Speech Signal Processing Toolkit (SPTK)](http://sp-tk.sourceforge.net/).
