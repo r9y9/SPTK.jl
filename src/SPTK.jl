@@ -4,8 +4,8 @@ module SPTK
 #
 # The original SPTK: http://sp-tk.sourceforge.net/
 
-# Mel-Cepstrum related analysis
-export mcep, mgcep, fftcep, mfcc
+# (Mel-) Cepstrum related analysis
+export mcep, mgcep, uels, fftcep, mfcc
 
 # Conversions
 export mgc2b, mc2b, b2mc, c2ir, gc2gc, gnorm, ignorm, freqt, mgc2mgc

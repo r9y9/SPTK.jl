@@ -10,9 +10,10 @@ function check_no_segfault()
     dummy_logsp = log(dummy_sp)
     dummy_ceps = rand(20)
 
-    # Mel-Cepstrum related analysis
+    # (Mel-) Cepstrum related analysis
     mcep(dummy_input, order=20, alpha=0.41)
     mgcep(dummy_input, order=20, alpha=0.41, gamma=-1/4)
+    uels(dummy_input, 20)
     fftcep(dummy_input, 20)
     mfcc(dummy_input, order=12)
 

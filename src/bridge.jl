@@ -54,6 +54,18 @@ function mgcep(x::Vector{Float64};
     return mgc
 end
 
+# uels performs unbiased estimation of target log spectrum.
+function uels(x::Vector{Float64}, order::Int;
+              iter1::Int=2, iter2::Int=30, dd::Float64=0.001, 
+              etype::Int=0, e::Float64=0.0, f::Float64=0.0001, itype::Int=0)
+    c = zeros(order+1)
+    ccall((:uels, libSPTK), Int,
+          (Ptr{Float64}, Int, Ptr{Float64}, Int, Int, Int, Float64, Int,
+           Float64, Float64, Int),
+          x, length(x), c, order,
+          iter1, iter2, dd, etype, e, f, itype)
+    return c
+end
 
 # fftcep computes cepstrum from log spectrum (that can be computed using FFT).
 function fftcep(logsp::Vector{Float64}, order::Int;
