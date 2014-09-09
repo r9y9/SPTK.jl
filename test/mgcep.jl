@@ -6,8 +6,8 @@ function mgcep_as_special_case_of_mcep()
   srand(20121)
   dummy = rand(1024)
 
-  mc = mcep(dummy, order=20, alpha=0.41)
-  mgc = mgcep(dummy, order=20, alpha=0.41, gamma=0.0)
+  mc = mcep(dummy, 20, 0.41)
+  mgc = mgcep(dummy, 20, 0.41, 0.0)
 
   # Order + 0-th
   @test length(mc) == 21

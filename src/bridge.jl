@@ -2,8 +2,8 @@
 @assert isdefined(:libSPTK)
 
 # mcep preforms Mel-Cepstrum analysis.
-function mcep(x::Vector{Float64};
-              order::Int=40, alpha::Float64=0.41, iter1::Int=2, iter2::Int=30,
+function mcep(x::Vector{Float64}, order::Int=40, alpha::Float64=0.41;
+              iter1::Int=2, iter2::Int=30,
               dd::Float64=0.001, etype::Int=0, e::Float64=0.0,
               f::Float64=0.0001, itype::Int=0)
     mc = zeros(order+1)
@@ -16,8 +16,8 @@ function mcep(x::Vector{Float64};
 end
 
 # mgcep performs Mel log-generalized cepstrum analysis.
-function mgcep(x::Vector{Float64};
-               order::Int=40, alpha::Float64=0.41, gamma::Float64=0.0,
+function mgcep(x::Vector{Float64}, order::Int=40,
+               alpha::Float64=0.41, gamma::Float64=0.0;
                n::Int=length(x)-1,
                iter1::Int=2, iter2::Int=30,
                dd::Float64=0.001, etype::Int=0, e::Float64=0.0,
@@ -80,8 +80,7 @@ function fftcep(logsp::Vector{Float64}, order::Int;
 end
 
 # mfcc computes Mel-Frequency Cepstrum Coefficients using DCT.
-function mfcc(x::Vector{Float64};
-              order::Int=20,
+function mfcc(x::Vector{Float64}, order::Int=20;
               samplerate::Float64=16000.0, alpha::Float64=0.97,
               eps::Float64=1.0, numfilterbunks::Int=20, cepslift::Int=22,
               usedft::Bool=false, usehamming::Bool=true,

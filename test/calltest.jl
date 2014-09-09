@@ -11,11 +11,11 @@ function check_no_segfault()
     dummy_ceps = rand(20)
 
     # (Mel-) Cepstrum related analysis
-    mcep(dummy_input, order=20, alpha=0.41)
-    mgcep(dummy_input, order=20, alpha=0.41, gamma=-1/4)
+    mcep(dummy_input, 20, 0.41)
+    mgcep(dummy_input, 20, 0.41, -1/4)
     uels(dummy_input, 20)
     fftcep(dummy_input, 20)
-    mfcc(dummy_input, order=12)
+    mfcc(dummy_input, 12)
 
     # Conversions
     mc2b(dummy_ceps, 0.41)
