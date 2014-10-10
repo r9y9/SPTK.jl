@@ -1,17 +1,17 @@
 # mgc2b converts mel generalized cesptrum to MGLSADF filter coefficients.
-function mgc2b(mgc::Vector{Float64}, alpha::Float64, gamma::Float64)
-    b = mc2b(mgc, alpha)
+function mgc2b(mgc::Vector{Float64}, α::Float64, γ::Float64)
+    b = mc2b(mgc, α)
 
     # when gamma = 0, mel-generalized cespstrum corresponds to mel cepstrum
-    if gamma == 0.0
+    if γ == 0.0
         return b
     end
 
-    b = gnorm(b, gamma) # TODO replace with inplace version
+    b = gnorm(b, γ) # TODO replace with inplace version
 
     # scale by gamma
     b[1] = log(b[1])
-    b[2:end] *= gamma
+    b[2:end] *= γ
 
     return b
 end

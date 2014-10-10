@@ -13,12 +13,12 @@ mlsadf_delay(order::Int, pd::Int) = zeros(3*(pd+1)+pd*(order+2))
 MLSADF(order::Int; pd::Int=5) = MLSADF(order, pd, mlsadf_delay(order, pd))
 
 # Note that filter! will modify MLSADF delay.
-function filter!(m::MLSADF, x::Real, b::Vector{Float64}, alpha::Float64)
+function filter!(m::MLSADF, x::Real, b::Vector{Float64}, α::Float64)
     const order = length(b) - 1
     order == m.order ||
         throw(DimensionMismatch("Order of mel-cepstrum may be wrong."))
 
-    return mlsadf(float64(x), b, alpha, m.pd, m.delay)
+    return mlsadf(float64(x), b, α, m.pd, m.delay)
 end
 
 # MGLSADF represents a Mel Generalized Log Spectrum Approximation (MGLSA)
@@ -35,12 +35,12 @@ mglsadf_delay(order::Int, stage::Int) = zeros((order+1)*stage)
 MGLSADF(order::Int, stage::Int) =
     MGLSADF(order, stage, mglsadf_delay(order, stage))
 
-function filter!(m::MGLSADF, x::Real, b::Vector{Float64}, alpha::Float64)
+function filter!(m::MGLSADF, x::Real, b::Vector{Float64}, α::Float64)
     const order = length(b) - 1
     order == m.order ||
         throw(DimensionMismatch("Order of mel generalized cepstrum may be wrong."))
 
-    return mglsadf(float64(x), b, alpha, m.stage, m.delay)
+    return mglsadf(float64(x), b, α, m.stage, m.delay)
 end
 
 # synthesis_one_frame! generates speech waveform for one frame speech signal
@@ -49,10 +49,10 @@ function synthesis_one_frame!(f::WaveformGenerationFilter,
                               excite::Vector{Float64},
                               previous_mgc::Vector{Float64},
                               current_mgc::Vector{Float64},
-                              alpha::Float64,
-                              gamma::Float64)
-    previous_coef = mgc2b(previous_mgc, alpha, gamma)
-    current_coef = mgc2b(current_mgc, alpha, gamma)
+                              α::Float64,
+                              γ::Float64)
+    previous_coef = mgc2b(previous_mgc, α, γ)
+    current_coef = mgc2b(current_mgc, α, γ)
 
     slope = (current_coef - previous_coef) / float(length(excite))
 
@@ -62,7 +62,7 @@ function synthesis_one_frame!(f::WaveformGenerationFilter,
     for i=1:endof(excite)
         scaled_excitation = excite[i] * exp(interpolated_coef[1])
         part_of_speech[i] = filter!(f, scaled_excitation,
-                                    interpolated_coef, alpha)
+                                    interpolated_coef, α)
         interpolated_coef += slope
     end
 
@@ -70,17 +70,17 @@ function synthesis_one_frame!(f::WaveformGenerationFilter,
 end
 
 # Special case
-synthesis_one_frame!(f::MLSADF, excite, previous_mgc, current_mgc, alpha) =
-    synthesis_one_frame!(f, excite, previous_mgc, current_mgc, alpha, 0.0)
+synthesis_one_frame!(f::MLSADF, excite, previous_mgc, current_mgc, α) =
+    synthesis_one_frame!(f, excite, previous_mgc, current_mgc, α, 0.0)
 
 # synthesis! generates a speech waveform given a excitation signal and
 # a sequence of mel generalized cepstrum.
 function synthesis!(f::WaveformGenerationFilter,
                     excite::Vector{Float64},
                     mgc_sequence::Matrix{Float64},
-                    alpha::Float64,
+                    α::Float64,
                     hopsize::Int,
-                    gamma::Float64)
+                    γ::Float64)
     const T = length(excite)
     synthesized = zeros(T)
 
@@ -98,7 +98,7 @@ function synthesis!(f::WaveformGenerationFilter,
 
         part_of_speech = synthesis_one_frame!(f, excite[s:e],
                                               previous_mgc,
-                                              current_mgc, alpha, gamma)
+                                              current_mgc, α, γ)
         synthesized[s:e] = part_of_speech
     end
 
@@ -106,5 +106,5 @@ function synthesis!(f::WaveformGenerationFilter,
 end
 
 # Special case
-synthesis!(f::MLSADF, excite, mgc_sequence, alpha, hopsize) =
-    synthesis!(f, excite, mgc_sequence, alpha, hopsize, 0.0)
+synthesis!(f::MLSADF, excite, mgc_sequence, α, hopsize) =
+    synthesis!(f, excite, mgc_sequence, α, hopsize, 0.0)

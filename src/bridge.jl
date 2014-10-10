@@ -2,7 +2,7 @@
 @assert isdefined(:libSPTK)
 
 # mcep preforms Mel-Cepstrum analysis.
-function mcep(x::Vector{Float64}, order::Int=40, alpha::Float64=0.41;
+function mcep(x::Vector{Float64}, order::Int=40, α::Float64=0.41;
               iter1::Int=2, iter2::Int=30,
               dd::Float64=0.001, etype::Int=0, e::Float64=0.0,
               f::Float64=0.0001, itype::Int=0)
@@ -10,14 +10,14 @@ function mcep(x::Vector{Float64}, order::Int=40, alpha::Float64=0.41;
     ccall((:mcep, libSPTK), Int,
           (Ptr{Float64}, Int, Ptr{Float64}, Int,
            Float64, Int, Int, Float64, Int, Float64, Float64, Int),
-          x, length(x), mc, order, alpha,
+          x, length(x), mc, order, α,
           iter1, iter2, dd, etype, e, f, itype)
     return mc
 end
 
 # mgcep performs Mel log-generalized cepstrum analysis.
 function mgcep(x::Vector{Float64}, order::Int=40,
-               alpha::Float64=0.41, gamma::Float64=0.0;
+               α::Float64=0.41, γ::Float64=0.0;
                n::Int=length(x)-1,
                iter1::Int=2, iter2::Int=30,
                dd::Float64=0.001, etype::Int=0, e::Float64=0.0,
@@ -26,29 +26,29 @@ function mgcep(x::Vector{Float64}, order::Int=40,
     ccall((:mgcep, libSPTK), Int,
           (Ptr{Float64}, Int, Ptr{Float64}, Int, Float64, Float64,
            Int, Int, Int, Float64, Int, Float64, Float64, Int),
-          x, length(x), mgc, order, alpha, gamma, n,
+          x, length(x), mgc, order, α, γ, n,
           iter1, iter2, dd, etype, e, f, itype)
 
     if otype == 0 || otype == 1 || otype == 2 || otype == 4
         ccall((:ignorm, libSPTK), Void, (Ptr{Float64}, Ptr{Float64},
                                            Int, Float64),
-              mgc, mgc, order, gamma)
+              mgc, mgc, order, γ)
     end
 
     if otype == 0 || otype == 2 || otype == 4
         ccall((:b2mc, libSPTK), Void,
               (Ptr{Float64}, Ptr{Float64}, Int, Float64),
-              mgc, mgc, order, alpha)
+              mgc, mgc, order, α)
     end
 
     if otype == 2 || otype == 4
         ccall((:gnorm, libSPTK), Void, (Ptr{Float64}, Ptr{Float64},
                                           Int, Float64),
-              mgc, mgc, order, gamma)
+              mgc, mgc, order, γ)
     end
 
     if otype == 4 || otype == 5
-        mgc = [mgc[1], mgc[2:end]*gamma]
+        mgc = [mgc[1], mgc[2:end]*γ]
     end
 
     return mgc
@@ -81,7 +81,7 @@ end
 
 # mfcc computes Mel-Frequency Cepstrum Coefficients using DCT.
 function mfcc(x::Vector{Float64}, order::Int=20;
-              samplerate::Float64=16000.0, alpha::Float64=0.97,
+              samplerate::Float64=16000.0, α::Float64=0.97,
               eps::Float64=1.0, numfilterbunks::Int=20, cepslift::Int=22,
               usedft::Bool=false, usehamming::Bool=true,
               czero::Bool=false, power::Bool=false)
@@ -94,7 +94,7 @@ function mfcc(x::Vector{Float64}, order::Int=20;
     ccall((:mfcc, libSPTK), Void,
           (Ptr{Float64}, Ptr{Float64}, Float64, Float64, Float64,
            Int, Int, Int, Int, Int, Bool, Bool),
-          x, cc, samplerate, alpha, eps,
+          x, cc, samplerate, α, eps,
           length(x), length(x), order+1, numfilterbunks, cepslift,
           usedft, usehamming)
 
@@ -117,20 +117,20 @@ function mfcc(x::Vector{Float64}, order::Int=20;
 end
 
 # mc2b converts mel-cepstrum to MLSA filter coefficients.
-function mc2b(mc::Vector{Float64}, alpha::Float64=0.41)
+function mc2b(mc::Vector{Float64}, α::Float64=0.41)
     order = length(mc)-1
     b = zeros(length(mc))
     ccall((:mc2b, libSPTK), Void, (Ptr{Float64}, Ptr{Float64}, Int, Float64),
-          mc, b, order, alpha)
+          mc, b, order, α)
     return b
 end
 
 # b2mc converts MLSA filter coefficients to Mel-Cepstrum.
-function b2mc(b::Vector{Float64}, alpha::Float64=0.41)
+function b2mc(b::Vector{Float64}, α::Float64=0.41)
     order = length(b)-1
     mc = zeros(length(b))
     ccall((:b2mc, libSPTK), Void, (Ptr{Float64}, Ptr{Float64}, Int, Float64),
-          b, mc, order, alpha)
+          b, mc, order, α)
     return mc
 end
 
@@ -143,54 +143,54 @@ function c2ir(c::Vector{Float64}, len::Int)
 end
 
 # gc2gc performs conversion between generalized cepstrum.
-function gc2gc(c1::Vector{Float64}, gamma1::Float64, m2::Int, gamma2::Float64)
+function gc2gc(c1::Vector{Float64}, γ₁::Float64, m2::Int, γ₂::Float64)
     m1 = length(c1) - 1
     c2 = zeros(m2*+1)
     ccall((:gc2gc, libSPTK), Void, (Ptr{Float64}, Int, Float64,
                                       Ptr{Float64}, Int, Float64),
-          c1, m1, gamma1, c2, m2, gamma2)
+          c1, m1, γ₁, c2, m2, γ₂)
     return c2
 end
 
 # gnorm performs cepstrum gain normailzation
-function gnorm(c::Vector{Float64}, gamma::Float64)
+function gnorm(c::Vector{Float64}, γ::Float64)
     normalizedC = zeros(length(c))
     m = length(c)-1
     ccall((:gnorm, libSPTK), Void, (Ptr{Float64}, Ptr{Float64},
                                       Int, Float64),
-          c, normalizedC, m, gamma)
+          c, normalizedC, m, γ)
     return normalizedC
 end
 
 # ignorm performs inverse cepstrum gain normailzation
-function ignorm(normalizedC::Vector{Float64}, gamma::Float64)
+function ignorm(normalizedC::Vector{Float64}, γ::Float64)
     c = zeros(length(normalizedC))
     m = length(normalizedC)-1
     ccall((:gnorm, libSPTK), Void, (Ptr{Float64}, Ptr{Float64},
                                       Int, Float64),
-         normalizedC, c, m, gamma)
+         normalizedC, c, m, γ)
     return c
 end
 
 # freqt performs frequency tranformation on cepstrum. It can be used to
 # convert linear frequency cepstrum to mel frequency cepstrum.
-function freqt(c::Vector{Float64}, order::Int, alpha::Float64)
+function freqt(c::Vector{Float64}, order::Int, α::Float64)
     originalOrder = length(c)-1
     transformed = zeros(order+1)
     ccall((:freqt, libSPTK), Void,
           (Ptr{Float64}, Int, Ptr{Float64}, Int, Float64),
-          c, originalOrder, transformed, order, alpha)
+          c, originalOrder, transformed, order, α)
     return transformed
 end
 
 # mgc2mgc converts between mel log-generalized cesptrum.
-function mgc2mgc(c1::Vector{Float64}, alpha1::Float64, gamma1::Float64,
-                 m2::Int, alpha2::Float64, gamma2::Float64)
+function mgc2mgc(c1::Vector{Float64}, α₁::Float64, γ₁::Float64,
+                 m2::Int, α₂::Float64, γ₂::Float64)
     c2 = zeros(m2+1)
     m1 = length(c1)-1
     ccall((:mgc2mgc, libSPTK), Void, (Ptr{Float64}, Int, Float64, Float64,
                                         Ptr{Float64}, Int, Float64, Float64),
-          c1, m1, alpha1, gamma1, c2, m2, alpha2, gamma2)
+          c1, m1, α₁, γ₁, c2, m2, α₂, γ₂)
     return c2
 end
 
@@ -211,18 +211,18 @@ function swipe(x::Vector{Float64}, samplerate::Int;
 end
 
 # mlsadf performs Mel Log Spectrum Approximation (MLSA) digital filtering.
-function mlsadf(x::Float64, b::Vector{Float64}, alpha::Float64, pd::Int,
+function mlsadf(x::Float64, b::Vector{Float64}, α::Float64, pd::Int,
                 delay::Vector{Float64})
     ccall((:mlsadf, libSPTK), Float64,
           (Float64, Ptr{Float64}, Int, Float64, Int, Ptr{Float64}),
-          x, b, length(b)-1, alpha, pd, delay)
+          x, b, length(b)-1, α, pd, delay)
 end
 
 # mglsadf performs Mel Generalized Log Spectrum Approximation (MGLSA) digital
 # filtering.
-function mglsadf(x::Float64, b::Vector{Float64}, alpha::Float64, stage::Int,
+function mglsadf(x::Float64, b::Vector{Float64}, α::Float64, stage::Int,
                  delay::Vector{Float64})
     ccall((:mglsadf, libSPTK), Float64,
           (Float64, Ptr{Float64}, Int, Float64, Int, Ptr{Float64}),
-          x, b, length(b)-1, alpha, stage, delay)
+          x, b, length(b)-1, α, stage, delay)
 end
