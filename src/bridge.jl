@@ -80,8 +80,8 @@ function fftcep(logsp::Vector{Float64}, order::Int;
 end
 
 # mfcc computes Mel-Frequency Cepstrum Coefficients using DCT.
-function mfcc(x::Vector{Float64}, order::Int=20;
-              samplerate::Float64=16000.0, α::Float64=0.97,
+function mfcc(x::Vector{Float64}, order::Int=20, samplerate::Int=16000;
+              α::Float64=0.97,
               eps::Float64=1.0, numfilterbunks::Int=20, cepslift::Int=22,
               usedft::Bool=false, usehamming::Bool=true,
               czero::Bool=false, power::Bool=false)
@@ -94,7 +94,7 @@ function mfcc(x::Vector{Float64}, order::Int=20;
     ccall((:mfcc, libSPTK), Void,
           (Ptr{Float64}, Ptr{Float64}, Float64, Float64, Float64,
            Int, Int, Int, Int, Int, Bool, Bool),
-          x, cc, samplerate, α, eps,
+          x, cc, float64(samplerate), α, eps,
           length(x), length(x), order+1, numfilterbunks, cepslift,
           usedft, usehamming)
 
