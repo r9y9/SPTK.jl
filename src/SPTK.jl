@@ -26,8 +26,10 @@ else
     error("SPTK not properly installed. Please run Pkg.build(\"SPTK\")")
 end
 
-include("bridge.jl")
-include("mgc2b.jl")
-include("waveform_generation.jl")
+for fname in ["bridge",
+              "mgc2b",
+              "waveform_generation"]
+    include(string(fname, ".jl"))
+end
 
 end # module SPTK
