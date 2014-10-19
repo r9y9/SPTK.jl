@@ -10,3 +10,7 @@ Julia wrapper for the [Speech Signal Processing Toolkit (SPTK)](http://sp-tk.sou
 Pkg.clone("https://github.com/r9y9/SPTK.jl.git")
 Pkg.build("SPTK)
 ```
+
+## Demo
+
+[Tutorial for SPTK.jl | nbviewer](http://nbviewer.ipython.org/github/r9y9/SPTK.jl/blob/master/doc/Tutorial%20for%20SPTK.jl.ipynb)
