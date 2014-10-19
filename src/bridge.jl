@@ -79,6 +79,32 @@ function fftcep(logsp::Vector{Float64}, order::Int;
     return c
 end
 
+# Matrix input version of mfcc. For given audio frames, this function returns
+# mfcc spectrogram.
+function mfcc(x::Matrix{Float64}, order::Int=20, samplerate::Int=16000;
+              α::Float64=0.97,
+              eps::Float64=1.0, numfilterbunks::Int=20, cepslift::Int=22,
+              usedft::Bool=false, usehamming::Bool=true,
+              czero::Bool=false, power::Bool=false)
+    rows = order
+    if czero
+        rows += 1
+    end
+    if power
+        rows += 1
+    end
+
+    const T = size(x, 2)
+    ccs = Array(Float64, rows, T)
+    for t=1:T
+        ccs[:,t] = mfcc(x[:,t], order, samplerate,
+                        α=α, eps=eps, numfilterbunks=numfilterbunks,
+                        cepslift=cepslift, usedft=usedft,
+                        usehamming=usehamming, czero=czero, power=power)
+    end
+    return ccs
+end
+
 # mfcc computes Mel-Frequency Cepstrum Coefficients using DCT.
 function mfcc(x::Vector{Float64}, order::Int=20, samplerate::Int=16000;
               α::Float64=0.97,
