@@ -1,6 +1,3 @@
-using SPTK
-using Base.Test
-
 function mlsadf_test()
     srand(98765)
     dummy_input = rand(1024)
@@ -36,8 +33,6 @@ function synthesis()
     result = synthesis!(g, dummy_input, dummy_ceps, 0.41, 80, gamma)
     @test !any(isnan(result))
 end
-
-# TODO test for real data
 
 mlsadf_test()
 synthesis()

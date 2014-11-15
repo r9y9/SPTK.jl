@@ -1,6 +1,3 @@
-using SPTK
-using Base.Test
-
 # Just check no segumentation fault happen
 function check_no_segfault()
     # Create dummy variables

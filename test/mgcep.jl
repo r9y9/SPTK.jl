@@ -1,6 +1,3 @@
-using SPTK
-using Base.Test
-
 # MGCep analysis when gamma = 0, MGCep analysis is corresponds to MCep analysis
 function mgcep_as_special_case_of_mcep()
   srand(20121)
