@@ -12,7 +12,7 @@ function mcep(x::Vector{Float64}, order::Int=40, α::Float64=0.41;
            Float64, Int, Int, Float64, Int, Float64, Float64, Int),
           x, length(x), mc, order, α,
           iter1, iter2, dd, etype, e, f, itype)
-    return mc
+    mc
 end
 
 # mgcep performs Mel log-generalized cepstrum analysis.
@@ -51,7 +51,7 @@ function mgcep(x::Vector{Float64}, order::Int=40,
         mgc = [mgc[1], mgc[2:end]*γ]
     end
 
-    return mgc
+    mgc
 end
 
 # uels performs unbiased estimation of target log spectrum.
@@ -64,7 +64,7 @@ function uels(x::Vector{Float64}, order::Int;
            Float64, Float64, Int),
           x, length(x), c, order,
           iter1, iter2, dd, etype, e, f, itype)
-    return c
+    c
 end
 
 # fftcep computes cepstrum from log spectrum (that can be computed using FFT).
@@ -75,8 +75,7 @@ function fftcep(logsp::Vector{Float64}, order::Int;
     ccall((:fftcep, libSPTK), Void,
           (Ptr{Float64}, Int64, Ptr{Float64}, Int64, Int64, Float64),
           logsp, length(logsp), c, length(c), itr, accelerationf)
-
-    return c
+    c
 end
 
 # Matrix input version of mfcc. For given audio frames, this function returns
@@ -102,7 +101,7 @@ function mfcc(x::Matrix{Float64}, order::Int=20, samplerate::Int=16000;
                         cepslift=cepslift, usedft=usedft,
                         usehamming=usehamming, czero=czero, power=power)
     end
-    return ccs
+    ccs
 end
 
 # mfcc computes Mel-Frequency Cepstrum Coefficients using DCT.
@@ -139,7 +138,7 @@ function mfcc(x::Vector{Float64}, order::Int=20, samplerate::Int=16000;
         cc = cc[1:endof(cc)-1]
     end
 
-    return cc
+    cc
 end
 
 # mc2b converts mel-cepstrum to MLSA filter coefficients.
@@ -148,7 +147,7 @@ function mc2b(mc::Vector{Float64}, α::Float64=0.41)
     b = zeros(length(mc))
     ccall((:mc2b, libSPTK), Void, (Ptr{Float64}, Ptr{Float64}, Int, Float64),
           mc, b, order, α)
-    return b
+    b
 end
 
 # b2mc converts MLSA filter coefficients to Mel-Cepstrum.
@@ -157,7 +156,7 @@ function b2mc(b::Vector{Float64}, α::Float64=0.41)
     mc = zeros(length(b))
     ccall((:b2mc, libSPTK), Void, (Ptr{Float64}, Ptr{Float64}, Int, Float64),
           b, mc, order, α)
-    return mc
+    mc
 end
 
 # c2ir converts cepstrum to impulse response.
@@ -165,7 +164,7 @@ function c2ir(c::Vector{Float64}, len::Int)
     h = zeros(len)
     ccall((:c2ir, libSPTK), Void, (Ptr{Float64}, Int, Ptr{Float64}, Int),
           c, length(c), h, len)
-    return h
+    h
 end
 
 # gc2gc performs conversion between generalized cepstrum.
@@ -175,7 +174,7 @@ function gc2gc(c1::Vector{Float64}, γ₁::Float64, m2::Int, γ₂::Float64)
     ccall((:gc2gc, libSPTK), Void, (Ptr{Float64}, Int, Float64,
                                       Ptr{Float64}, Int, Float64),
           c1, m1, γ₁, c2, m2, γ₂)
-    return c2
+    c2
 end
 
 # gnorm performs cepstrum gain normailzation
@@ -185,7 +184,7 @@ function gnorm(c::Vector{Float64}, γ::Float64)
     ccall((:gnorm, libSPTK), Void, (Ptr{Float64}, Ptr{Float64},
                                       Int, Float64),
           c, normalizedC, m, γ)
-    return normalizedC
+    normalizedC
 end
 
 # ignorm performs inverse cepstrum gain normailzation
@@ -195,7 +194,7 @@ function ignorm(normalizedC::Vector{Float64}, γ::Float64)
     ccall((:gnorm, libSPTK), Void, (Ptr{Float64}, Ptr{Float64},
                                       Int, Float64),
          normalizedC, c, m, γ)
-    return c
+    c
 end
 
 # freqt performs frequency tranformation on cepstrum. It can be used to
@@ -206,7 +205,7 @@ function freqt(c::Vector{Float64}, order::Int, α::Float64)
     ccall((:freqt, libSPTK), Void,
           (Ptr{Float64}, Int, Ptr{Float64}, Int, Float64),
           c, org_order, transformed, order, α)
-    return transformed
+    transformed
 end
 
 # mgc2mgc converts between mel log-generalized cesptrum.
@@ -217,7 +216,7 @@ function mgc2mgc(c1::Vector{Float64}, α₁::Float64, γ₁::Float64,
     ccall((:mgc2mgc, libSPTK), Void, (Ptr{Float64}, Int, Float64, Float64,
                                         Ptr{Float64}, Int, Float64, Float64),
           c1, m1, α₁, γ₁, c2, m2, α₂, γ₂)
-    return c2
+    c2
 end
 
 # swipe performs fundamental frequency (f0) estimation based on
@@ -232,7 +231,7 @@ function swipe(x::Vector{Float64}, samplerate::Int, hopsize::Int=80;
            Float64, Int),
           x, f0, length(x), samplerate, hopsize,
           min, max, st, otype)
-    return f0
+    f0
 end
 
 # mlsadf performs Mel Log Spectrum Approximation (MLSA) digital filtering.

@@ -18,7 +18,7 @@ function filter!(m::MLSADF, x::Real, b::Vector{Float64}, α::Float64)
     order == m.order ||
         throw(DimensionMismatch("Order of mel-cepstrum may be wrong."))
 
-    return mlsadf(float64(x), b, α, m.pd, m.delay)
+    mlsadf(float64(x), b, α, m.pd, m.delay)
 end
 
 # MGLSADF represents a Mel Generalized Log Spectrum Approximation (MGLSA)
@@ -40,7 +40,7 @@ function filter!(m::MGLSADF, x::Real, b::Vector{Float64}, α::Float64)
     order == m.order ||
         throw(DimensionMismatch("Order of mel generalized cepstrum may be wrong."))
 
-    return mglsadf(float64(x), b, α, m.stage, m.delay)
+    mglsadf(float64(x), b, α, m.stage, m.delay)
 end
 
 # synthesis_one_frame! generates speech waveform for one frame speech signal
@@ -66,7 +66,7 @@ function synthesis_one_frame!(f::WaveformGenerationFilter,
         interpolated_coef += slope
     end
 
-    return part_of_speech
+    part_of_speech
 end
 
 # Special case
@@ -102,7 +102,7 @@ function synthesis!(f::WaveformGenerationFilter,
         synthesized[s:e] = part_of_speech
     end
 
-    return synthesized
+    synthesized
 end
 
 # Special case

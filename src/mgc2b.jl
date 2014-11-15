@@ -13,5 +13,5 @@ function mgc2b(mgc::Vector{Float64}, α::Float64, γ::Float64)
     b[1] = log(b[1])
     b[2:end] *= γ
 
-    return b
+    b
 end
