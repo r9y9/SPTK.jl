@@ -3,9 +3,11 @@ module SPTK
 # Julia wrapper for Speech signal Processing Toolkit (SPTK).
 #
 # The original SPTK: http://sp-tk.sourceforge.net/
+# Note that the SPTK.jl is based on the slightly modified SPTK
+# https://github.com/r9y9/SPTK
 
-# (Mel-) Cepstrum related analysis
 export
+    # (Mel-) Cepstrum related analysis
     mcep,
     mgcep,
     uels,
