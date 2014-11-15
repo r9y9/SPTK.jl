@@ -224,8 +224,8 @@ end
 function swipe(x::Vector{Float64}, samplerate::Int, hopsize::Int=80;
                min::Float64=50.0, max::Float64=800.0,
                st::Float64=0.3, otype::Int=1)
-    expectedlen = length(x)/hopsize + 1
-    f0 = zeros(int(expectedlen))
+    expectedlen = div(length(x), hopsize) + 1
+    f0 = zeros(expectedlen)
     ccall((:swipe, libSPTK), Void,
           (Ptr{Float64}, Ptr{Float64}, Int, Int, Int, Float64, Float64,
            Float64, Int),
