@@ -28,7 +28,7 @@ export
 
     # Waveform generation filters
     mlsadf,
-    mglsadf
+    mglsadf,
 
     # Waveform generation filters (more convenient types and methods)
     MLSADF,
