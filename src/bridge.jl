@@ -191,7 +191,7 @@ end
 function ignorm(normalizedC::Vector{Float64}, γ::Float64)
     c = zeros(length(normalizedC))
     m = length(normalizedC)-1
-    ccall((:gnorm, libSPTK), Void, (Ptr{Float64}, Ptr{Float64},
+    ccall((:ignorm, libSPTK), Void, (Ptr{Float64}, Ptr{Float64},
                                       Int, Float64),
          normalizedC, c, m, γ)
     c
