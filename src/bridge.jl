@@ -170,7 +170,7 @@ end
 # gc2gc performs conversion between generalized cepstrum.
 function gc2gc(c1::Vector{Float64}, γ₁::Float64, m2::Int, γ₂::Float64)
     m1 = length(c1) - 1
-    c2 = zeros(m2*+1)
+    c2 = zeros(m2+1)
     ccall((:gc2gc, libSPTK), Void, (Ptr{Float64}, Int, Float64,
                                       Ptr{Float64}, Int, Float64),
           c1, m1, γ₁, c2, m2, γ₂)
