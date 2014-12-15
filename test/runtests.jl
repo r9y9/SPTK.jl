@@ -1,9 +1,10 @@
 using SPTK
 using Base.Test
 
-for fname in ["call",
+for fname in [
+              "call",
               "mgcep",
-              "mfcc",
-              "waveform_generation"]
+              "mfcc"
+    ]
     include(string(fname, ".jl"))
 end

@@ -16,7 +16,6 @@ export
     mfcc,
 
     # Conversions
-    mgc2b,
     mc2b,
     b2mc,
     c2ir,
@@ -31,14 +30,7 @@ export
 
     # Waveform generation filters
     mlsadf,
-    mglsadf,
-
-    # Waveform generation filters (more convenient types and methods)
-    MLSADF,
-    MGLSADF,
-    filter!,
-    synthesis_one_frame!,
-    synthesis!
+    mglsadf
 
 deps = joinpath(Pkg.dir("SPTK"), "deps", "deps.jl")
 if isfile(deps)
@@ -47,9 +39,7 @@ else
     error("SPTK not properly installed. Please run Pkg.build(\"SPTK\")")
 end
 
-for fname in ["bridge",
-              "mgc2b",
-              "waveform_generation"]
+for fname in ["bridge"]
     include(string(fname, ".jl"))
 end
 
