@@ -9,6 +9,7 @@ function check_no_segfault()
 
     # (Mel-) Cepstrum related analysis
     mcep(dummy_input, 20, 0.41)
+    gcep(dummy_input, 20, -1/4)
     mgcep(dummy_input, 20, 0.41, -1/4)
     uels(dummy_input, 20)
     fftcep(dummy_input, 20)

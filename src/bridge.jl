@@ -15,6 +15,20 @@ function mcep(x::Vector{Float64}, order::Int=40, α::Float64=0.41;
     mc
 end
 
+# gcep performs generalized cesptrum analysis.
+function gcep(x::Vector{Float64}, order::Int, γ::Float64;
+              iter1::Int=2, iter2::Int=30, d::Float64=0.001,
+              etype::Int=0, e::Float64=0.0, f::Float64=0.000001,
+              itype::Int=0)
+    gc = zeros(order+1)
+    ccall((:gcep, libSPTK), Int,
+          (Ptr{Float64}, Int, Ptr{Float64}, Int,
+           Float64, Int, Int, Float64, Int, Float64, Float64, Int),
+          x, length(x), gc, order, γ,
+          iter1, iter2, d, etype, e, f, itype)
+    gc
+end
+
 # mgcep performs Mel log-generalized cepstrum analysis.
 function mgcep(x::Vector{Float64}, order::Int=40,
                α::Float64=0.41, γ::Float64=0.0;

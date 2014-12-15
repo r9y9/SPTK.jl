@@ -9,6 +9,7 @@ module SPTK
 export
     # (Mel-) Cepstrum related analysis
     mcep,
+    gcep,
     mgcep,
     uels,
     fftcep,
