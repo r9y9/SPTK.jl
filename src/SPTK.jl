@@ -30,7 +30,9 @@ export
 
     # Waveform generation filters
     mlsadf,
-    mglsadf
+    mlsadf_delay,
+    mglsadf,
+    mglsadf_delay
 
 deps = joinpath(Pkg.dir("SPTK"), "deps", "deps.jl")
 if isfile(deps)

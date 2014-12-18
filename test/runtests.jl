@@ -34,15 +34,13 @@ function check_no_segfault()
     # mlsadf
     pd::Int = 5
     order::Int = length(dummy_ceps)-1
-    # see mlsadf.c in original SPTK for this magic allocation
-    delay_mlsadf = zeros(3*(pd+1) + pd*(order+2))
-    mlsadf(dummy_input[1], dummy_ceps, 0.41, pd, delay_mlsadf)
+    d = mlsadf_delay(order, pd)
+    mlsadf(dummy_input[1], dummy_ceps, 0.41, pd, d)
 
     # mlgasdf
     stage = 12
-    # see mglsadf.c in original SPTK for this magic allocation
-    delay_mglsadf = zeros((order+1)*stage)
-    mglsadf(dummy_input[1], dummy_ceps, 0.41, stage, delay_mglsadf)
+    d = mglsadf_delay(order, stage)
+    mglsadf(dummy_input[1], dummy_ceps, 0.41, stage, d)
 end
 
 function testmfcc()

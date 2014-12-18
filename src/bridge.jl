@@ -256,6 +256,9 @@ function mlsadf(x::Float64, b::Vector{Float64}, α::Float64, pd::Int,
           x, b, length(b)-1, α, pd, delay)
 end
 
+# see mlsadf.c in original SPTK for this magic allocation
+mlsadf_delay(order::Int, pd::Int) = zeros(3*(pd+1) + pd*(order+2))
+
 # mglsadf performs Mel Generalized Log Spectrum Approximation (MGLSA) digital
 # filtering.
 function mglsadf(x::Float64, b::Vector{Float64}, α::Float64, stage::Int,
@@ -264,3 +267,6 @@ function mglsadf(x::Float64, b::Vector{Float64}, α::Float64, stage::Int,
           (Float64, Ptr{Float64}, Int, Float64, Int, Ptr{Float64}),
           x, b, length(b)-1, α, stage, delay)
 end
+
+# see mglsadf.c in original SPTK for this magic allocation
+mglsadf_delay(order::Int, stage::Int) = zeros((order+1)*stage)
