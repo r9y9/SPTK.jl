@@ -5,14 +5,14 @@ using BinDeps
 deps = [
         sptk = library_dependency("libSPTK")
         ]
-        
-const version = "3.7.0"
+
+const version = "3.8.0"
 
 provides(Sources,
          URI("https://github.com/r9y9/SPTK/archive/v$(version).tar.gz"),
          sptk,
          unpacked_dir="SPTK-$(version)")
-         
+
 prefix = joinpath(BinDeps.depsdir(sptk), "usr")
 srcdir = joinpath(BinDeps.depsdir(sptk), "src", "SPTK-$(version)")
 
