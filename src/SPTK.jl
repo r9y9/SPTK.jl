@@ -20,6 +20,7 @@ export
     b2mc,
     c2ir,
     c2ndps,
+    ndps2c,
     gc2gc,
     gnorm,
     ignorm,

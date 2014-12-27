@@ -191,6 +191,15 @@ function c2ndps(c::Vector{Float64}, fftlen::Int)
     ndps[1:div(fftlen,2)+1]
 end
 
+# c2ndps converts negative derivative of phase spectrum to cepstrum.
+function ndps2c(ndps::Vector{Float64}, order::Int)
+    fftlen = (length(ndps)-1)*2 # assuming the length of npds is fftsize/2+1
+    c = zeros(order+1)
+    ccall((:ndps2c, libSPTK), Void, (Ptr{Float64}, Int, Ptr{Float64}, Int),
+          ndps, fftlen, c, order)
+    c
+end
+
 # gc2gc performs conversion between generalized cepstrum.
 function gc2gc(c1::Vector{Float64}, γ₁::Float64, m2::Int, γ₂::Float64)
     m1 = length(c1) - 1

@@ -66,8 +66,10 @@ function test_mgcep_conversion()
     @test length(c) == length(dummy_ceps)
     c = c2ir(dummy_ceps, 512)
     @test length(c) == 512
-    c = c2ndps(dummy_ceps, 512)
-    @test length(c) == div(512, 2) + 1
+    ndps = c2ndps(dummy_ceps, 512)
+    @test length(ndps) == div(512, 2) + 1
+    c = ndps2c(ndps, 20)
+    @test length(c) == 21
     c = gc2gc(dummy_ceps, 0.0, 15, -1/4)
     @test length(c) == 16
     c = gnorm(dummy_ceps, -1/4)
