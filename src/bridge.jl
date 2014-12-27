@@ -252,6 +252,18 @@ function mgc2mgc(c1::Vector{Float64}, α₁::Float64, γ₁::Float64,
     c2
 end
 
+# mgclsp2sp converts mgc-lsp to spectrum.
+function mgclsp2sp(lsp::Vector{Float64}, α::Float64, γ::Float64,
+                   fftlen::Int;
+                   gain::Bool=true)
+    sp = zeros(div(fftlen, 2) + 1)
+    m = gain ? length(lsp)-1 : length(lsp)
+    ccall((:mgclsp2sp, libSPTK), Void, (Float64, Float64, Ptr{Float64}, Int,
+                                        Ptr{Float64}, Int, Int),
+          α, γ, lsp, m, sp, length(sp), int(gain))
+    sp
+end
+
 # swipe performs fundamental frequency (f0) estimation based on
 # SWIPE - A Saw-tooth Waveform Inspired Pitch Estimation
 function swipe(x::Vector{Float64}, samplerate::Int, hopsize::Int=80;

@@ -21,6 +21,9 @@ function test_mgcep()
     mc = mcep(dummy_input, 20, 0.41)
     mgc = mgcep(dummy_input, 20, 0.41, 0.0)
     @test_approx_eq_eps mc mgc 1.0e-4
+
+    sp = mgclsp2sp(dummy_input, 0.41, -1/4, 512)
+    @test length(sp) == 256+1
 end
 
 # TODO

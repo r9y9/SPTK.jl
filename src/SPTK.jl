@@ -26,6 +26,7 @@ export
     ignorm,
     freqt,
     mgc2mgc,
+    mgclsp2sp,
 
     # F0 estimation
     swipe,
