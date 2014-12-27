@@ -70,7 +70,7 @@ end
 
 # uels performs unbiased estimation of target log spectrum.
 function uels(x::Vector{Float64}, order::Int;
-              iter1::Int=2, iter2::Int=30, dd::Float64=0.001, 
+              iter1::Int=2, iter2::Int=30, dd::Float64=0.001,
               etype::Int=0, e::Float64=0.0, f::Float64=0.0001, itype::Int=0)
     c = zeros(order+1)
     ccall((:uels, libSPTK), Int,
@@ -179,6 +179,16 @@ function c2ir(c::Vector{Float64}, len::Int)
     ccall((:c2ir, libSPTK), Void, (Ptr{Float64}, Int, Ptr{Float64}, Int),
           c, length(c), h, len)
     h
+end
+
+
+# c2ndps converts cepstrum to negative derivative of phase spectrum.
+function c2ndps(c::Vector{Float64}, fftlen::Int)
+    ndps = zeros(fftlen)
+    m = length(c)-1
+    ccall((:c2ndps, libSPTK), Void, (Ptr{Float64}, Int, Ptr{Float64}, Int),
+          c, m, ndps, fftlen)
+    ndps[1:div(fftlen,2)+1]
 end
 
 # gc2gc performs conversion between generalized cepstrum.

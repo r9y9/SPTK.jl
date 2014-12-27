@@ -21,6 +21,8 @@ function check_no_segfault()
     mc2b(dummy_ceps, 0.41)
     b2mc(dummy_ceps, 0.41)
     c2ir(dummy_ceps, 512)
+    c = c2ndps(dummy_ceps, 512)
+    @test length(c) == 256 + 1
     gc2gc(dummy_ceps, 0.0, 15, -1/4)
     gnorm(dummy_ceps, -1/4)
     ignorm(dummy_ceps, -1/4)
