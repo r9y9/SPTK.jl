@@ -3,7 +3,7 @@
 
 # mcep preforms Mel-Cepstrum analysis.
 function mcep(x::Vector{Float64}, order::Int=40, α::Float64=0.41;
-              iter1::Int=2, iter2::Int=30,
+              miniter::Int=2, maxiter::Int=30,
               dd::Float64=0.001, etype::Int=0, e::Float64=0.0,
               f::Float64=0.0001, itype::Int=0)
     mc = zeros(order+1)
@@ -11,13 +11,13 @@ function mcep(x::Vector{Float64}, order::Int=40, α::Float64=0.41;
           (Ptr{Float64}, Int, Ptr{Float64}, Int,
            Float64, Int, Int, Float64, Int, Float64, Float64, Int),
           x, length(x), mc, order, α,
-          iter1, iter2, dd, etype, e, f, itype)
+          miniter, maxiter, dd, etype, e, f, itype)
     mc
 end
 
 # gcep performs generalized cesptrum analysis.
 function gcep(x::Vector{Float64}, order::Int, γ::Float64;
-              iter1::Int=2, iter2::Int=30, d::Float64=0.001,
+              miniter::Int=2, maxiter::Int=30, d::Float64=0.001,
               etype::Int=0, e::Float64=0.0, f::Float64=0.000001,
               itype::Int=0)
     gc = zeros(order+1)
@@ -25,7 +25,7 @@ function gcep(x::Vector{Float64}, order::Int, γ::Float64;
           (Ptr{Float64}, Int, Ptr{Float64}, Int,
            Float64, Int, Int, Float64, Int, Float64, Float64, Int),
           x, length(x), gc, order, γ,
-          iter1, iter2, d, etype, e, f, itype)
+          miniter, maxiter, d, etype, e, f, itype)
     gc
 end
 
@@ -33,7 +33,7 @@ end
 function mgcep(x::Vector{Float64}, order::Int=40,
                α::Float64=0.41, γ::Float64=0.0;
                n::Int=length(x)-1,
-               iter1::Int=2, iter2::Int=30,
+               miniter::Int=2, maxiter::Int=30,
                dd::Float64=0.001, etype::Int=0, e::Float64=0.0,
                f::Float64=0.0001, itype::Int=0, otype::Int=0)
     mgc = zeros(order+1)
@@ -41,7 +41,7 @@ function mgcep(x::Vector{Float64}, order::Int=40,
           (Ptr{Float64}, Int, Ptr{Float64}, Int, Float64, Float64,
            Int, Int, Int, Float64, Int, Float64, Float64, Int),
           x, length(x), mgc, order, α, γ, n,
-          iter1, iter2, dd, etype, e, f, itype)
+          miniter, maxiter, dd, etype, e, f, itype)
 
     if otype == 0 || otype == 1 || otype == 2 || otype == 4
         ccall((:ignorm, libSPTK), Void, (Ptr{Float64}, Ptr{Float64},
@@ -70,14 +70,14 @@ end
 
 # uels performs unbiased estimation of target log spectrum.
 function uels(x::Vector{Float64}, order::Int;
-              iter1::Int=2, iter2::Int=30, dd::Float64=0.001,
+              miniter::Int=2, maxiter::Int=30, dd::Float64=0.001,
               etype::Int=0, e::Float64=0.0, f::Float64=0.0001, itype::Int=0)
     c = zeros(order+1)
     ccall((:uels, libSPTK), Int,
           (Ptr{Float64}, Int, Ptr{Float64}, Int, Int, Int, Float64, Int,
            Float64, Float64, Int),
           x, length(x), c, order,
-          iter1, iter2, dd, etype, e, f, itype)
+          miniter, maxiter, dd, etype, e, f, itype)
     c
 end
 
