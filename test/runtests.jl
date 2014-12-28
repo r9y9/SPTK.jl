@@ -24,16 +24,11 @@ function test_mgcep()
 
     sp = mgclsp2sp(dummy_input, 0.41, -1/4, 512)
     @test length(sp) == 256+1
-end
 
-# TODO
-function fail_tests()
-    srand(98765)
-    dummy_input = rand(1024)
-
-    # segfaults
-    mc = mcep(dummy_input, 40, 0.41)
-    mgc = mgcep(dummy_input, 20, 0.41, 0.0)
+    # refs #5
+    # change order 20 -> 40
+    mcep(dummy_input, 40, 0.41)
+    mgcep(dummy_input, 40, 0.41, 0.0)
 end
 
 function test_mfcc()
