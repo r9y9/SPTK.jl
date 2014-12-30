@@ -16,7 +16,7 @@ function mcep(x::Vector{Float64}, order::Int=40, α::Float64=0.41;
 end
 
 # gcep performs generalized cesptrum analysis.
-function gcep(x::Vector{Float64}, order::Int, γ::Float64;
+function gcep(x::Vector{Float64}, order::Int=40, γ::Float64=0.0;
               miniter::Int=2, maxiter::Int=30, d::Float64=0.001,
               etype::Int=0, e::Float64=0.0, f::Float64=0.000001,
               itype::Int=0)
