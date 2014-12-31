@@ -324,27 +324,10 @@ for (f, wtype) in [(:blackman, 0),
                    (:bartlett, 3),
                    (:trapezoid, 4),
                    (:rectangular, 5)]
-    fi = symbol(string("$f", "!"))
     @eval begin
-        function $fi(x::Vector{Float64}; normalize::Int=0)
-            _window!(WindowType($wtype), x; normalize=normalize)
-        end
-        function $f(x::Vector{Float64}; normalize::Int=0)
-            y = copy(x)
-            $fi(y, normalize=normalize)
-        end
-        function $fi(x::Matrix{Float64}; kargs...)
-            for i=1:size(x, 2)
-                x[:, i] = $fi(x[:, i]; kargs...)
-            end
-            x
-        end
-        function $f(x::Matrix{Float64}; kargs...)
-            ret = Array(eltype(x), size(x)) # same size
-            for i=1:size(x, 2)
-                ret[:, i] = $f(x[:, i]; kargs...)
-            end
-            ret
+        function $f(n::Integer; normalize::Int=0)
+            y = ones(Float64, n)
+            _window!(WindowType($wtype), y; normalize=normalize)
         end
     end
 end

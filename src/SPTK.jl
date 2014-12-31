@@ -38,17 +38,11 @@ export
     mglsadf_delay,
 
     # window functions
-    blackman!,
     blackman,
-    hamming!,
     hamming,
-    hanning!,
     hanning,
-    bartlett!,
     bartlett,
-    trapezoid!,
     trapezoid,
-    rectangular!,
     rectangular
 
 deps = joinpath(Pkg.dir("SPTK"), "deps", "deps.jl")
