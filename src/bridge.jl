@@ -302,6 +302,53 @@ end
 # see mglsadf.c in original SPTK for this magic allocation
 mglsadf_delay(order::Int, stage::Int) = zeros((order+1)*stage)
 
+immutable WindowType
+    w::Int
+end
+
+function _window!(wtype::WindowType, x::Vector{Float64}; normalize::Int=0)
+    # normalize: Int
+    #    0 : don't normalize
+    #    1 : normalize by power
+    #    2 : normalize by magnitude
+    @assert normalize == 0 || normalize == 1 || normalize == 2
+    g = ccall((:window, libSPTK), Float64,
+              (WindowType, Ptr{Float64}, Int, Int), wtype, x, length(x),
+              normalize)
+    x
+end
+
+for (f, wtype) in [(:blackman, 0),
+                   (:hamming, 1),
+                   (:hanning, 2),
+                   (:bartlett, 3),
+                   (:trapezoid, 4),
+                   (:rectangular, 5)]
+    fi = symbol(string("$f", "!"))
+    @eval begin
+        function $fi(x::Vector{Float64}; normalize::Int=0)
+            _window!(WindowType($wtype), x; normalize=normalize)
+        end
+        function $f(x::Vector{Float64}; normalize::Int=0)
+            y = copy(x)
+            $fi(y, normalize=normalize)
+        end
+        function $fi(x::Matrix{Float64}; kargs...)
+            for i=1:size(x, 2)
+                x[:, i] = $fi(x[:, i]; kargs...)
+            end
+            x
+        end
+        function $f(x::Matrix{Float64}; kargs...)
+            ret = Array(eltype(x), size(x)) # same size
+            for i=1:size(x, 2)
+                ret[:, i] = $f(x[:, i]; kargs...)
+            end
+            ret
+        end
+    end
+end
+
 # extend functions for matrix input
 for f in [:mcep,
           :gcep,
