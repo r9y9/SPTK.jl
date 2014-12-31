@@ -171,6 +171,8 @@ function test_waveform_generation()
 end
 
 function test_windows()
+    println("testing: Window functions")
+
     srand(98765)
     x = rand(1024)
     xmat = rand(1024, 10)
