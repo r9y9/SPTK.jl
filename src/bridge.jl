@@ -241,6 +241,15 @@ function freqt(c::Vector{Float64}, order::Int, α::Float64)
     transformed
 end
 
+function frqtr(c::Vector{Float64}, order::Int, α::Float64)
+    org_order = length(c)-1
+    transformed = zeros(order+1)
+    ccall((:frqtr, libSPTK), Void,
+          (Ptr{Float64}, Int, Ptr{Float64}, Int, Float64),
+          c, org_order, transformed, order, α)
+    transformed
+end
+
 # mgc2mgc converts between mel log-generalized cesptrum.
 function mgc2mgc(c1::Vector{Float64}, α₁::Float64, γ₁::Float64,
                  m2::Int, α₂::Float64, γ₂::Float64)
