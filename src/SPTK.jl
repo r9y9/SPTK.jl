@@ -43,7 +43,10 @@ export
     hanning,
     bartlett,
     trapezoid,
-    rectangular
+    rectangular,
+
+    # lib
+    theq
 
 deps = joinpath(Pkg.dir("SPTK"), "deps", "deps.jl")
 if isfile(deps)

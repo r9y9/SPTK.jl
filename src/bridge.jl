@@ -341,6 +341,13 @@ for (f, wtype) in [(:blackman, 0),
     end
 end
 
+function theq(t::Vector{Float64}, h::Vector{Float64}, a::Vector{Float64},
+              b::Vector{Float64}, n::Int, e::Float64)
+    ccall((:theq, libSPTK), Int,
+          (Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Int,
+           Float64), t, h, a, b, n, e)
+end
+
 # extend functions for matrix input
 for f in [:mcep,
           :gcep,
