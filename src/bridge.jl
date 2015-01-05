@@ -348,6 +348,15 @@ function theq(t::Vector{Float64}, h::Vector{Float64}, a::Vector{Float64},
            Float64), t, h, a, b, n, e)
 end
 
+function b2c(c::Vector{Float64}, order::Int, α::Float64)
+    org_order = length(c)-1
+    transformed = zeros(order+1)
+    ccall((:b2c, libSPTK), Void,
+          (Ptr{Float64}, Int, Ptr{Float64}, Int, Float64),
+          c, org_order, transformed, order, α)
+    transformed
+end
+
 # extend functions for matrix input
 for f in [:mcep,
           :gcep,
