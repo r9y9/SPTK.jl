@@ -26,6 +26,7 @@ export
     ignorm,
     freqt,
     mgc2mgc,
+    mgc2sp,
     mgclsp2sp,
 
     # F0 estimation

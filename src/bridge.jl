@@ -256,9 +256,24 @@ function mgc2mgc(c1::Vector{Float64}, α₁::Float64, γ₁::Float64,
     c2 = zeros(m2+1)
     m1 = length(c1)-1
     ccall((:mgc2mgc, libSPTK), Void, (Ptr{Float64}, Int, Float64, Float64,
-                                        Ptr{Float64}, Int, Float64, Float64),
+                                      Ptr{Float64}, Int, Float64, Float64),
           c1, m1, α₁, γ₁, c2, m2, α₂, γ₂)
     c2
+end
+
+# mgc2sp converts mel generalized cepstrum to log spectrum
+function mgc2sp(mgc::Vector{Float64}, α::Float64, γ::Float64, fftlen::Int)
+    order = length(mgc)-1
+    sp = Array(Complex{Float64}, fftlen>>1+1)
+    sp_r = zeros(Float64, fftlen)
+    sp_i = zeros(Float64, fftlen)
+    ccall((:mgc2sp, libSPTK), Void,
+          (Ptr{Float64}, Int, Float64, Float64, Ptr{Float64}, Ptr{Float64}, Int),
+          mgc, order, α, γ, sp_r, sp_i, fftlen)
+    for i=1:length(sp)
+        @inbounds sp[i] = Complex(sp_r[i], sp_i[i])
+    end
+    sp
 end
 
 # mgclsp2sp converts mgc-lsp to spectrum.
@@ -374,6 +389,7 @@ for f in [:mcep,
           :ignorm,
           :freqt,
           :mgc2mgc,
+          :mgc2sp,
           :mgclsp2sp,
           ]
     @eval begin

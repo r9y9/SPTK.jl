@@ -130,6 +130,11 @@ function test_mgcep_conversion()
     @test length(c) == 23
     cmat = mgc2mgc(dummy_ceps_mat, 0.41, 0.0, 22, 0.41, -1/4)
     @test size(cmat) == (23, 10)
+
+    sp = mgc2sp(dummy_ceps, 0.41, 0.0, 1024)
+    @test length(sp) == 1024>>1+1
+    spmat = mgc2sp(dummy_ceps_mat, 0.41, 0.0, 1024)
+    @test size(spmat) == (1024>>1+1, 10)
 end
 
 function test_f0()
