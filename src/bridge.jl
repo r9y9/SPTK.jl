@@ -372,7 +372,7 @@ function b2c(c::Vector{Float64}, order::Int, α::Float64)
     transformed
 end
 
-# extend functions for matrix input
+# extend real-vector to real-vector transformation for matrix input
 for f in [:mcep,
           :gcep,
           :mgcep,
@@ -389,13 +389,29 @@ for f in [:mcep,
           :ignorm,
           :freqt,
           :mgc2mgc,
-          :mgc2sp,
           :mgclsp2sp,
           ]
     @eval begin
         function $f(x::Matrix{Float64}, args...; kargs...)
             r = $f(x[:, 1], args...; kargs...)
             ret = Array(eltype(x), size(r, 1), size(x, 2))
+            for i = 1:length(r)
+                @inbounds ret[i, 1] = r[i]
+            end
+            for i = 2:size(x, 2)
+                @inbounds ret[:, i] = $f(x[:, i], args...; kargs...)
+            end
+            ret
+        end
+    end
+end
+
+# extend vector to complex vector transformation for matrix input
+for f in [:mgc2sp]
+    @eval begin
+        function $f(x::Matrix{Float64}, args...; kargs...)
+            r = $f(x[:, 1], args...; kargs...)
+            ret = Array(Complex{eltype(x)}, size(r, 1), size(x, 2))
             for i = 1:length(r)
                 @inbounds ret[i, 1] = r[i]
             end
