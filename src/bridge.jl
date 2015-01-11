@@ -188,7 +188,7 @@ function c2ndps(c::Vector{Float64}, fftlen::Int)
     m = length(c)-1
     ccall((:c2ndps, libSPTK), Void, (Ptr{Float64}, Int, Ptr{Float64}, Int),
           c, m, ndps, fftlen)
-    ndps[1:div(fftlen,2)+1]
+    ndps[1:fftlen>>1+1]
 end
 
 # c2ndps converts negative derivative of phase spectrum to cepstrum.
@@ -280,7 +280,7 @@ end
 function mgclsp2sp(lsp::Vector{Float64}, α::Float64, γ::Float64,
                    fftlen::Int;
                    gain::Bool=true)
-    sp = zeros(div(fftlen, 2) + 1)
+    sp = zeros(fftlen>>1 + 1)
     m = gain ? length(lsp)-1 : length(lsp)
     ccall((:mgclsp2sp, libSPTK), Void, (Float64, Float64, Ptr{Float64}, Int,
                                         Ptr{Float64}, Int, Int),
