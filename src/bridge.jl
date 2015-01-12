@@ -205,9 +205,49 @@ function gc2gc(c1::Vector{Float64}, γ₁::Float64, m2::Int, γ₂::Float64)
     m1 = length(c1) - 1
     c2 = zeros(m2+1)
     ccall((:gc2gc, libSPTK), Void, (Ptr{Float64}, Int, Float64,
-                                      Ptr{Float64}, Int, Float64),
+                                    Ptr{Float64}, Int, Float64),
           c1, m1, γ₁, c2, m2, γ₂)
     c2
+end
+
+function lpc2lsp(lpc::Vector{Float64}, order::Int;
+                 numsp::Int=128,
+                 maxiter::Int=4,
+                 e::Float64=1e-6,
+                 loggain::Bool=false,
+                 otype::Int=0,
+                 fs=nothing
+    )
+    lsp = zeros(Float64, order+1)
+    ccall((:lpc2lsp, libSPTK), Void,
+          (Ptr{Float64}, Ptr{Float64}, Int, Int, Int, Float64),
+          lpc, sub(lsp, 2:length(lsp)), order, numsp, maxiter, e)
+
+    if otype == 0
+        for i=2:length(lsp)
+            @inbounds lsp[i] *= 2π
+        end
+    elseif otype == 2 || otype == 3
+        fs == nothing && error("fs must be specified when otype == 2 or 3")
+        for i=2:length(lsp)
+            @inbounds lsp[i] *= fs
+        end
+    end
+
+    # this is really bad ...
+    if otype == 3
+        for i=2:length(lsp)
+            @inbounds lsp[i] *= 1000.0
+        end
+    end
+
+    if loggain
+        lsp[1] = log(lpc[1])
+    else
+        lsp[1] = lpc[1]
+    end
+
+    lsp
 end
 
 # gnorm performs cepstrum gain normailzation
