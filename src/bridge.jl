@@ -210,6 +210,15 @@ function gc2gc(c1::Vector{Float64}, γ₁::Float64, m2::Int, γ₂::Float64)
     c2
 end
 
+function lpc(x::Vector{Float64}, order::Int;
+             f::Float64=1e-6)
+    a = Array(Float64, order+1)
+    ccall((:lpc, libSPTK), Void,
+          (Ptr{Float64}, Int, Ptr{Float64}, Int, Float64),
+          x, length(x), a, order, f)
+    a
+end
+
 function lpc2lsp(lpc::Vector{Float64}, order::Int;
                  numsp::Int=128,
                  maxiter::Int=4,

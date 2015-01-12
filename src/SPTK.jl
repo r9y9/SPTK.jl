@@ -22,6 +22,7 @@ export
     c2ndps,
     ndps2c,
     gc2gc,
+    lpc,
     lpc2lsp,
     lsp2sp,
     gnorm,
