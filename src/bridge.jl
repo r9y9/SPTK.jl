@@ -214,7 +214,7 @@ function lpc2lsp(lpc::Vector{Float64}, order::Int;
                  numsp::Int=128,
                  maxiter::Int=4,
                  e::Float64=1e-6,
-                 loggain::Bool=false,
+                 loggain::Bool=true,
                  otype::Int=0,
                  fs=nothing
     )
@@ -248,6 +248,15 @@ function lpc2lsp(lpc::Vector{Float64}, order::Int;
     end
 
     lsp
+end
+
+function lsp2sp(lsp::Vector{Float64}, fftlen::Int)
+    # assume lsp has loggain at lsp[1]
+    sp = Array(Float64, fftlen>>1+1)
+    ccall((:lsp2sp, libSPTK), Void,
+          (Ptr{Float64}, Int, Ptr{Float64}, Int, Int),
+          lsp, length(lsp)-1, sp, length(sp), 1)
+    sp
 end
 
 # gnorm performs cepstrum gain normailzation

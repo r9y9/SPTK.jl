@@ -23,6 +23,7 @@ export
     ndps2c,
     gc2gc,
     lpc2lsp,
+    lsp2sp,
     gnorm,
     ignorm,
     freqt,
