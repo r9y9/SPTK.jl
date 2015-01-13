@@ -24,6 +24,7 @@ export
     gc2gc,
     lpc,
     lpc2lsp,
+    lpc2par,
     lsp2sp,
     gnorm,
     ignorm,

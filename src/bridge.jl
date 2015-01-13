@@ -259,6 +259,13 @@ function lpc2lsp(lpc::Vector{Float64}, order::Int;
     lsp
 end
 
+function lpc2par(lpc::Vector{Float64})
+    par = similar(lpc)
+    ccall((:lpc2par, libSPTK), Void, (Ptr{Float64}, Ptr{Float64}, Int),
+          lpc, par, length(lpc)-1)
+    par
+end
+
 function lsp2sp(lsp::Vector{Float64}, fftlen::Int)
     # assume lsp has loggain at lsp[1]
     sp = Array(Float64, fftlen>>1+1)
