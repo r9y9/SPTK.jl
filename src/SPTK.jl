@@ -60,7 +60,7 @@ else
     error("SPTK not properly installed. Please run Pkg.build(\"SPTK\")")
 end
 
-for fname in ["bridge"]
+for fname in ["bridge", "extend"]
     include(string(fname, ".jl"))
 end
 
