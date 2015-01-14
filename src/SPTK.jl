@@ -26,6 +26,7 @@ export
     lpc2lsp,
     lpc2par,
     lsp2sp,
+    lspcheck,
     gnorm,
     ignorm,
     freqt,

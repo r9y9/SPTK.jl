@@ -275,6 +275,12 @@ function lsp2sp(lsp::Vector{Float64}, fftlen::Int)
     sp
 end
 
+function lspcheck(lpc::Vector{Float64})
+    r = ccall((:lspcheck, libSPTK),
+              Int, (Ptr{Float64}, Int), lpc, length(lpc)-1)::Int
+    ifelse(r == 0, true, false)
+end
+
 # gnorm performs cepstrum gain normailzation
 function gnorm(c::Vector{Float64}, γ::Float64)
     normalizedC = zeros(length(c))
