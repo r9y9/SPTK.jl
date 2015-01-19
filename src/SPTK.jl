@@ -38,6 +38,8 @@ export
     swipe,
 
     # Waveform generation filters
+    lmadf,
+    lmadf_delay,
     mlsadf,
     mlsadf_delay,
     mglsadf,

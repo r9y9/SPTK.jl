@@ -374,6 +374,14 @@ function swipe(x::Vector{Float64}, samplerate::Int, hopsize::Int=80;
     f0
 end
 
+function lmadf(x::Float64, b::Vector{Float64}, pd::Int, delay::Vector{Float64})
+    ccall((:lmadf, libSPTK), Float64,
+          (Float64, Ptr{Float64}, Int, Int, Ptr{Float64}),
+          x, b, length(b)-1, pd, delay)
+end
+
+lmadf_delay(order::Int, pd::Int) = zeros(2pd*(order+1))
+
 # mlsadf performs Mel Log Spectrum Approximation (MLSA) digital filtering.
 function mlsadf(x::Float64, b::Vector{Float64}, α::Float64, pd::Int,
                 delay::Vector{Float64})
