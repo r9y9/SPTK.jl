@@ -374,6 +374,14 @@ function swipe(x::Vector{Float64}, samplerate::Int, hopsize::Int=80;
     f0
 end
 
+function poledf(x::Float64, a::Vector{Float64}, delay::Vector{Float64})
+    ccall((:poledf, libSPTK), Float64,
+          (Float64, Ptr{Float64}, Int, Ptr{Float64}),
+          x, a, length(a)-1, delay)
+end
+
+poledf_delay(order::Int) = zeros(order)
+
 function lmadf(x::Float64, b::Vector{Float64}, pd::Int, delay::Vector{Float64})
     ccall((:lmadf, libSPTK), Float64,
           (Float64, Ptr{Float64}, Int, Int, Ptr{Float64}),
