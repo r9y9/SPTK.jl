@@ -23,6 +23,7 @@ export
     ndps2c,
     gc2gc,
     lpc,
+    lpc2c,
     lpc2lsp,
     lpc2par,
     lsp2sp,

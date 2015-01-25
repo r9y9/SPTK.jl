@@ -219,6 +219,14 @@ function lpc(x::Vector{Float64}, order::Int;
     a
 end
 
+function lpc2c(a::Vector{Float64})
+    order = length(a) - 1
+    c = Array(Float64, order+1)
+    ccall((:lpc2c, libSPTK), Void,
+          (Ptr{Float64}, Int, Ptr{Float64}, Int), a, order, c, order)
+    c
+end
+
 function lpc2lsp(lpc::Vector{Float64}, order::Int;
                  numsp::Int=128,
                  maxiter::Int=4,
