@@ -1,7 +1,7 @@
 using SPTK
 using Base.Test
 
-function test_mgcep()
+let
     println("testing: Mel-generalized cesptrum analysis")
     srand(98765)
     dummy_input = rand(1024)
@@ -46,7 +46,7 @@ function test_mgcep()
     mgcep(dummy_input, 40, 0.41, 0.0)
 end
 
-function test_mfcc()
+let
     println("testing: MFCC")
     srand(20121)
     dummy = rand(1024)
@@ -71,7 +71,7 @@ function test_mfcc()
     @test size(ccmat) == (14, 10)
 end
 
-function test_mgcep_conversion()
+let
     println("testing: Mel-genearlized cepstrum conversions")
 
     srand(98765)
@@ -126,6 +126,11 @@ function test_mgcep_conversion()
     cmat = freqt(dummy_ceps_mat, 22, 0.41)
     @test size(cmat) == (23, 10)
 
+    c = SPTK.frqtr(dummy_ceps, 22, 0.41)
+    @test length(c) == 23
+    cmat = SPTK.frqtr(dummy_ceps_mat, 22, 0.41)
+    @test size(cmat) == (23, 10)
+
     c = mgc2mgc(dummy_ceps, 0.41, 0.0, 22, 0.41, -1/4)
     @test length(c) == 23
     cmat = mgc2mgc(dummy_ceps_mat, 0.41, 0.0, 22, 0.41, -1/4)
@@ -137,7 +142,38 @@ function test_mgcep_conversion()
     @test size(spmat) == (1024>>1+1, 10)
 end
 
-function test_f0()
+let
+    println("testing: LPC")
+
+    srand(98765)
+    dummy_input = rand(1024)
+
+    l = lpc(dummy_input, 20)
+    @test length(l) == 21
+    @test !any(isnan(l))
+
+    println("testing: LPC conversions")
+
+    c = lpc2c(l)
+    @test length(c) == length(l)
+    @test !any(isnan(c))
+
+    lsp = lpc2lsp(l, 20)
+    @test length(lsp) == 21
+    @test !any(isnan(lsp))
+
+    par = lpc2par(l)
+    @test length(par) == 21
+    @test !any(isnan(par))
+
+    sp = lsp2sp(lsp, 1024)
+    @test length(sp) == 1024>>1+1
+    @test !any(isnan(sp))
+
+    try lspcheck(l); catch @assert false; end
+end
+
+let
     println("testing: F0 estimation")
 
     srand(98765)
@@ -146,9 +182,10 @@ function test_f0()
     f0 = swipe(dummy_input, 16000, 80)
     @test length(f0) == div(length(dummy_input), 80) + 1
     @test !any(isnan(f0))
+    @test all(f0 .>= 0)
 end
 
-function test_waveform_generation()
+let
     println("testing: Waveform generation filters")
 
     srand(98765)
@@ -156,10 +193,26 @@ function test_waveform_generation()
     dummy_sp = abs(fft(dummy_input))
     dummy_logsp = log(dummy_sp)
     dummy_ceps = rand(20)
+    dummy_lpc = rand(20)
+
+    pd = 5
+    order = length(dummy_ceps)-1
+
+    # poledf
+    d = poledf_delay(order)
+    for x in dummy_input
+        y = poledf(x, dummy_lpc, d)
+        @test !isnan(y)
+    end
+
+    # lmadf
+    d = lmadf_delay(order, pd)
+    for x in dummy_input
+        y = lmadf(x, dummy_ceps, pd, d)
+        @test !isnan(y)
+    end
 
     # mlsadf
-    pd::Int = 5
-    order::Int = length(dummy_ceps)-1
     d = mlsadf_delay(order, pd)
     for x in dummy_input
         y = mlsadf(x, dummy_ceps, 0.41, pd, d)
@@ -175,7 +228,7 @@ function test_waveform_generation()
     end
 end
 
-function test_windows()
+let
     println("testing: Window functions")
 
     srand(98765)
@@ -205,10 +258,3 @@ function test_windows()
     @test length(y) == length(x)
     @test !any(isnan(y))
 end
-
-test_mgcep()
-test_mfcc()
-test_mgcep_conversion()
-test_f0()
-test_waveform_generation()
-test_windows()

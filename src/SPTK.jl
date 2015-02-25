@@ -39,6 +39,8 @@ export
     swipe,
 
     # Waveform generation filters
+    poledf,
+    poledf_delay,
     lmadf,
     lmadf_delay,
     mlsadf,
