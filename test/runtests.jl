@@ -69,6 +69,12 @@ let
     @test length(cc) == 14
     ccmat = mfcc(dummy_mat, 12; czero=true, power=true)
     @test size(ccmat) == (14, 10)
+
+    # with power
+    cc = mfcc(dummy, 12; czero=false, power=true)
+    @test length(cc) == 13
+    ccmat = mfcc(dummy_mat, 12; czero=false, power=true)
+    @test size(ccmat) == (13, 10)
 end
 
 let
