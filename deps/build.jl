@@ -1,15 +1,21 @@
 using BinDeps
+using Compat
 
 @BinDeps.setup
 
-deps = [
-        sptk = library_dependency("libSPTK")
-        ]
+sptk = library_dependency("libSPTK", aliases=["libSPTK", "SPTK-3"])
 
 const version = "3.8.2"
 
+github_root = "https://github.com/r9y9/SPTK"
+arch = WORD_SIZE == 64 ? "x86_64" : "i686"
+major = version[1]
+provides(Binaries,
+         URI("$(github_root)/releases/download/v$(version)/sptk-$(major)_mingw$(WORD_SIZE)_$(arch).zip"),
+         sptk, unpacked_dir = "usr/lib", os = :Windows)
+
 provides(Sources,
-         URI("https://github.com/r9y9/SPTK/archive/v$(version).tar.gz"),
+         URI("$(github_root)/archive/v$(version).tar.gz"),
          sptk,
          unpacked_dir="SPTK-$(version)")
 
@@ -27,4 +33,4 @@ provides(SimpleBuild,
               end
            end), sptk, os = :Unix)
 
-@BinDeps.install [:libSPTK => :libSPTK]
+@BinDeps.install @compat Dict(:libSPTK => :libSPTK)
