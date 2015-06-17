@@ -1,5 +1,34 @@
 # SPTK APIs
 
+function acep!(c::Vector{Cdouble}, x::Cdouble;
+               λ::Float64=0.98,
+               step::Float64=0.1,
+               τ=0.9,
+               pd::Int=4,
+               eps::Float64=1.0e-6)
+    order = length(c) - 1
+    prederr = ccall((:acep, libSPTK), Cdouble,
+                    (Cdouble, Ptr{Cdouble}, Cint, Cdouble, Cdouble, Cdouble,
+                     Cint, Cdouble),
+                    x, c, order, λ, step, τ, pd, eps)
+    prederr
+end
+
+# γ = -1/stage (-1 <= γ < 0)
+function agcep!(c::Vector{Cdouble}, x::Cdouble, stage=1;
+                λ::Float64=0.98,
+                step::Float64=0.1,
+                τ=0.9,
+                eps::Float64=1.0e-6)
+    stage >= 1 || throw(ArgumentError("stage >= 1 (-1 <= γ < 0)"))
+    order = length(c) - 1
+    prederr = ccall((:agcep, libSPTK), Cdouble,
+                    (Cdouble, Ptr{Cdouble}, Cint, Cint, Cdouble, Cdouble,
+                     Cdouble, Cdouble),
+                    x, c, order, stage, λ, step, τ, eps)
+    prederr
+end
+
 # mcep preforms Mel-Cepstrum analysis.
 function mcep(x::Vector{Cdouble}, order=40, α=0.41;
               miniter::Int=2, maxiter::Int=30,

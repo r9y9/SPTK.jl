@@ -68,6 +68,31 @@ test_toeplitz()
 
 # SPTK APIs
 
+function test_adaptive_mcep()
+    println("test adaptive mel-cepstrum analysis")
+    srand(98765)
+    dummy_input = rand(64)
+    order = 20
+    c = zeros(order+1)
+
+    println("-- test_acep!")
+    for x in dummy_input
+        acep!(c, x)
+    end
+    @assert !any(isnan(c))
+
+    println("-- test_agcep!")
+    for stage in 1:10
+        fill!(c, zero(eltype(c)))
+        for x in dummy_input
+            agcep!(c, x, stage)
+        end
+        @assert !any(isnan(c))
+    end
+end
+
+test_adaptive_mcep()
+
 function test_mgcep()
     println("test mel-generalized cepstrum analysis")
     srand(98765)

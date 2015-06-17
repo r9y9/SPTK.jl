@@ -19,6 +19,10 @@ export
     toeplitz!,
     toeplitz,
 
+    # adaptive mel-cepstrum analysis
+    acep!,
+    agcep!,
+
     # (Mel-) Cepstrum related analysis
     mcep,
     gcep,
