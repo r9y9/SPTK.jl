@@ -7,6 +7,12 @@
 
 SPTK.jl is a light-weight Julia wrapper for the [Speech Signal Processing Toolkit (SPTK)](http://sp-tk.sourceforge.net/). Note that SPTK.jl is based on [the modified version of SPTK](https://github.com/r9y9/SPTK).
 
+## Supported Platforms
+
+- Linux
+- Mac OS X
+- Windows
+
 ## Installation
 
 ```julia
