@@ -1,6 +1,8 @@
 using SPTK
 using Base.Test
 
+# Library routines
+
 function test_agexp()
     println("test_agexp")
     agexp(1, 1, 1)
@@ -12,7 +14,8 @@ function test_cholesky()
     a = rand(10)
     b = copy(a)
     c = copy(a)
-    @test_throws Exception cholesky(c, a, b)
+    @test_throws Exception cholesky!(c, a, b, 1.0e-6)
+    @test_throws Exception cholesky(c, b)
 end
 
 function test_gexp()
@@ -25,10 +28,43 @@ function test_glog()
     glog(1, 1)
 end
 
+function test_mseq()
+    println("test_mseq")
+    mseq()
+    mseq()
+    mseq()
+end
+
+function test_theq()
+    println("test_theq")
+    srand(98765)
+    t = rand(10)
+    h = copy(t)
+    a = copy(t)
+    b = copy(t)
+    @test_throws Exception theq!(t, h, a, b, 1.0e-6)
+    @test_throws Exception theq(t, h, b)
+end
+
+function test_toeplitz()
+    println("test_toeplitz")
+    srand(98765)
+    a = rand(10)
+    b = copy(a)
+    c = copy(a)
+    @test_throws Exception toeplitz!(c, a, b, 1.0e-6)
+    @test_throws Exception toeplitz(c, b)
+end
+
 test_agexp()
+test_cholesky()
 test_gexp()
 test_glog()
-test_cholesky()
+test_mseq()
+test_theq()
+test_toeplitz()
+
+# SPTK APIs
 
 let
     println("testing: Mel-generalized cesptrum analysis")

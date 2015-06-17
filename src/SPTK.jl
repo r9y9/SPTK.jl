@@ -7,10 +7,17 @@ module SPTK
 # https://github.com/r9y9/SPTK
 
 export
+    # library routines
     agexp,
+    cholesky!,
     cholesky,
     gexp,
     glog,
+    mseq,
+    theq!,
+    theq,
+    toeplitz!,
+    toeplitz,
 
     # (Mel-) Cepstrum related analysis
     mcep,
@@ -59,10 +66,7 @@ export
     hanning,
     bartlett,
     trapezoid,
-    rectangular,
-
-    # lib
-    theq
+    rectangular
 
 deps = joinpath(Pkg.dir("SPTK"), "deps", "deps.jl")
 if isfile(deps)
@@ -71,7 +75,7 @@ else
     error("SPTK not properly installed. Please run Pkg.build(\"SPTK\")")
 end
 
-for fname in ["bridge", "extend"]
+for fname in ["lib", "sptk", "extend"]
     include(string(fname, ".jl"))
 end
 

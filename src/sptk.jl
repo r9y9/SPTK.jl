@@ -1,23 +1,4 @@
-function agexp(r, x, y)
-    ccall((:agexp, libSPTK), Cdouble, (Cdouble, Cdouble, Cdouble), r, x, y)
-end
-
-gexp(r, x) = ccall((:gexp, libSPTK), Cdouble, (Cdouble, Cdouble), r, x)
-glog(r, x) = ccall((:glog, libSPTK), Cdouble, (Cdouble, Cdouble), r, x)
-
-function cholesky(c::Vector{Cdouble}, a::Vector{Cdouble}, b::Vector{Cdouble};
-                  eps::Float64=1.0e-6)
-    if length(c) != length(a) || length(c) != length(b)
-        error("input vectors should have same length")
-    end
-    n = length(c)
-    ret = ccall((:cholesky, libSPTK), Cint,
-                (Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble),
-                c, a, b, n, eps)
-    if ret != 0
-        error("failed to compute choleskey decomposition")
-    end
-end
+# SPTK APIs
 
 # mcep preforms Mel-Cepstrum analysis.
 function mcep(x::Vector{Cdouble}, order=40, α=0.41;
@@ -437,13 +418,6 @@ for (f, wtype) in [(:blackman, 0),
             _window!(WindowType($wtype), y; normalize=normalize)
         end
     end
-end
-
-function theq(t::Vector{Cdouble}, h::Vector{Cdouble}, a::Vector{Cdouble},
-              b::Vector{Cdouble}, n, e)
-    ccall((:theq, libSPTK), Cint,
-          (Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cint,
-           Cdouble), t, h, a, b, n, e)
 end
 
 function b2c(c::Vector{Cdouble}, order, α)
