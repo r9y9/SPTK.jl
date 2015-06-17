@@ -7,6 +7,11 @@ module SPTK
 # https://github.com/r9y9/SPTK
 
 export
+    agexp,
+    cholesky,
+    gexp,
+    glog,
+
     # (Mel-) Cepstrum related analysis
     mcep,
     gcep,

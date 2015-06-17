@@ -1,8 +1,26 @@
-# Defined in deps.jl
-@assert isdefined(:libSPTK)
+function agexp(r, x, y)
+    ccall((:agexp, libSPTK), Cdouble, (Cdouble, Cdouble, Cdouble), r, x, y)
+end
+
+gexp(r, x) = ccall((:gexp, libSPTK), Cdouble, (Cdouble, Cdouble), r, x)
+glog(r, x) = ccall((:glog, libSPTK), Cdouble, (Cdouble, Cdouble), r, x)
+
+function cholesky(c::Vector{Cdouble}, a::Vector{Cdouble}, b::Vector{Cdouble};
+                  eps::Float64=1.0e-6)
+    if length(c) != length(a) || length(c) != length(b)
+        error("input vectors should have same length")
+    end
+    n = length(c)
+    ret = ccall((:cholesky, libSPTK), Cint,
+                (Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble),
+                c, a, b, n, eps)
+    if ret != 0
+        error("failed to compute choleskey decomposition")
+    end
+end
 
 # mcep preforms Mel-Cepstrum analysis.
-function mcep(x::Vector{Cdouble}, order::Int=40, α::Float64=0.41;
+function mcep(x::Vector{Cdouble}, order=40, α=0.41;
               miniter::Int=2, maxiter::Int=30,
               dd::Float64=0.001, etype::Int=0, e::Float64=0.0,
               f::Float64=0.0001, itype::Int=0)
@@ -16,7 +34,7 @@ function mcep(x::Vector{Cdouble}, order::Int=40, α::Float64=0.41;
 end
 
 # gcep performs generalized cesptrum analysis.
-function gcep(x::Vector{Cdouble}, order::Int=40, γ::Float64=0.0;
+function gcep(x::Vector{Cdouble}, order=40, γ=0.0;
               miniter::Int=2, maxiter::Int=30, d::Float64=0.001,
               etype::Int=0, e::Float64=0.0, f::Float64=0.000001,
               itype::Int=0)
@@ -30,8 +48,7 @@ function gcep(x::Vector{Cdouble}, order::Int=40, γ::Float64=0.0;
 end
 
 # mgcep performs Mel log-generalized cepstrum analysis.
-function mgcep(x::Vector{Cdouble}, order::Int=40,
-               α::Float64=0.41, γ::Float64=0.0;
+function mgcep(x::Vector{Cdouble}, order=40, α=0.41, γ=0.0;
                n::Int=length(x)-1,
                miniter::Int=2, maxiter::Int=30,
                dd::Float64=0.001, etype::Int=0, e::Float64=0.0,
@@ -69,7 +86,7 @@ function mgcep(x::Vector{Cdouble}, order::Int=40,
 end
 
 # uels performs unbiased estimation of target log spectrum.
-function uels(x::Vector{Cdouble}, order::Int;
+function uels(x::Vector{Cdouble}, order;
               miniter::Int=2, maxiter::Int=30, dd::Float64=0.001,
               etype::Int=0, e::Float64=0.0, f::Float64=0.0001, itype::Int=0)
     c = zeros(order+1)
@@ -82,7 +99,7 @@ function uels(x::Vector{Cdouble}, order::Int;
 end
 
 # fftcep computes cepstrum from log spectrum (that can be computed using FFT).
-function fftcep(logsp::Vector{Cdouble}, order::Int;
+function fftcep(logsp::Vector{Cdouble}, order;
                 itr::Int=0, accelerationf::Float64=0.0)
     c = zeros(order+1)
 
@@ -93,7 +110,7 @@ function fftcep(logsp::Vector{Cdouble}, order::Int;
 end
 
 # mfcc computes Mel-Frequency Cepstrum Coefficients using DCT.
-function mfcc(x::Vector{Cdouble}, order::Int=20, samplerate::Int=16000;
+function mfcc(x::Vector{Cdouble}, order=20, samplerate=16000;
               α::Float64=0.97,
               eps::Float64=1.0, numfilterbunks::Int=20, cepslift::Int=22,
               usedft::Bool=false, usehamming::Bool=true,
@@ -130,7 +147,7 @@ function mfcc(x::Vector{Cdouble}, order::Int=20, samplerate::Int=16000;
 end
 
 # mc2b converts mel-cepstrum to MLSA filter coefficients.
-function mc2b(mc::Vector{Cdouble}, α::Float64=0.41)
+function mc2b(mc::Vector{Cdouble}, α=0.41)
     order = length(mc)-1
     b = zeros(length(mc))
     ccall((:mc2b, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble),
@@ -139,7 +156,7 @@ function mc2b(mc::Vector{Cdouble}, α::Float64=0.41)
 end
 
 # b2mc converts MLSA filter coefficients to Mel-Cepstrum.
-function b2mc(b::Vector{Cdouble}, α::Float64=0.41)
+function b2mc(b::Vector{Cdouble}, α=0.41)
     order = length(b)-1
     mc = zeros(length(b))
     ccall((:b2mc, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble),
@@ -148,7 +165,7 @@ function b2mc(b::Vector{Cdouble}, α::Float64=0.41)
 end
 
 # c2ir converts cepstrum to impulse response.
-function c2ir(c::Vector{Cdouble}, len::Int)
+function c2ir(c::Vector{Cdouble}, len)
     h = zeros(len)
     ccall((:c2ir, libSPTK), Void, (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint),
           c, length(c), h, len)
@@ -157,7 +174,7 @@ end
 
 
 # c2ndps converts cepstrum to negative derivative of phase spectrum.
-function c2ndps(c::Vector{Cdouble}, fftlen::Int)
+function c2ndps(c::Vector{Cdouble}, fftlen)
     ndps = zeros(fftlen)
     m = length(c)-1
     ccall((:c2ndps, libSPTK), Void, (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint),
@@ -166,7 +183,7 @@ function c2ndps(c::Vector{Cdouble}, fftlen::Int)
 end
 
 # c2ndps converts negative derivative of phase spectrum to cepstrum.
-function ndps2c(ndps::Vector{Cdouble}, order::Int)
+function ndps2c(ndps::Vector{Cdouble}, order)
     fftlen = (length(ndps)-1)*2 # assuming the length of npds is fftsize/2+1
     c = zeros(order+1)
     ccall((:ndps2c, libSPTK), Void, (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint),
@@ -175,7 +192,7 @@ function ndps2c(ndps::Vector{Cdouble}, order::Int)
 end
 
 # gc2gc performs conversion between generalized cepstrum.
-function gc2gc(c1::Vector{Cdouble}, γ₁::Float64, m2::Int, γ₂::Float64)
+function gc2gc(c1::Vector{Cdouble}, γ₁, m2, γ₂)
     m1 = length(c1) - 1
     c2 = zeros(m2+1)
     ccall((:gc2gc, libSPTK), Void, (Ptr{Cdouble}, Cint, Cdouble,
@@ -184,7 +201,7 @@ function gc2gc(c1::Vector{Cdouble}, γ₁::Float64, m2::Int, γ₂::Float64)
     c2
 end
 
-function lpc(x::Vector{Cdouble}, order::Int;
+function lpc(x::Vector{Cdouble}, order;
              f::Float64=1e-6)
     a = Array(Cdouble, order+1)
     ccall((:lpc, libSPTK), Void,
@@ -201,7 +218,7 @@ function lpc2c(a::Vector{Cdouble})
     c
 end
 
-function lpc2lsp(lpc::Vector{Cdouble}, order::Int;
+function lpc2lsp(lpc::Vector{Cdouble}, order;
                  numsp::Int=128,
                  maxiter::Int=4,
                  e::Float64=1e-6,
@@ -248,7 +265,7 @@ function lpc2par(lpc::Vector{Cdouble})
     par
 end
 
-function lsp2sp(lsp::Vector{Cdouble}, fftlen::Int)
+function lsp2sp(lsp::Vector{Cdouble}, fftlen)
     # assume lsp has loggain at lsp[1]
     sp = Array(Cdouble, fftlen>>1+1)
     ccall((:lsp2sp, libSPTK), Void,
@@ -264,7 +281,7 @@ function lspcheck(lpc::Vector{Cdouble})
 end
 
 # gnorm performs cepstrum gain normailzation
-function gnorm(c::Vector{Cdouble}, γ::Float64)
+function gnorm(c::Vector{Cdouble}, γ)
     normalizedC = zeros(length(c))
     m = length(c)-1
     ccall((:gnorm, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble},
@@ -274,7 +291,7 @@ function gnorm(c::Vector{Cdouble}, γ::Float64)
 end
 
 # ignorm performs inverse cepstrum gain normailzation
-function ignorm(normalizedC::Vector{Cdouble}, γ::Float64)
+function ignorm(normalizedC::Vector{Cdouble}, γ)
     c = zeros(length(normalizedC))
     m = length(normalizedC)-1
     ccall((:ignorm, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble},
@@ -285,7 +302,7 @@ end
 
 # freqt performs frequency tranformation on cepstrum. It can be used to
 # convert linear frequency cepstrum to mel frequency cepstrum.
-function freqt(c::Vector{Cdouble}, order::Int, α::Float64)
+function freqt(c::Vector{Cdouble}, order, α)
     org_order = length(c)-1
     transformed = zeros(order+1)
     ccall((:freqt, libSPTK), Void,
@@ -294,7 +311,7 @@ function freqt(c::Vector{Cdouble}, order::Int, α::Float64)
     transformed
 end
 
-function frqtr(c::Vector{Cdouble}, order::Int, α::Float64)
+function frqtr(c::Vector{Cdouble}, order, α)
     org_order = length(c)-1
     transformed = zeros(order+1)
     ccall((:frqtr, libSPTK), Void,
@@ -304,8 +321,7 @@ function frqtr(c::Vector{Cdouble}, order::Int, α::Float64)
 end
 
 # mgc2mgc converts between mel log-generalized cesptrum.
-function mgc2mgc(c1::Vector{Cdouble}, α₁::Float64, γ₁::Float64,
-                 m2::Int, α₂::Float64, γ₂::Float64)
+function mgc2mgc(c1::Vector{Cdouble}, α₁, γ₁, m2, α₂, γ₂)
     c2 = zeros(m2+1)
     m1 = length(c1)-1
     ccall((:mgc2mgc, libSPTK), Void, (Ptr{Cdouble}, Cint, Cdouble, Cdouble,
@@ -315,7 +331,7 @@ function mgc2mgc(c1::Vector{Cdouble}, α₁::Float64, γ₁::Float64,
 end
 
 # mgc2sp converts mel generalized cepstrum to log spectrum
-function mgc2sp(mgc::Vector{Cdouble}, α::Float64, γ::Float64, fftlen::Int)
+function mgc2sp(mgc::Vector{Cdouble}, α, γ, fftlen)
     order = length(mgc)-1
     sp = Array(Complex{Cdouble}, fftlen>>1+1)
     sp_r = zeros(Cdouble, fftlen)
@@ -330,8 +346,7 @@ function mgc2sp(mgc::Vector{Cdouble}, α::Float64, γ::Float64, fftlen::Int)
 end
 
 # mgclsp2sp converts mgc-lsp to spectrum.
-function mgclsp2sp(lsp::Vector{Cdouble}, α::Float64, γ::Float64,
-                   fftlen::Int;
+function mgclsp2sp(lsp::Vector{Cdouble}, α, γ, fftlen;
                    gain::Bool=true)
     sp = zeros(fftlen>>1 + 1)
     m = gain ? length(lsp)-1 : length(lsp)
@@ -343,7 +358,7 @@ end
 
 # swipe performs fundamental frequency (f0) estimation based on
 # SWIPE - A Saw-tooth Waveform Inspired Pitch Estimation
-function swipe(x::Vector{Cdouble}, samplerate::Int, hopsize::Int=80;
+function swipe(x::Vector{Cdouble}, samplerate, hopsize=80;
                min::Float64=50.0, max::Float64=800.0,
                st::Float64=0.3, otype::Int=1)
     expectedlen = div(length(x), hopsize) + 1
@@ -362,30 +377,29 @@ function poledf(x::Cdouble, a::Vector{Cdouble}, delay::Vector{Cdouble})
           x, a, length(a)-1, delay)
 end
 
-poledf_delay(order::Int) = zeros(order)
+poledf_delay(order) = zeros(order)
 
-function lmadf(x::Cdouble, b::Vector{Cdouble}, pd::Int, delay::Vector{Cdouble})
+function lmadf(x::Cdouble, b::Vector{Cdouble}, pd, delay::Vector{Cdouble})
     ccall((:lmadf, libSPTK), Cdouble,
           (Cdouble, Ptr{Cdouble}, Cint, Cint, Ptr{Cdouble}),
           x, b, length(b)-1, pd, delay)
 end
 
-lmadf_delay(order::Int, pd::Int) = zeros(2pd*(order+1))
+lmadf_delay(order, pd) = zeros(2pd*(order+1))
 
 # mlsadf performs Mel Log Spectrum Approximation (MLSA) digital filtering.
-function mlsadf(x::Cdouble, b::Vector{Cdouble}, α::Float64, pd::Int,
-                delay::Vector{Cdouble})
+function mlsadf(x::Cdouble, b::Vector{Cdouble}, α, pd, delay::Vector{Cdouble})
     ccall((:mlsadf, libSPTK), Cdouble,
           (Cdouble, Ptr{Cdouble}, Cint, Cdouble, Cint, Ptr{Cdouble}),
           x, b, length(b)-1, α, pd, delay)
 end
 
 # see mlsadf.c in original SPTK for this magic allocation
-mlsadf_delay(order::Int, pd::Int) = zeros(3*(pd+1) + pd*(order+2))
+mlsadf_delay(order, pd) = zeros(3*(pd+1) + pd*(order+2))
 
 # mglsadf performs Mel Generalized Log Spectrum Approximation (MGLSA) digital
 # filtering.
-function mglsadf(x::Cdouble, b::Vector{Cdouble}, α::Float64, stage::Int,
+function mglsadf(x::Cdouble, b::Vector{Cdouble}, α, stage,
                  delay::Vector{Cdouble})
     ccall((:mglsadf, libSPTK), Cdouble,
           (Cdouble, Ptr{Cdouble}, Cint, Cdouble, Cint, Ptr{Cdouble}),
@@ -393,7 +407,7 @@ function mglsadf(x::Cdouble, b::Vector{Cdouble}, α::Float64, stage::Int,
 end
 
 # see mglsadf.c in original SPTK for this magic allocation
-mglsadf_delay(order::Int, stage::Int) = zeros((order+1)*stage)
+mglsadf_delay(order, stage) = zeros((order+1)*stage)
 
 immutable WindowType
     w::Int
@@ -426,13 +440,13 @@ for (f, wtype) in [(:blackman, 0),
 end
 
 function theq(t::Vector{Cdouble}, h::Vector{Cdouble}, a::Vector{Cdouble},
-              b::Vector{Cdouble}, n::Int, e::Cdouble)
+              b::Vector{Cdouble}, n, e)
     ccall((:theq, libSPTK), Cint,
           (Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cint,
            Cdouble), t, h, a, b, n, e)
 end
 
-function b2c(c::Vector{Cdouble}, order::Int, α::Float64)
+function b2c(c::Vector{Cdouble}, order, α)
     org_order = length(c)-1
     transformed = zeros(order+1)
     ccall((:b2c, libSPTK), Void,

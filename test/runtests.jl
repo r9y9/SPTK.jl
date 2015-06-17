@@ -1,6 +1,35 @@
 using SPTK
 using Base.Test
 
+function test_agexp()
+    println("test_agexp")
+    agexp(1, 1, 1)
+end
+
+function test_cholesky()
+    println("test_choleskey")
+    srand(98765)
+    a = rand(10)
+    b = copy(a)
+    c = copy(a)
+    @test_throws Exception cholesky(c, a, b)
+end
+
+function test_gexp()
+    println("test_gexp")
+    gexp(1, 1)
+end
+
+function test_glog()
+    println("test_glog")
+    glog(1, 1)
+end
+
+test_agexp()
+test_gexp()
+test_glog()
+test_cholesky()
+
 let
     println("testing: Mel-generalized cesptrum analysis")
     srand(98765)
