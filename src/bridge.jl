@@ -2,62 +2,62 @@
 @assert isdefined(:libSPTK)
 
 # mcep preforms Mel-Cepstrum analysis.
-function mcep(x::Vector{Float64}, order::Int=40, α::Float64=0.41;
+function mcep(x::Vector{Cdouble}, order::Int=40, α::Float64=0.41;
               miniter::Int=2, maxiter::Int=30,
               dd::Float64=0.001, etype::Int=0, e::Float64=0.0,
               f::Float64=0.0001, itype::Int=0)
     mc = zeros(order+1)
-    ccall((:mcep, libSPTK), Int,
-          (Ptr{Float64}, Int, Ptr{Float64}, Int,
-           Float64, Int, Int, Float64, Int, Float64, Float64, Int),
+    ccall((:mcep, libSPTK), Cint,
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint,
+           Cdouble, Cint, Cint, Cdouble, Cint, Cdouble, Cdouble, Cint),
           x, length(x), mc, order, α,
           miniter, maxiter, dd, etype, e, f, itype)
     mc
 end
 
 # gcep performs generalized cesptrum analysis.
-function gcep(x::Vector{Float64}, order::Int=40, γ::Float64=0.0;
+function gcep(x::Vector{Cdouble}, order::Int=40, γ::Float64=0.0;
               miniter::Int=2, maxiter::Int=30, d::Float64=0.001,
               etype::Int=0, e::Float64=0.0, f::Float64=0.000001,
               itype::Int=0)
     gc = zeros(order+1)
-    ccall((:gcep, libSPTK), Int,
-          (Ptr{Float64}, Int, Ptr{Float64}, Int,
-           Float64, Int, Int, Float64, Int, Float64, Float64, Int),
+    ccall((:gcep, libSPTK), Cint,
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint,
+           Cdouble, Cint, Cint, Cdouble, Cint, Cdouble, Cdouble, Cint),
           x, length(x), gc, order, γ,
           miniter, maxiter, d, etype, e, f, itype)
     gc
 end
 
 # mgcep performs Mel log-generalized cepstrum analysis.
-function mgcep(x::Vector{Float64}, order::Int=40,
+function mgcep(x::Vector{Cdouble}, order::Int=40,
                α::Float64=0.41, γ::Float64=0.0;
                n::Int=length(x)-1,
                miniter::Int=2, maxiter::Int=30,
                dd::Float64=0.001, etype::Int=0, e::Float64=0.0,
                f::Float64=0.0001, itype::Int=0, otype::Int=0)
     mgc = zeros(order+1)
-    ccall((:mgcep, libSPTK), Int,
-          (Ptr{Float64}, Int, Ptr{Float64}, Int, Float64, Float64,
-           Int, Int, Int, Float64, Int, Float64, Float64, Int),
+    ccall((:mgcep, libSPTK), Cint,
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cdouble, Cdouble,
+           Cint, Cint, Cint, Cdouble, Cint, Cdouble, Cdouble, Cint),
           x, length(x), mgc, order, α, γ, n,
           miniter, maxiter, dd, etype, e, f, itype)
 
     if otype == 0 || otype == 1 || otype == 2 || otype == 4
-        ccall((:ignorm, libSPTK), Void, (Ptr{Float64}, Ptr{Float64},
-                                           Int, Float64),
+        ccall((:ignorm, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble},
+                                           Cint, Cdouble),
               mgc, mgc, order, γ)
     end
 
     if otype == 0 || otype == 2 || otype == 4
         ccall((:b2mc, libSPTK), Void,
-              (Ptr{Float64}, Ptr{Float64}, Int, Float64),
+              (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble),
               mgc, mgc, order, α)
     end
 
     if otype == 2 || otype == 4
-        ccall((:gnorm, libSPTK), Void, (Ptr{Float64}, Ptr{Float64},
-                                          Int, Float64),
+        ccall((:gnorm, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble},
+                                          Cint, Cdouble),
               mgc, mgc, order, γ)
     end
 
@@ -69,31 +69,31 @@ function mgcep(x::Vector{Float64}, order::Int=40,
 end
 
 # uels performs unbiased estimation of target log spectrum.
-function uels(x::Vector{Float64}, order::Int;
+function uels(x::Vector{Cdouble}, order::Int;
               miniter::Int=2, maxiter::Int=30, dd::Float64=0.001,
               etype::Int=0, e::Float64=0.0, f::Float64=0.0001, itype::Int=0)
     c = zeros(order+1)
-    ccall((:uels, libSPTK), Int,
-          (Ptr{Float64}, Int, Ptr{Float64}, Int, Int, Int, Float64, Int,
-           Float64, Float64, Int),
+    ccall((:uels, libSPTK), Cint,
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cint, Cint, Cdouble, Cint,
+           Cdouble, Cdouble, Cint),
           x, length(x), c, order,
           miniter, maxiter, dd, etype, e, f, itype)
     c
 end
 
 # fftcep computes cepstrum from log spectrum (that can be computed using FFT).
-function fftcep(logsp::Vector{Float64}, order::Int;
+function fftcep(logsp::Vector{Cdouble}, order::Int;
                 itr::Int=0, accelerationf::Float64=0.0)
     c = zeros(order+1)
 
     ccall((:fftcep, libSPTK), Void,
-          (Ptr{Float64}, Int64, Ptr{Float64}, Int64, Int64, Float64),
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cint, Cdouble),
           logsp, length(logsp), c, length(c), itr, accelerationf)
     c
 end
 
 # mfcc computes Mel-Frequency Cepstrum Coefficients using DCT.
-function mfcc(x::Vector{Float64}, order::Int=20, samplerate::Int=16000;
+function mfcc(x::Vector{Cdouble}, order::Int=20, samplerate::Int=16000;
               α::Float64=0.97,
               eps::Float64=1.0, numfilterbunks::Int=20, cepslift::Int=22,
               usedft::Bool=false, usehamming::Bool=true,
@@ -105,8 +105,8 @@ function mfcc(x::Vector{Float64}, order::Int=20, samplerate::Int=16000;
     cc = zeros(order+2)
 
     ccall((:mfcc, libSPTK), Void,
-          (Ptr{Float64}, Ptr{Float64}, Float64, Float64, Float64,
-           Int, Int, Int, Int, Int, Bool, Bool),
+          (Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Cdouble,
+           Cint, Cint, Cint, Cint, Cint, Bool, Bool),
           x, cc, float64(samplerate), α, eps,
           length(x), length(x), order+1, numfilterbunks, cepslift,
           usedft, usehamming)
@@ -130,78 +130,78 @@ function mfcc(x::Vector{Float64}, order::Int=20, samplerate::Int=16000;
 end
 
 # mc2b converts mel-cepstrum to MLSA filter coefficients.
-function mc2b(mc::Vector{Float64}, α::Float64=0.41)
+function mc2b(mc::Vector{Cdouble}, α::Float64=0.41)
     order = length(mc)-1
     b = zeros(length(mc))
-    ccall((:mc2b, libSPTK), Void, (Ptr{Float64}, Ptr{Float64}, Int, Float64),
+    ccall((:mc2b, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble),
           mc, b, order, α)
     b
 end
 
 # b2mc converts MLSA filter coefficients to Mel-Cepstrum.
-function b2mc(b::Vector{Float64}, α::Float64=0.41)
+function b2mc(b::Vector{Cdouble}, α::Float64=0.41)
     order = length(b)-1
     mc = zeros(length(b))
-    ccall((:b2mc, libSPTK), Void, (Ptr{Float64}, Ptr{Float64}, Int, Float64),
+    ccall((:b2mc, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble),
           b, mc, order, α)
     mc
 end
 
 # c2ir converts cepstrum to impulse response.
-function c2ir(c::Vector{Float64}, len::Int)
+function c2ir(c::Vector{Cdouble}, len::Int)
     h = zeros(len)
-    ccall((:c2ir, libSPTK), Void, (Ptr{Float64}, Int, Ptr{Float64}, Int),
+    ccall((:c2ir, libSPTK), Void, (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint),
           c, length(c), h, len)
     h
 end
 
 
 # c2ndps converts cepstrum to negative derivative of phase spectrum.
-function c2ndps(c::Vector{Float64}, fftlen::Int)
+function c2ndps(c::Vector{Cdouble}, fftlen::Int)
     ndps = zeros(fftlen)
     m = length(c)-1
-    ccall((:c2ndps, libSPTK), Void, (Ptr{Float64}, Int, Ptr{Float64}, Int),
+    ccall((:c2ndps, libSPTK), Void, (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint),
           c, m, ndps, fftlen)
     ndps[1:fftlen>>1+1]
 end
 
 # c2ndps converts negative derivative of phase spectrum to cepstrum.
-function ndps2c(ndps::Vector{Float64}, order::Int)
+function ndps2c(ndps::Vector{Cdouble}, order::Int)
     fftlen = (length(ndps)-1)*2 # assuming the length of npds is fftsize/2+1
     c = zeros(order+1)
-    ccall((:ndps2c, libSPTK), Void, (Ptr{Float64}, Int, Ptr{Float64}, Int),
+    ccall((:ndps2c, libSPTK), Void, (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint),
           ndps, fftlen, c, order)
     c
 end
 
 # gc2gc performs conversion between generalized cepstrum.
-function gc2gc(c1::Vector{Float64}, γ₁::Float64, m2::Int, γ₂::Float64)
+function gc2gc(c1::Vector{Cdouble}, γ₁::Float64, m2::Int, γ₂::Float64)
     m1 = length(c1) - 1
     c2 = zeros(m2+1)
-    ccall((:gc2gc, libSPTK), Void, (Ptr{Float64}, Int, Float64,
-                                    Ptr{Float64}, Int, Float64),
+    ccall((:gc2gc, libSPTK), Void, (Ptr{Cdouble}, Cint, Cdouble,
+                                    Ptr{Cdouble}, Cint, Cdouble),
           c1, m1, γ₁, c2, m2, γ₂)
     c2
 end
 
-function lpc(x::Vector{Float64}, order::Int;
+function lpc(x::Vector{Cdouble}, order::Int;
              f::Float64=1e-6)
-    a = Array(Float64, order+1)
+    a = Array(Cdouble, order+1)
     ccall((:lpc, libSPTK), Void,
-          (Ptr{Float64}, Int, Ptr{Float64}, Int, Float64),
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cdouble),
           x, length(x), a, order, f)
     a
 end
 
-function lpc2c(a::Vector{Float64})
+function lpc2c(a::Vector{Cdouble})
     order = length(a) - 1
-    c = Array(Float64, order+1)
+    c = Array(Cdouble, order+1)
     ccall((:lpc2c, libSPTK), Void,
-          (Ptr{Float64}, Int, Ptr{Float64}, Int), a, order, c, order)
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint), a, order, c, order)
     c
 end
 
-function lpc2lsp(lpc::Vector{Float64}, order::Int;
+function lpc2lsp(lpc::Vector{Cdouble}, order::Int;
                  numsp::Int=128,
                  maxiter::Int=4,
                  e::Float64=1e-6,
@@ -209,9 +209,9 @@ function lpc2lsp(lpc::Vector{Float64}, order::Int;
                  otype::Int=0,
                  fs=nothing
     )
-    lsp = zeros(Float64, order+1)
+    lsp = zeros(Cdouble, order+1)
     ccall((:lpc2lsp, libSPTK), Void,
-          (Ptr{Float64}, Ptr{Float64}, Int, Int, Int, Float64),
+          (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Cdouble),
           lpc, sub(lsp, 2:length(lsp)), order, numsp, maxiter, e)
 
     if otype == 0
@@ -241,87 +241,87 @@ function lpc2lsp(lpc::Vector{Float64}, order::Int;
     lsp
 end
 
-function lpc2par(lpc::Vector{Float64})
+function lpc2par(lpc::Vector{Cdouble})
     par = similar(lpc)
-    ccall((:lpc2par, libSPTK), Void, (Ptr{Float64}, Ptr{Float64}, Int),
+    ccall((:lpc2par, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble}, Cint),
           lpc, par, length(lpc)-1)
     par
 end
 
-function lsp2sp(lsp::Vector{Float64}, fftlen::Int)
+function lsp2sp(lsp::Vector{Cdouble}, fftlen::Int)
     # assume lsp has loggain at lsp[1]
-    sp = Array(Float64, fftlen>>1+1)
+    sp = Array(Cdouble, fftlen>>1+1)
     ccall((:lsp2sp, libSPTK), Void,
-          (Ptr{Float64}, Int, Ptr{Float64}, Int, Int),
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cint),
           lsp, length(lsp)-1, sp, length(sp), 1)
     sp
 end
 
-function lspcheck(lpc::Vector{Float64})
+function lspcheck(lpc::Vector{Cdouble})
     r = ccall((:lspcheck, libSPTK),
-              Int, (Ptr{Float64}, Int), lpc, length(lpc)-1)::Int
+              Cint, (Ptr{Cdouble}, Cint), lpc, length(lpc)-1)::Cint
     ifelse(r == 0, true, false)
 end
 
 # gnorm performs cepstrum gain normailzation
-function gnorm(c::Vector{Float64}, γ::Float64)
+function gnorm(c::Vector{Cdouble}, γ::Float64)
     normalizedC = zeros(length(c))
     m = length(c)-1
-    ccall((:gnorm, libSPTK), Void, (Ptr{Float64}, Ptr{Float64},
-                                      Int, Float64),
+    ccall((:gnorm, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble},
+                                      Cint, Cdouble),
           c, normalizedC, m, γ)
     normalizedC
 end
 
 # ignorm performs inverse cepstrum gain normailzation
-function ignorm(normalizedC::Vector{Float64}, γ::Float64)
+function ignorm(normalizedC::Vector{Cdouble}, γ::Float64)
     c = zeros(length(normalizedC))
     m = length(normalizedC)-1
-    ccall((:ignorm, libSPTK), Void, (Ptr{Float64}, Ptr{Float64},
-                                      Int, Float64),
+    ccall((:ignorm, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble},
+                                      Cint, Cdouble),
          normalizedC, c, m, γ)
     c
 end
 
 # freqt performs frequency tranformation on cepstrum. It can be used to
 # convert linear frequency cepstrum to mel frequency cepstrum.
-function freqt(c::Vector{Float64}, order::Int, α::Float64)
+function freqt(c::Vector{Cdouble}, order::Int, α::Float64)
     org_order = length(c)-1
     transformed = zeros(order+1)
     ccall((:freqt, libSPTK), Void,
-          (Ptr{Float64}, Int, Ptr{Float64}, Int, Float64),
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cdouble),
           c, org_order, transformed, order, α)
     transformed
 end
 
-function frqtr(c::Vector{Float64}, order::Int, α::Float64)
+function frqtr(c::Vector{Cdouble}, order::Int, α::Float64)
     org_order = length(c)-1
     transformed = zeros(order+1)
     ccall((:frqtr, libSPTK), Void,
-          (Ptr{Float64}, Int, Ptr{Float64}, Int, Float64),
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cdouble),
           c, org_order, transformed, order, α)
     transformed
 end
 
 # mgc2mgc converts between mel log-generalized cesptrum.
-function mgc2mgc(c1::Vector{Float64}, α₁::Float64, γ₁::Float64,
+function mgc2mgc(c1::Vector{Cdouble}, α₁::Float64, γ₁::Float64,
                  m2::Int, α₂::Float64, γ₂::Float64)
     c2 = zeros(m2+1)
     m1 = length(c1)-1
-    ccall((:mgc2mgc, libSPTK), Void, (Ptr{Float64}, Int, Float64, Float64,
-                                      Ptr{Float64}, Int, Float64, Float64),
+    ccall((:mgc2mgc, libSPTK), Void, (Ptr{Cdouble}, Cint, Cdouble, Cdouble,
+                                      Ptr{Cdouble}, Cint, Cdouble, Cdouble),
           c1, m1, α₁, γ₁, c2, m2, α₂, γ₂)
     c2
 end
 
 # mgc2sp converts mel generalized cepstrum to log spectrum
-function mgc2sp(mgc::Vector{Float64}, α::Float64, γ::Float64, fftlen::Int)
+function mgc2sp(mgc::Vector{Cdouble}, α::Float64, γ::Float64, fftlen::Int)
     order = length(mgc)-1
-    sp = Array(Complex{Float64}, fftlen>>1+1)
-    sp_r = zeros(Float64, fftlen)
-    sp_i = zeros(Float64, fftlen)
+    sp = Array(Complex{Cdouble}, fftlen>>1+1)
+    sp_r = zeros(Cdouble, fftlen)
+    sp_i = zeros(Cdouble, fftlen)
     ccall((:mgc2sp, libSPTK), Void,
-          (Ptr{Float64}, Int, Float64, Float64, Ptr{Float64}, Ptr{Float64}, Int),
+          (Ptr{Cdouble}, Cint, Cdouble, Cdouble, Ptr{Cdouble}, Ptr{Cdouble}, Cint),
           mgc, order, α, γ, sp_r, sp_i, fftlen)
     for i=1:length(sp)
         @inbounds sp[i] = Complex(sp_r[i], sp_i[i])
@@ -330,53 +330,53 @@ function mgc2sp(mgc::Vector{Float64}, α::Float64, γ::Float64, fftlen::Int)
 end
 
 # mgclsp2sp converts mgc-lsp to spectrum.
-function mgclsp2sp(lsp::Vector{Float64}, α::Float64, γ::Float64,
+function mgclsp2sp(lsp::Vector{Cdouble}, α::Float64, γ::Float64,
                    fftlen::Int;
                    gain::Bool=true)
     sp = zeros(fftlen>>1 + 1)
     m = gain ? length(lsp)-1 : length(lsp)
-    ccall((:mgclsp2sp, libSPTK), Void, (Float64, Float64, Ptr{Float64}, Int,
-                                        Ptr{Float64}, Int, Int),
+    ccall((:mgclsp2sp, libSPTK), Void, (Cdouble, Cdouble, Ptr{Cdouble}, Cint,
+                                        Ptr{Cdouble}, Cint, Cint),
           α, γ, lsp, m, sp, length(sp), int(gain))
     sp
 end
 
 # swipe performs fundamental frequency (f0) estimation based on
 # SWIPE - A Saw-tooth Waveform Inspired Pitch Estimation
-function swipe(x::Vector{Float64}, samplerate::Int, hopsize::Int=80;
+function swipe(x::Vector{Cdouble}, samplerate::Int, hopsize::Int=80;
                min::Float64=50.0, max::Float64=800.0,
                st::Float64=0.3, otype::Int=1)
     expectedlen = div(length(x), hopsize) + 1
     f0 = zeros(expectedlen)
     ccall((:swipe, libSPTK), Void,
-          (Ptr{Float64}, Ptr{Float64}, Int, Int, Int, Float64, Float64,
-           Float64, Int),
+          (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Cdouble, Cdouble,
+           Cdouble, Cint),
           x, f0, length(x), samplerate, hopsize,
           min, max, st, otype)
     f0
 end
 
-function poledf(x::Float64, a::Vector{Float64}, delay::Vector{Float64})
-    ccall((:poledf, libSPTK), Float64,
-          (Float64, Ptr{Float64}, Int, Ptr{Float64}),
+function poledf(x::Cdouble, a::Vector{Cdouble}, delay::Vector{Cdouble})
+    ccall((:poledf, libSPTK), Cdouble,
+          (Cdouble, Ptr{Cdouble}, Cint, Ptr{Cdouble}),
           x, a, length(a)-1, delay)
 end
 
 poledf_delay(order::Int) = zeros(order)
 
-function lmadf(x::Float64, b::Vector{Float64}, pd::Int, delay::Vector{Float64})
-    ccall((:lmadf, libSPTK), Float64,
-          (Float64, Ptr{Float64}, Int, Int, Ptr{Float64}),
+function lmadf(x::Cdouble, b::Vector{Cdouble}, pd::Int, delay::Vector{Cdouble})
+    ccall((:lmadf, libSPTK), Cdouble,
+          (Cdouble, Ptr{Cdouble}, Cint, Cint, Ptr{Cdouble}),
           x, b, length(b)-1, pd, delay)
 end
 
 lmadf_delay(order::Int, pd::Int) = zeros(2pd*(order+1))
 
 # mlsadf performs Mel Log Spectrum Approximation (MLSA) digital filtering.
-function mlsadf(x::Float64, b::Vector{Float64}, α::Float64, pd::Int,
-                delay::Vector{Float64})
-    ccall((:mlsadf, libSPTK), Float64,
-          (Float64, Ptr{Float64}, Int, Float64, Int, Ptr{Float64}),
+function mlsadf(x::Cdouble, b::Vector{Cdouble}, α::Float64, pd::Int,
+                delay::Vector{Cdouble})
+    ccall((:mlsadf, libSPTK), Cdouble,
+          (Cdouble, Ptr{Cdouble}, Cint, Cdouble, Cint, Ptr{Cdouble}),
           x, b, length(b)-1, α, pd, delay)
 end
 
@@ -385,10 +385,10 @@ mlsadf_delay(order::Int, pd::Int) = zeros(3*(pd+1) + pd*(order+2))
 
 # mglsadf performs Mel Generalized Log Spectrum Approximation (MGLSA) digital
 # filtering.
-function mglsadf(x::Float64, b::Vector{Float64}, α::Float64, stage::Int,
-                 delay::Vector{Float64})
-    ccall((:mglsadf, libSPTK), Float64,
-          (Float64, Ptr{Float64}, Int, Float64, Int, Ptr{Float64}),
+function mglsadf(x::Cdouble, b::Vector{Cdouble}, α::Float64, stage::Int,
+                 delay::Vector{Cdouble})
+    ccall((:mglsadf, libSPTK), Cdouble,
+          (Cdouble, Ptr{Cdouble}, Cint, Cdouble, Cint, Ptr{Cdouble}),
           x, b, length(b)-1, α, stage, delay)
 end
 
@@ -399,14 +399,14 @@ immutable WindowType
     w::Int
 end
 
-function _window!(wtype::WindowType, x::Vector{Float64}; normalize::Int=0)
+function _window!(wtype::WindowType, x::Vector{Cdouble}; normalize::Int=0)
     # normalize: Int
     #    0 : don't normalize
     #    1 : normalize by power
     #    2 : normalize by magnitude
     @assert normalize == 0 || normalize == 1 || normalize == 2
-    g = ccall((:window, libSPTK), Float64,
-              (WindowType, Ptr{Float64}, Int, Int), wtype, x, length(x),
+    g = ccall((:window, libSPTK), Cdouble,
+              (WindowType, Ptr{Cdouble}, Cint, Cint), wtype, x, length(x),
               normalize)
     x
 end
@@ -425,18 +425,18 @@ for (f, wtype) in [(:blackman, 0),
     end
 end
 
-function theq(t::Vector{Float64}, h::Vector{Float64}, a::Vector{Float64},
-              b::Vector{Float64}, n::Int, e::Float64)
-    ccall((:theq, libSPTK), Int,
-          (Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Ptr{Float64}, Int,
-           Float64), t, h, a, b, n, e)
+function theq(t::Vector{Cdouble}, h::Vector{Cdouble}, a::Vector{Cdouble},
+              b::Vector{Cdouble}, n::Int, e::Cdouble)
+    ccall((:theq, libSPTK), Cint,
+          (Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cint,
+           Cdouble), t, h, a, b, n, e)
 end
 
-function b2c(c::Vector{Float64}, order::Int, α::Float64)
+function b2c(c::Vector{Cdouble}, order::Int, α::Float64)
     org_order = length(c)-1
     transformed = zeros(order+1)
     ccall((:b2c, libSPTK), Void,
-          (Ptr{Float64}, Int, Ptr{Float64}, Int, Float64),
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cdouble),
           c, org_order, transformed, order, α)
     transformed
 end
