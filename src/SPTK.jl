@@ -75,7 +75,7 @@ else
     error("SPTK not properly installed. Please run Pkg.build(\"SPTK\")")
 end
 
-for fname in ["lib", "sptk", "extend"]
+for fname in ["lib", "core", "extend"]
     include(string(fname, ".jl"))
 end
 
