@@ -7,7 +7,7 @@ module SPTK
 # https://github.com/r9y9/SPTK
 
 export
-    # library routines
+    # Library routines
     agexp,
     cholesky!,
     cholesky,
@@ -19,19 +19,22 @@ export
     toeplitz!,
     toeplitz,
 
-    # adaptive mel-cepstrum analysis
+    # Adaptive mel-cepstrum analysis
     acep!,
     agcep!,
     amcep!,
 
     phidf!,
 
-    # (Mel-) Cepstrum related analysis
+    # Mel-generalized cepstrum analysis
     mcep,
     gcep,
     mgcep,
     uels,
     fftcep,
+    lpc,
+
+    # MFCC
     mfcc,
 
     # Conversions
@@ -43,12 +46,10 @@ export
     c2ndps,
     ndps2c,
     gc2gc,
-    lpc,
     lpc2c,
     lpc2lsp,
     lpc2par,
     lsp2sp,
-    lspcheck,
     gnorm,
     ignorm,
     freqt,
@@ -64,6 +65,12 @@ export
     poledf_delay,
     lmadf,
     lmadf_delay,
+    lspdf,
+    lspdf_delay,
+    ltcdf,
+    ltcdf_delay,
+    glsadf,
+    glsadf_delay,
     mlsadf,
     mlsadf_delay,
     mglsadf,
@@ -75,7 +82,10 @@ export
     hanning,
     bartlett,
     trapezoid,
-    rectangular
+    rectangular,
+
+    # Utils
+    lspcheck
 
 deps = joinpath(Pkg.dir("SPTK"), "deps", "deps.jl")
 if isfile(deps)
@@ -84,7 +94,18 @@ else
     error("SPTK not properly installed. Please run Pkg.build(\"SPTK\")")
 end
 
-for fname in ["lib", "core", "extend"]
+for fname in [
+              "lib",
+              "adaptive",
+              "conversions",
+              "f0",
+              "mfcc",
+              "mgcep",
+              "synthesis_filters",
+              "utils",
+              "window",
+              "extend"
+    ]
     include(string(fname, ".jl"))
 end
 
