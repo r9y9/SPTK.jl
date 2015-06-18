@@ -38,6 +38,8 @@ export
     mc2b,
     b2mc,
     c2ir,
+    ic2ir,
+    c2acr,
     c2ndps,
     ndps2c,
     gc2gc,

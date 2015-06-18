@@ -197,6 +197,14 @@ function b2mc(b::Vector{Cdouble}, α=0.41)
     mc
 end
 
+function c2acr(c::Vector{Cdouble}, m2, fftlen)
+    r = zeros(m2 + 1)
+    ccall((:c2acr, libSPTK), Void,
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cint),
+          c, length(c) - 1, r, m2, fftlen)
+    r
+end
+
 # c2ir converts cepstrum to impulse response.
 function c2ir(c::Vector{Cdouble}, len)
     h = zeros(len)
@@ -205,6 +213,12 @@ function c2ir(c::Vector{Cdouble}, len)
     h
 end
 
+function ic2ir(h::Vector{Cdouble}, order)
+    c = zeros(order+1)
+    ccall((:ic2ir, libSPTK), Void, (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint),
+          h, length(h), c, length(c))
+    c
+end
 
 # c2ndps converts cepstrum to negative derivative of phase spectrum.
 function c2ndps(c::Vector{Cdouble}, fftlen)
@@ -214,6 +228,7 @@ function c2ndps(c::Vector{Cdouble}, fftlen)
           c, m, ndps, fftlen)
     ndps[1:fftlen>>1+1]
 end
+
 
 # c2ndps converts negative derivative of phase spectrum to cepstrum.
 function ndps2c(ndps::Vector{Cdouble}, order)

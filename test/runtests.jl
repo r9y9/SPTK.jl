@@ -221,11 +221,26 @@ function test_mgcep_conversions()
     cmat = b2mc(dummy_ceps_mat, 0.41)
     @test size(cmat) == (length(dummy_ceps), 10)
 
+    println("-- test_c2acr")
+    r = c2acr(dummy_ceps, 20, 512)
+    @show length(r)
+    @test length(r) == 21
+    r = c2acr(dummy_ceps, 25, 512)
+    @test length(r) == 26
+    rmat = c2acr(dummy_ceps_mat, 25, 512)
+    @test size(rmat) == (26, 10)
+
     println("-- test_c2ir")
-    c = c2ir(dummy_ceps, 512)
-    @test length(c) == 512
-    cmat = c2ir(dummy_ceps_mat, 512)
-    @test size(cmat) == (512, 10)
+    ir = c2ir(dummy_ceps, 512)
+    @test length(ir) == 512
+    irmat = c2ir(dummy_ceps_mat, 512)
+    @test size(irmat) == (512, 10)
+
+    println("-- test_ic2ir invertibility")
+    c = ic2ir(ir, length(dummy_ceps)-1)
+    @test_approx_eq c dummy_ceps
+    cmat = ic2ir(irmat, length(dummy_ceps)-1)
+    @test_approx_eq cmat dummy_ceps_mat
 
     println("-- test_c2ndps")
     ndps = c2ndps(dummy_ceps, 512)
