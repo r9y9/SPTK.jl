@@ -3,7 +3,7 @@
 function acep!(c::Vector{Cdouble}, x::Cdouble;
                λ::Float64=0.98,
                step::Float64=0.1,
-               τ=0.9,
+               τ::Float64=0.9,
                pd::Int=4,
                eps::Float64=1.0e-6)
     order = length(c) - 1
@@ -18,7 +18,7 @@ end
 function agcep!(c::Vector{Cdouble}, x::Cdouble, stage=1;
                 λ::Float64=0.98,
                 step::Float64=0.1,
-                τ=0.9,
+                τ::Float64=0.9,
                 eps::Float64=1.0e-6)
     stage >= 1 || throw(ArgumentError("stage >= 1 (-1 <= γ < 0)"))
     order = length(c) - 1
@@ -27,6 +27,29 @@ function agcep!(c::Vector{Cdouble}, x::Cdouble, stage=1;
                      Cdouble, Cdouble),
                     x, c, order, stage, λ, step, τ, eps)
     prederr
+end
+
+function amcep!(b::Vector{Cdouble}, x::Cdouble, α=0.41;
+                λ::Float64=0.98,
+                step::Float64=0.1,
+                τ::Float64=0.9,
+                pd::Int=4,
+                eps::Float64=1.0e-6)
+    order = length(b) - 1
+    prederr = ccall((:amcep, libSPTK), Cdouble,
+                    (Cdouble, Ptr{Cdouble}, Cint, Cdouble, Cdouble, Cdouble,
+                     Cdouble, Cint, Cdouble),
+                    x, b, order, α, λ, step, τ, pd, eps)
+    prederr
+end
+
+function phidf!(x::Cdouble, order, α, delay::Vector{Cdouble})
+    if length(delay) != order+1
+        throw(ArgumentError("inconsistent order or delay"))
+    end
+
+    ccall((:phidf, libSPTK), Void, (Cdouble, Cint, Cdouble, Ptr{Cdouble}),
+          x, order, α, delay)
 end
 
 # mcep preforms Mel-Cepstrum analysis.

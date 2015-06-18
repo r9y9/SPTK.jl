@@ -89,6 +89,17 @@ function test_adaptive_mcep()
         end
         @assert !any(isnan(c))
     end
+
+    println("-- test_amcep!")
+    for α in[0.35, 0.41, 0.5]0
+        fill!(c, zero(eltype(c)))
+        delay = zeros(length(c))
+        for x in dummy_input
+            amcep!(c, x, α)
+            phidf!(x, length(c)-1, α, delay)
+        end
+        @assert !any(isnan(c))
+    end
 end
 
 test_adaptive_mcep()

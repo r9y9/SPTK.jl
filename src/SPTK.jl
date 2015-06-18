@@ -22,6 +22,9 @@ export
     # adaptive mel-cepstrum analysis
     acep!,
     agcep!,
+    amcep!,
+
+    phidf!,
 
     # (Mel-) Cepstrum related analysis
     mcep,
