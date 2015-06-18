@@ -20,8 +20,8 @@ function cholesky!(c::Vector{Cdouble}, a::Vector{Cdouble}, b::Vector{Cdouble}, e
     a
 end
 
-function cholesky!(c::Vector{Cdouble}, b::Vector{Cdouble};
-                   eps::Float64=1.0e-6)
+function cholesky(c::Vector{Cdouble}, b::Vector{Cdouble};
+                  eps::Float64=1.0e-6)
     a = similar(c)
     cholesky!(c, a, b, eps)
 end
@@ -70,8 +70,8 @@ function toeplitz!(t::Vector{Cdouble}, a::Vector{Cdouble}, b::Vector{Cdouble},
     a
 end
 
-function toeplitz!(t::Vector{Cdouble}, b::Vector{Cdouble};
-                   eps::Float64=1.0e-6)
+function toeplitz(t::Vector{Cdouble}, b::Vector{Cdouble};
+                  eps::Float64=1.0e-6)
     a = similar(t)
     toeplitz!(t, a, b, eps)
 end
