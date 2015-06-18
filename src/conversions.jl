@@ -190,7 +190,7 @@ function mgclsp2sp(lsp::Vector{Cdouble}, α, γ, fftlen;
     m = gain ? length(lsp)-1 : length(lsp)
     ccall((:mgclsp2sp, libSPTK), Void, (Cdouble, Cdouble, Ptr{Cdouble}, Cint,
                                         Ptr{Cdouble}, Cint, Cint),
-          α, γ, lsp, m, sp, length(sp), int(gain))
+          α, γ, lsp, m, sp, length(sp), convert(Int, gain))
     sp
 end
 

@@ -16,7 +16,7 @@ function mfcc(x::Vector{Cdouble}, order=20, samplerate=16000;
     ccall((:mfcc, libSPTK), Void,
           (Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Cdouble,
            Cint, Cint, Cint, Cint, Cint, Bool, Bool),
-          x, cc, float64(samplerate), α, eps,
+          x, cc, samplerate, α, eps,
           length(x), length(x), order+1, numfilterbunks, cepslift,
           usedft, usehamming)
 
