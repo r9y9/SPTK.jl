@@ -57,8 +57,8 @@ end
 function gc2gc(c1::Vector{Cdouble}, γ₁, m2, γ₂)
     m1 = length(c1) - 1
     c2 = zeros(m2+1)
-    ccall((:gc2gc, libSPTK), Void, (Ptr{Cdouble}, Cint, Cdouble,
-                                    Ptr{Cdouble}, Cint, Cdouble),
+    ccall((:gc2gc, libSPTK), Void,
+          (Ptr{Cdouble}, Cint, Cdouble, Ptr{Cdouble}, Cint, Cdouble),
           c1, m1, γ₁, c2, m2, γ₂)
     c2
 end
@@ -129,18 +129,16 @@ end
 function gnorm(c::Vector{Cdouble}, γ)
     normalizedC = zeros(length(c))
     m = length(c)-1
-    ccall((:gnorm, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble},
-                                      Cint, Cdouble),
-          c, normalizedC, m, γ)
+    ccall((:gnorm, libSPTK), Void,
+          (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble), c, normalizedC, m, γ)
     normalizedC
 end
 
 function ignorm(normalizedC::Vector{Cdouble}, γ)
     c = zeros(length(normalizedC))
     m = length(normalizedC)-1
-    ccall((:ignorm, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble},
-                                      Cint, Cdouble),
-         normalizedC, c, m, γ)
+    ccall((:ignorm, libSPTK), Void,
+          (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble), normalizedC, c, m, γ)
     c
 end
 
@@ -165,8 +163,9 @@ end
 function mgc2mgc(c1::Vector{Cdouble}, α₁, γ₁, m2, α₂, γ₂)
     c2 = zeros(m2+1)
     m1 = length(c1)-1
-    ccall((:mgc2mgc, libSPTK), Void, (Ptr{Cdouble}, Cint, Cdouble, Cdouble,
-                                      Ptr{Cdouble}, Cint, Cdouble, Cdouble),
+    ccall((:mgc2mgc, libSPTK), Void,
+          (Ptr{Cdouble}, Cint, Cdouble, Cdouble, Ptr{Cdouble}, Cint, Cdouble,
+           Cdouble),
           c1, m1, α₁, γ₁, c2, m2, α₂, γ₂)
     c2
 end
