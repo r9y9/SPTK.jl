@@ -79,7 +79,9 @@ function test_adaptive_mcep()
     for x in dummy_input
         acep!(c, x)
     end
-    @assert !any(isnan(c))
+    @test !any(isnan(c))
+    @test_throws ArgumentError acep!(c, dummy_input[1], pd=3)
+    @test_throws ArgumentError acep!(c, dummy_input[1], pd=6)
 
     println("-- test_agcep!")
     for stage in 1:10
@@ -87,19 +89,23 @@ function test_adaptive_mcep()
         for x in dummy_input
             agcep!(c, x, stage)
         end
-        @assert !any(isnan(c))
+        @test !any(isnan(c))
     end
+    @test_throws ArgumentError agcep!(c, dummy_input[1], 0)
+    @test_throws ArgumentError agcep!(c, dummy_input[1], -1)
 
     println("-- test_amcep!")
-    for α in[0.35, 0.41, 0.5]0
+    for α in[0.35, 0.41, 0.5]
         fill!(c, zero(eltype(c)))
         delay = zeros(length(c))
         for x in dummy_input
             amcep!(c, x, α)
             phidf!(x, length(c)-1, α, delay)
         end
-        @assert !any(isnan(c))
+        @test !any(isnan(c))
     end
+    @test_throws ArgumentError amcep!(c, dummy_input[1], 0.35, pd=3)
+    @test_throws ArgumentError amcep!(c, dummy_input[1], 0.35, pd=6)
 end
 
 test_adaptive_mcep()
@@ -329,7 +335,7 @@ function test_lpc()
     @test !any(isnan(sp))
 
     println("-- test_lspcheck")
-    try lspcheck(l); catch @assert false; end
+    try lspcheck(l); catch @test false; end
 end
 
 test_lpc()
