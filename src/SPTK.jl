@@ -9,8 +9,6 @@ module SPTK
 export
     # Library routines
     agexp,
-    cholesky!,
-    cholesky,
     gexp,
     glog,
     mseq,
