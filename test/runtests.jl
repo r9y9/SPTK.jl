@@ -7,27 +7,21 @@ println("test library routines")
 
 function test_agexp()
     println("-- test_agexp")
-    agexp(1, 1, 1)
-end
-
-function test_cholesky()
-    println("-- test_choleskey")
-    srand(98765)
-    a = rand(10)
-    b = copy(a)
-    c = copy(a)
-    @test_throws Exception cholesky!(c, a, b, 1.0e-6)
-    @test_throws Exception cholesky(c, b)
+    @test_approx_eq agexp(1, 1, 1) 5.0
+    @test_approx_eq agexp(1, 2, 3) 18.0
+    @test_approx_eq agexp(2, 3, 5) 12.206555615733702
 end
 
 function test_gexp()
     println("-- test_gexp")
-    gexp(1, 1)
+    @test_approx_eq gexp(1, 1) 2.0
+    @test_approx_eq gexp(2, 4) 3.0
 end
 
 function test_glog()
     println("-- test_glog")
-    glog(1, 1)
+    @test_approx_eq glog(1, 2) 1.0
+    @test_approx_eq glog(2, 3) 4.0
 end
 
 function test_mseq()
@@ -37,15 +31,65 @@ function test_mseq()
     mseq()
 end
 
+function fill_toeplitz!{T}(A::AbstractMatrix{T}, t::AbstractVector{T})
+    n = length(t)
+    for j=1:n, i=1:n
+        A[i,j] = i-j+1 >= 1 ? t[i-j+1] : t[j-i+1]
+    end
+    A
+end
+
+function fill_hankel!{T}(A::AbstractMatrix{T}, h::AbstractVector{T})
+    n = length(h)>>1 + 1
+    for j=1:n, i=1:n
+        A[i,j] = h[i+j-1]
+    end
+    A
+end
+
+# (T + H)a = b
 function test_theq()
     println("-- test_theq")
     srand(98765)
-    t = rand(10)
-    h = copy(t)
-    a = copy(t)
-    b = copy(t)
-    @test_throws Exception theq!(t, h, a, b, 1.0e-6)
-    @test_throws Exception theq(t, h, b)
+
+    n = 2
+    # toeplitz elements
+    t = [1.0, -1.0]
+    T = zeros(2,2)
+    fill_toeplitz!(T, t)
+
+    # hankel elements for ones(n) / 2
+    h = zeros(2n-1)
+    h[1] = 1.0
+    h[3] = 1.0
+    H = zeros(2,2)
+    fill_hankel!(H, h)
+
+    b = ones(n)
+    a = zeros(n)
+
+    # solve (T + H)a = b
+    theq!(a, t, h, b)
+    @test_approx_eq a theq(t, h, b)
+    @test_approx_eq a (T + H) \ b
+
+    for m in [3, 5, 10]
+        a = ones(m)
+        t = ones(a)
+        h = ones(2length(a)-1)
+        b = ones(a)
+        @test_throws Exception theq!(a, t, h, b)
+    end
+
+    a = ones(5)
+    t = ones(a)
+    h = ones(2length(a)-1)
+    b = ones(a)
+
+    @test_throws DimensionMismatch theq(t, h, ones(length(b)-1))
+    @test_throws DimensionMismatch theq(t, ones(length(h)-1), b)
+    @test_throws DimensionMismatch theq(t, ones(length(h)-1), b)
+    @test_throws DimensionMismatch theq(ones(length(t)-1), h, b)
 end
 
 function test_toeplitz()
@@ -59,7 +103,6 @@ function test_toeplitz()
 end
 
 test_agexp()
-test_cholesky()
 test_gexp()
 test_glog()
 test_mseq()
