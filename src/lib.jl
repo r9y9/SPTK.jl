@@ -13,15 +13,18 @@ mseq() = ccall((:mseq, libSPTK), Cint, ())
 # NOTE: the order of arguments is different in theq in SPTK
 # I would put the solution vector `a` as the first argument instead of third.
 function theq!(a::Vector{Cdouble}, t::Vector{Cdouble}, h::Vector{Cdouble},
-               b::Vector{Cdouble}, eps=1.0e-6)
+               b::Vector{Cdouble}; min_det::Float64=1.0e-6)
     n = length(a)
     if length(b) != n || length(t) != n || length(h) != 2n-1
         throw(DimensionMismatch("inconsistent vector length"))
     end
+    if min_det < 0.0
+       throw(ArgumentError("min_det must be positive: min_det = $min_det"))
+    end
 
     ret = ccall((:theq, libSPTK), Cint,
                 (Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Ptr{Cdouble}, Cint,
-                 Cdouble), t, h, a, b, n, eps)
+                 Cdouble), t, h, a, b, n, min_det)
     if ret != 0
         error("failed to solve Toeplitz plus Hankel matrix system (T + H)a = b")
     end
@@ -30,18 +33,21 @@ function theq!(a::Vector{Cdouble}, t::Vector{Cdouble}, h::Vector{Cdouble},
 end
 
 function theq(t::Vector{Cdouble}, h::Vector{Cdouble}, b::Vector{Cdouble};
-              eps::Float64=1.0e-6)
+              kargs...)
     a = similar(t)
-    theq!(a, t, h, b, eps)
+    theq!(a, t, h, b, kargs...)
 end
 
 # solve Ta = b
 # NOTE: the order of arguments is different in toeplitz in SPTK
 # I would put the solution vector `a` as the first argument instead of second.
-function toeplitz!(a::Vector{Cdouble}, t::Vector{Cdouble}, b::Vector{Cdouble},
-                   eps=1.0e-6)
+function toeplitz!(a::Vector{Cdouble}, t::Vector{Cdouble}, b::Vector{Cdouble};
+                   eps::Float64=1.0e-6)
     if length(a) != length(t) || length(a) != length(b)
         throw(DimensionMismatch("inconsistent vector length"))
+    end
+    if eps < 0.0
+       throw(ArgumentError("eps must be positive: eps = $eps"))
     end
 
     ret = ccall((:toeplitz, libSPTK), Cint,
@@ -54,8 +60,7 @@ function toeplitz!(a::Vector{Cdouble}, t::Vector{Cdouble}, b::Vector{Cdouble},
     a
 end
 
-function toeplitz(t::Vector{Cdouble}, b::Vector{Cdouble};
-                  eps::Float64=1.0e-6)
+function toeplitz(t::Vector{Cdouble}, b::Vector{Cdouble}; kargs...)
     a = similar(t)
-    toeplitz!(a, t, b, eps)
+    toeplitz!(a, t, b, kargs...)
 end

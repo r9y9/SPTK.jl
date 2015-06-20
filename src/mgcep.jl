@@ -1,16 +1,41 @@
 # Mel-generalized cepstrum analysis
 
-function mcep(x::Vector{Cdouble}, order=40, α=0.41;
-              miniter::Int=2, maxiter::Int=30,
-              dd::Float64=0.001, etype::Int=0, e::Float64=0.0,
-              f::Float64=0.0001, itype::Int=0)
-    mc = zeros(order+1)
+function mcep!(mc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41;
+               miniter::Int=2,
+               maxiter::Int=30,
+               threshold::Float64=0.001,
+               etype::Int=0,
+               eps::Float64=0.0,
+               min_det::Float64=1.0e-6,
+               itype::Int=0)
+    if itype ∉ 0:4
+        throw(ArgumentError("unsupported itype: $itype: must be ∈ 0:4"))
+    end
+    if etype ∉ 0:2
+        throw(ArgumentError("unsupported etype: $etype, must be ∈ 0:2"))
+    end
+    if etype == 0 && eps != 0.0
+        throw(ArgumentError("eps cannot be specified for etype = 0"))
+    end
+    if etype ∈ 1:2 && eps < 0.0
+        throw(ArgumentError("eps = $eps: eps must be >= 0"))
+    end
+    if min_det < 0.0
+       throw(ArgumentError("min_det must be positive: min_det = $min_det"))
+    end
+
+    order = length(mc) - 1
     ccall((:mcep, libSPTK), Cint,
           (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint,
            Cdouble, Cint, Cint, Cdouble, Cint, Cdouble, Cdouble, Cint),
-          x, length(x), mc, order, α,
-          miniter, maxiter, dd, etype, e, f, itype)
+          windowed, length(windowed), mc, order, α,
+          miniter, maxiter, threshold, etype, eps, min_det, itype)
     mc
+end
+
+function mcep(windowed::Vector{Cdouble}, order=40, α=0.41; kargs...)
+    mc = zeros(order+1)
+    mcep!(mc, windowed, α; kargs...)
 end
 
 function gcep(x::Vector{Cdouble}, order=40, γ=0.0;

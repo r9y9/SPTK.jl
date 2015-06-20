@@ -86,6 +86,7 @@ function test_theq()
     h = ones(2length(a)-1)
     b = ones(a)
 
+    @test_throws ArgumentError theq!(a, t, h, b, min_det=-1.0)
     @test_throws DimensionMismatch theq!(a, t, h, ones(length(b)-1))
     @test_throws DimensionMismatch theq!(a, t, ones(length(h)-1), b)
     @test_throws DimensionMismatch theq!(a, t, ones(length(h)-1), b)
@@ -104,7 +105,6 @@ function test_toeplitz()
     T = zeros(2,2)
     fill_toeplitz!(T, t)
     b = [1.0, 1.0]
-    @show T \ b
     b = ones(n)
     a = zeros(n)
 
@@ -125,6 +125,7 @@ function test_toeplitz()
     a = ones(5)
     t = ones(a)
     b = ones(a)
+    @test_throws ArgumentError toeplitz!(a, t, b, eps=-1.0)
     @test_throws DimensionMismatch toeplitz!(a, t, ones(length(b)-1))
     @test_throws DimensionMismatch toeplitz!(a, ones(length(t)-1), b)
     @test_throws DimensionMismatch toeplitz!(ones(length(a)-1), t, b)
@@ -209,10 +210,27 @@ function test_mgcep()
     dummy_input_mat = repmat(dummy_input, 1, 10)
 
     println("-- test_mcep")
-    c = mcep(dummy_input, 20, 0.41)
-    @test length(c) == 21
-    cmat = mcep(dummy_input_mat, 20, 0.41)
-    @test size(cmat) == (21, 10)
+    # Since some SPTK functions have static variables inside and
+    # this may return different results even if the same input is given
+    c1 = mcep(dummy_input, 20, 0.41)
+    c2 = mcep(dummy_input, 20, 0.41)
+    @test_approx_eq c1 c2
+
+    for order in [20, 22, 24]
+        c = mcep(dummy_input, order, 0.41)
+        @test length(c) == order+1
+        cmat = mcep(dummy_input_mat, order, 0.41)
+        @test size(cmat) == (order+1, 10)
+    end
+
+    @test_throws ArgumentError mcep(dummy_input, itype=-1)
+    @test_throws ArgumentError mcep(dummy_input, itype=5)
+    @test_throws ArgumentError mcep(dummy_input, eps=-1.0)
+    @test_throws ArgumentError mcep(dummy_input, etype=-1)
+    @test_throws ArgumentError mcep(dummy_input, etype=-3)
+    @test_throws ArgumentError mcep(dummy_input, etype=1, eps=-1.0)
+    @test_throws ArgumentError mcep(dummy_input, etype=2, eps=-1.0)
+    @test_throws ArgumentError mcep(dummy_input, min_det=-1.0)
 
     println("-- test_gcep")
     c = gcep(dummy_input, 20, -1/4)
