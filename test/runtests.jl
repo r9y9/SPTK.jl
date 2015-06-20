@@ -626,6 +626,10 @@ function test_window_functions()
     y = rectangular(length(x))
     @test length(y) == length(x)
     @test !any(isnan(y))
+
+    # invalid normalize flag
+    @test_throws ArgumentError blackman(512, normalize=-1)
+    @test_throws ArgumentError blackman(512, normalize=3)
 end
 
 test_window_functions()
