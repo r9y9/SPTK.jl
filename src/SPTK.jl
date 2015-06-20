@@ -44,8 +44,6 @@ export
     agcep!,
     amcep!,
 
-    phidf!,
-
     # Mel-generalized cepstrum analysis
     mcep!,
     mcep,

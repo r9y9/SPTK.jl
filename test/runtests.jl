@@ -187,11 +187,18 @@ function test_adaptive_mcep()
                 delay = zeros(length(c))
                 for x in dummy_input
                     amcep!(c, x, α, pd=pd)
-                    phidf!(x, length(c)-1, α, delay)
+                    SPTK.phidf!(x, length(c)-1, α, delay)
                 end
                 @test !any(isnan(c))
             end
         end
+    end
+
+    let
+        c = zeros(21)
+        delay = zeros(length(c)-1)
+        x = dummy_input[1]
+        @test_throws ArgumentError SPTK.phidf!(x, length(c)-1, 0.41, delay)
     end
 
     let
@@ -206,8 +213,8 @@ test_adaptive_mcep()
 function test_mgcep()
     println("test mel-generalized cepstrum analysis")
     srand(98765)
-    dummy_input = rand(1024)
-    dummy_input_mat = repmat(dummy_input, 1, 10)
+    dummy_input = rand(256)
+    dummy_input_mat = repmat(dummy_input, 1, 2)
 
     println("-- test_mcep")
     # Since some SPTK functions have static variables inside and
@@ -221,7 +228,7 @@ function test_mgcep()
             c = mcep(dummy_input, order, α)
             @test length(c) == order+1
             cmat = mcep(dummy_input_mat, order, α)
-            @test size(cmat) == (order+1, 10)
+            @test size(cmat) == (order+1, 2)
         end
     end
 
@@ -241,7 +248,7 @@ function test_mgcep()
             c = gcep(dummy_input, order, γ)
             @test length(c) == order+1
             cmat = gcep(dummy_input_mat, order, γ)
-            @test size(cmat) == (order+1, 10)
+            @test size(cmat) == (order+1, 2)
         end
     end
 
@@ -266,7 +273,7 @@ function test_mgcep()
                 c = mgcep(dummy_input, order, α, γ)
                 @test length(c) == order+1
                 cmat = mgcep(dummy_input_mat, order, α, γ)
-                @test size(cmat) == (order+1, 10)
+                @test size(cmat) == (order+1, 2)
             end
         end
     end
@@ -296,7 +303,7 @@ function test_mgcep()
         c = uels(dummy_input, order)
         @test length(c) == order+1
         cmat = uels(dummy_input_mat, order)
-        @test size(cmat) == (order+1, 10)
+        @test size(cmat) == (order+1, 2)
     end
 
     # invalid optinal paramters
@@ -313,7 +320,7 @@ function test_mgcep()
         c = fftcep(dummy_input, order)
         cmat = fftcep(dummy_input_mat, order)
         @test length(c) == order+1
-        @test size(cmat) == (order+1, 10)
+        @test size(cmat) == (order+1, 2)
     end
 
     println("-- test mcep and mgcep consistency")
