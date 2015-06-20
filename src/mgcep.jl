@@ -21,7 +21,7 @@ function mcep!(mc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41;
         throw(ArgumentError("eps: $eps, must be >= 0"))
     end
     if min_det < 0.0
-       throw(ArgumentError("min_det must be positive: min_det = $min_det"))
+        throw(ArgumentError("min_det must be positive: min_det = $min_det"))
     end
 
     order = length(mc) - 1
@@ -62,7 +62,7 @@ function gcep!(gc::Vector{Cdouble}, windowed::Vector{Cdouble}, γ=0.0;
         throw(ArgumentError("eps: $eps, must be >= 0"))
     end
     if min_det < 0.0
-       throw(ArgumentError("min_det must be positive: min_det = $min_det"))
+        throw(ArgumentError("min_det must be positive: min_det = $min_det"))
     end
 
     order = length(gc) - 1
@@ -106,7 +106,7 @@ function mgcep!(mgc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41,
         throw(ArgumentError("eps: $eps, must be >= 0"))
     end
     if min_det < 0.0
-       throw(ArgumentError("min_det must be positive: min_det = $min_det"))
+        throw(ArgumentError("min_det must be positive: min_det = $min_det"))
     end
     if otype ∉ 0:5
         throw(ArgumentError("unsupported otype: $otype, must be ∈ 0:5"))
@@ -201,7 +201,7 @@ end
 function lpc!(a::Vector{Cdouble}, x::Vector{Cdouble};
              min_det::Float64=1.0e-6)
     if min_det < 0.0
-       throw(ArgumentError("min_det must be positive: min_det = $min_det"))
+        throw(ArgumentError("min_det must be positive: min_det = $min_det"))
     end
 
     order = length(a) - 1

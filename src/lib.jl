@@ -19,7 +19,7 @@ function theq!(a::Vector{Cdouble}, t::Vector{Cdouble}, h::Vector{Cdouble},
         throw(DimensionMismatch("inconsistent vector length"))
     end
     if min_det < 0.0
-       throw(ArgumentError("min_det must be positive: min_det = $min_det"))
+        throw(ArgumentError("min_det must be positive: min_det = $min_det"))
     end
 
     ret = ccall((:theq, libSPTK), Cint,
@@ -47,7 +47,7 @@ function toeplitz!(a::Vector{Cdouble}, t::Vector{Cdouble}, b::Vector{Cdouble};
         throw(DimensionMismatch("inconsistent vector length"))
     end
     if eps < 0.0
-       throw(ArgumentError("eps must be positive: eps = $eps"))
+        throw(ArgumentError("eps must be positive: eps = $eps"))
     end
 
     ret = ccall((:toeplitz, libSPTK), Cint,
