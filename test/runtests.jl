@@ -303,10 +303,12 @@ function test_mgcep()
     @test_throws ArgumentError uels(dummy_input, etype=2, eps=-1.0)
 
     println("-- test_fftcep")
-    c = fftcep(dummy_input, 20)
-    cmat = fftcep(dummy_input_mat, 20)
-    @test length(c) == 21
-    @test size(cmat) == (21, 10)
+    for order in [20, 22, 24]
+        c = fftcep(dummy_input, order)
+        cmat = fftcep(dummy_input_mat, order)
+        @test length(c) == order+1
+        @test size(cmat) == (order+1, 10)
+    end
 
     println("-- test mcep and mgcep consistency")
     # mgcep when gamma = 0, the result of mgcep is corresponds to mcep
@@ -469,11 +471,16 @@ function test_lpc()
     dummy_input = rand(1024)
 
     println("-- test_lpc")
-    l = lpc(dummy_input, 20)
-    @test length(l) == 21
-    @test !any(isnan(l))
+    for order in [20, 22, 24]
+        l = lpc(dummy_input, order)
+        @test length(l) == order + 1
+        @test !any(isnan(l))
+    end
+
+    @test_throws ArgumentError lpc(dummy_input, 40, min_det=-1.0)
 
     println("-- test_lpc2c")
+    l = lpc(dummy_input, 20)
     c = lpc2c(l)
     @test length(c) == length(l)
     @test !any(isnan(c))

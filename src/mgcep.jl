@@ -149,7 +149,7 @@ function mgcep(windowed::Vector{Cdouble}, order=40, α=0.41, γ=0.0; kargs...)
     mgcep!(mgc, windowed, α, γ; kargs...)
 end
 
-function uels!(c::Vector{Cdouble}, windowed::Vector{Cdouble}, order=40;
+function uels!(c::Vector{Cdouble}, windowed::Vector{Cdouble};
                miniter::Int=2,
                maxiter::Int=30,
                threshold::Float64=0.001,
@@ -180,24 +180,38 @@ end
 
 function uels(windowed::Vector{Cdouble}, order=40; kargs...)
     c = zeros(order + 1)
-    uels!(c, windowed, order; kargs...)
+    uels!(c, windowed; kargs...)
 end
 
-function fftcep(logsp::Vector{Cdouble}, order;
-                itr::Int=0, accelerationf::Float64=0.0)
-    c = zeros(order+1)
-
+function fftcep!(c::Vector{Cdouble}, logsp::Vector{Cdouble};
+                 num_iter::Int=0,
+                 acceleration_factor::Float64=0.0)
+    order = length(c) - 1
     ccall((:fftcep, libSPTK), Void,
           (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cint, Cdouble),
-          logsp, length(logsp), c, length(c), itr, accelerationf)
+          logsp, length(logsp), c, length(c), num_iter, acceleration_factor)
     c
 end
 
-function lpc(x::Vector{Cdouble}, order;
-             f::Float64=1e-6)
-    a = Array(Cdouble, order+1)
+function fftcep(logsp::Vector{Cdouble}, order=40; kargs...)
+    c = zeros(order + 1)
+    fftcep!(c, logsp; kargs...)
+end
+
+function lpc!(a::Vector{Cdouble}, x::Vector{Cdouble};
+             min_det::Float64=1.0e-6)
+    if min_det < 0.0
+       throw(ArgumentError("min_det must be positive: min_det = $min_det"))
+    end
+
+    order = length(a) - 1
     ccall((:lpc, libSPTK), Void,
           (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cdouble),
-          x, length(x), a, order, f)
+          x, length(x), a, order, min_det)
     a
+end
+
+function lpc(x::Vector{Cdouble}, order=40; kargs...)
+    a = Array(Cdouble, order+1)
+    lpc!(a, x; kargs...)
 end

@@ -47,11 +47,17 @@ export
     phidf!,
 
     # Mel-generalized cepstrum analysis
+    mcep!,
     mcep,
+    gcep!,
     gcep,
+    mgcep!,
     mgcep,
+    uels!,
     uels,
+    fftcep!,
     fftcep,
+    lpc!,
     lpc,
 
     # MFCC
