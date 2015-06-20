@@ -26,9 +26,7 @@ end
 
 function test_mseq()
     println("-- test_mseq")
-    mseq()
-    mseq()
-    mseq()
+    for i = 1:1000 @test !isnan(mseq()) end
 end
 
 function fill_toeplitz!{T}(A::AbstractMatrix{T}, t::AbstractVector{T})
@@ -58,7 +56,7 @@ function test_theq()
     T = zeros(2,2)
     fill_toeplitz!(T, t)
 
-    # hankel elements for ones(n) / 2
+    # hankel elements
     h = zeros(2n-1)
     h[1] = 1.0
     h[3] = 1.0
@@ -70,9 +68,11 @@ function test_theq()
 
     # solve (T + H)a = b
     theq!(a, t, h, b)
+    @test_approx_eq a ones(n)
     @test_approx_eq a theq(t, h, b)
     @test_approx_eq a (T + H) \ b
 
+    # fail to solve toeplitz plus hankel matrix system
     for m in [3, 5, 10]
         a = ones(m)
         t = ones(a)
@@ -86,20 +86,48 @@ function test_theq()
     h = ones(2length(a)-1)
     b = ones(a)
 
-    @test_throws DimensionMismatch theq(t, h, ones(length(b)-1))
-    @test_throws DimensionMismatch theq(t, ones(length(h)-1), b)
-    @test_throws DimensionMismatch theq(t, ones(length(h)-1), b)
-    @test_throws DimensionMismatch theq(ones(length(t)-1), h, b)
+    @test_throws DimensionMismatch theq!(a, t, h, ones(length(b)-1))
+    @test_throws DimensionMismatch theq!(a, t, ones(length(h)-1), b)
+    @test_throws DimensionMismatch theq!(a, t, ones(length(h)-1), b)
+    @test_throws DimensionMismatch theq!(a, ones(length(t)-1), h, b)
+    @test_throws DimensionMismatch theq!(ones(length(a)-1), t, h, b)
 end
 
+# Ta = b
 function test_toeplitz()
     println("-- test_toeplitz")
     srand(98765)
-    a = rand(10)
-    b = copy(a)
-    c = copy(a)
-    @test_throws Exception toeplitz!(c, a, b, 1.0e-6)
-    @test_throws Exception toeplitz(c, b)
+
+    n = 2
+    # toeplitz elements
+    t = [2.0, -1.0]
+    T = zeros(2,2)
+    fill_toeplitz!(T, t)
+    b = [1.0, 1.0]
+    @show T \ b
+    b = ones(n)
+    a = zeros(n)
+
+    # solve Ta = b
+    toeplitz!(a, t, b)
+    @test_approx_eq a ones(n)
+    @test_approx_eq a toeplitz(t, b)
+    @test_approx_eq a T \ b
+
+    # fail to solve toeplitz set of linear equations
+    for m in [3, 5, 10]
+        a = ones(m)
+        t = ones(a)
+        b = ones(a)
+        @test_throws Exception toeplitz!(a, t, b)
+    end
+
+    a = ones(5)
+    t = ones(a)
+    b = ones(a)
+    @test_throws DimensionMismatch toeplitz!(a, t, ones(length(b)-1))
+    @test_throws DimensionMismatch toeplitz!(a, ones(length(t)-1), b)
+    @test_throws DimensionMismatch toeplitz!(ones(length(a)-1), t, b)
 end
 
 test_agexp()

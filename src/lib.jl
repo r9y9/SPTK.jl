@@ -35,10 +35,13 @@ function theq(t::Vector{Cdouble}, h::Vector{Cdouble}, b::Vector{Cdouble};
     theq!(a, t, h, b, eps)
 end
 
-function toeplitz!(t::Vector{Cdouble}, a::Vector{Cdouble}, b::Vector{Cdouble},
-                   eps)
-    if length(c) != length(a) || length(c) != length(b)
-        error("input vectors should have same length")
+# solve Ta = b
+# NOTE: the order of arguments is different in toeplitz in SPTK
+# I would put the solution vector `a` as the first argument instead of second.
+function toeplitz!(a::Vector{Cdouble}, t::Vector{Cdouble}, b::Vector{Cdouble},
+                   eps=1.0e-6)
+    if length(a) != length(t) || length(a) != length(b)
+        throw(DimensionMismatch("inconsistent vector length"))
     end
 
     ret = ccall((:toeplitz, libSPTK), Cint,
@@ -54,5 +57,5 @@ end
 function toeplitz(t::Vector{Cdouble}, b::Vector{Cdouble};
                   eps::Float64=1.0e-6)
     a = similar(t)
-    toeplitz!(t, a, b, eps)
+    toeplitz!(a, t, b, eps)
 end
