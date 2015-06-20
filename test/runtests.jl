@@ -522,6 +522,9 @@ function test_f0()
     @test length(f0) == div(length(dummy_input), 80) + 1
     @test !any(isnan(f0))
     @test all(f0 .>= 0)
+
+    @test_throws ArgumentError swipe(dummy_input, 16000, 80, otype=-1)
+    @test_throws ArgumentError swipe(dummy_input, 16000, 80, otype=-3)
 end
 
 test_f0()
