@@ -5,6 +5,28 @@ module SPTK
 # The original SPTK: http://sp-tk.sourceforge.net/
 # Note that the SPTK.jl is based on the slightly modified SPTK
 # https://github.com/r9y9/SPTK
+#
+# NOTE: Function interfaces might be different betweeen C and Julia,
+# as the following convensions.
+#
+# Conventions for wrapping C interface
+#
+# 1. Avoid really short names for variables (e.g. a, b, c, aa, bb, dd) .
+#
+#    Variable names should be informative. If the C functions have such names,
+#    use self-descriptive names for Julia interfaces, unless they have clear
+#    meanings in context.
+#
+# 2. Avoid too many function arguments.
+#
+#    Less is better. If the C functions have too many function arguments, use
+#    keyword arguments with proper default values for optional ones in Julia.
+#
+# 3. Handle errors in Julia
+#
+#    Since C functions might `exit` (unfortunately) inside thier functions for
+#    unexpected inputs, it should be check if the inputs are supported or not
+#    in Julia before `ccall`.
 
 export
     # Library routines
