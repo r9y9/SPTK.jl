@@ -271,6 +271,10 @@ function test_mgcep()
         end
     end
 
+    for otype in 1:5
+        try mgcep(dummy_input) catch @test false end
+    end
+
     # invalid γ
     @test_throws ArgumentError mgcep(dummy_input, 40, 0.41, 0.1)
     @test_throws ArgumentError mgcep(dummy_input, 40, 0.41, -2.0)
