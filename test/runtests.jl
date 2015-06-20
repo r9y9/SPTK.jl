@@ -115,40 +115,61 @@ function test_adaptive_mcep()
     println("test adaptive mel-cepstrum analysis")
     srand(98765)
     dummy_input = rand(64)
-    order = 20
-    c = zeros(order+1)
 
     println("-- test_acep!")
-    for x in dummy_input
-        acep!(c, x)
+    for order in [20, 22, 24]
+        c = zeros(order+1)
+        for x in dummy_input
+            acep!(c, x)
+        end
+        @test !any(isnan(c))
     end
-    @test !any(isnan(c))
-    @test_throws ArgumentError acep!(c, dummy_input[1], pd=3)
-    @test_throws ArgumentError acep!(c, dummy_input[1], pd=6)
+
+    let
+        c = zeros(21)
+        @test_throws ArgumentError acep!(c, dummy_input[1], pd=3)
+        @test_throws ArgumentError acep!(c, dummy_input[1], pd=6)
+    end
 
     println("-- test_agcep!")
-    for stage in 1:10
-        fill!(c, zero(eltype(c)))
-        for x in dummy_input
-            agcep!(c, x, stage)
+    for order in [20, 22, 24]
+        c = zeros(order+1)
+        for stage in 1:10
+            fill!(c, zero(eltype(c)))
+            for x in dummy_input
+                agcep!(c, x, stage)
+            end
+            @test !any(isnan(c))
         end
-        @test !any(isnan(c))
     end
-    @test_throws ArgumentError agcep!(c, dummy_input[1], 0)
-    @test_throws ArgumentError agcep!(c, dummy_input[1], -1)
+
+    let
+        c = zeros(21)
+        @test_throws ArgumentError agcep!(c, dummy_input[1], 0)
+        @test_throws ArgumentError agcep!(c, dummy_input[1], -1)
+    end
 
     println("-- test_amcep!")
-    for α in[0.35, 0.41, 0.5]
-        fill!(c, zero(eltype(c)))
-        delay = zeros(length(c))
-        for x in dummy_input
-            amcep!(c, x, α)
-            phidf!(x, length(c)-1, α, delay)
+    for order in [20, 22, 24]
+        c = zeros(order+1)
+        for α in [0.35, 0.41, 0.5]
+            for pd in 4:5
+                fill!(c, zero(eltype(c)))
+                delay = zeros(length(c))
+                for x in dummy_input
+                    amcep!(c, x, α, pd=pd)
+                    phidf!(x, length(c)-1, α, delay)
+                end
+                @test !any(isnan(c))
+            end
         end
-        @test !any(isnan(c))
     end
-    @test_throws ArgumentError amcep!(c, dummy_input[1], 0.35, pd=3)
-    @test_throws ArgumentError amcep!(c, dummy_input[1], 0.35, pd=6)
+
+    let
+        c = zeros(21)
+        @test_throws ArgumentError amcep!(c, dummy_input[1], 0.35, pd=3)
+        @test_throws ArgumentError amcep!(c, dummy_input[1], 0.35, pd=6)
+    end
 end
 
 test_adaptive_mcep()
