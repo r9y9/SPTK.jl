@@ -285,14 +285,22 @@ function test_mgcep()
     @test_throws ArgumentError mgcep(dummy_input, etype=2, eps=-1.0)
     @test_throws ArgumentError mgcep(dummy_input, min_det=-1.0)
 
-    # TODO fix in windows
-    @unix_only begin
-        println("-- test_uels")
-        c = uels(dummy_input, 20)
-        @test length(c) == 21
-        cmat = uels(dummy_input_mat, 20)
-        @test size(cmat) == (21, 10)
+    println("-- test_uels")
+    for order in [20, 22, 24]
+        c = uels(dummy_input, order)
+        @test length(c) == order+1
+        cmat = uels(dummy_input_mat, order)
+        @test size(cmat) == (order+1, 10)
     end
+
+    # invalid optinal paramters
+    @test_throws ArgumentError uels(dummy_input, itype=-1)
+    @test_throws ArgumentError uels(dummy_input, itype=5)
+    @test_throws ArgumentError uels(dummy_input, eps=-1.0)
+    @test_throws ArgumentError uels(dummy_input, etype=-1)
+    @test_throws ArgumentError uels(dummy_input, etype=-3)
+    @test_throws ArgumentError uels(dummy_input, etype=1, eps=-1.0)
+    @test_throws ArgumentError uels(dummy_input, etype=2, eps=-1.0)
 
     println("-- test_fftcep")
     c = fftcep(dummy_input, 20)

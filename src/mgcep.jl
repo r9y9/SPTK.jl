@@ -149,16 +149,38 @@ function mgcep(windowed::Vector{Cdouble}, order=40, α=0.41, γ=0.0; kargs...)
     mgcep!(mgc, windowed, α, γ; kargs...)
 end
 
-function uels(x::Vector{Cdouble}, order;
-              miniter::Int=2, maxiter::Int=30, dd::Float64=0.001,
-              etype::Int=0, e::Float64=0.0, f::Float64=0.0001, itype::Int=0)
-    c = zeros(order+1)
+function uels!(c::Vector{Cdouble}, windowed::Vector{Cdouble}, order=40;
+               miniter::Int=2,
+               maxiter::Int=30,
+               threshold::Float64=0.001,
+               etype::Int=0,
+               eps::Float64=0.0,
+               itype::Int=0)
+    if itype ∉ 0:4
+        throw(ArgumentError("unsupported itype: $itype, must be ∈ 0:4"))
+    end
+    if etype ∉ 0:2
+        throw(ArgumentError("unsupported etype: $etype, must be ∈ 0:2"))
+    end
+    if etype == 0 && eps != 0.0
+        throw(ArgumentError("eps cannot be specified for etype = 0"))
+    end
+    if etype ∈ 1:2 && eps < 0.0
+        throw(ArgumentError("eps: $eps, must be >= 0"))
+    end
+
+    order = length(c) - 1
     ccall((:uels, libSPTK), Cint,
           (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cint, Cint, Cdouble, Cint,
-           Cdouble, Cdouble, Cint),
-          x, length(x), c, order,
-          miniter, maxiter, dd, etype, e, f, itype)
+           Cdouble, Cint),
+          windowed, length(windowed), c, order,
+          miniter, maxiter, threshold, etype, eps, itype)
     c
+end
+
+function uels(windowed::Vector{Cdouble}, order=40; kargs...)
+    c = zeros(order + 1)
+    uels!(c, windowed, order; kargs...)
 end
 
 function fftcep(logsp::Vector{Cdouble}, order;
