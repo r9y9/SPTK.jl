@@ -284,6 +284,8 @@ function test_mgcep()
     @test_throws ArgumentError mgcep(dummy_input, etype=1, eps=-1.0)
     @test_throws ArgumentError mgcep(dummy_input, etype=2, eps=-1.0)
     @test_throws ArgumentError mgcep(dummy_input, min_det=-1.0)
+    @test_throws ArgumentError mgcep(dummy_input, otype=-1)
+    @test_throws ArgumentError mgcep(dummy_input, otype=-6)
 
     println("-- test_uels")
     for order in [20, 22, 24]
