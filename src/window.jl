@@ -1,10 +1,17 @@
 # Window functions
 
-immutable WindowType
-    w::Int
+immutable Cwindow
+    w::Cint
+
+    function Cwindow(w)
+        if w ∉ 0:5
+            throw(ArgumentError("invalid window index $w: must be ∈ 0:5"))
+        end
+        new(w)
+    end
 end
 
-function _window!(wtype::WindowType, x::Vector{Cdouble}; normalize::Int=0)
+function _window!(wtype::Cwindow, x::Vector{Cdouble}; normalize::Int=0)
     # normalize: Int
     #    0 : don't normalize
     #    1 : normalize by power
@@ -13,7 +20,7 @@ function _window!(wtype::WindowType, x::Vector{Cdouble}; normalize::Int=0)
         throw(ArgumentError("invalid normalize flag $normalize, must be ∈ 0:2"))
     end
     g = ccall((:window, libSPTK), Cdouble,
-              (WindowType, Ptr{Cdouble}, Cint, Cint), wtype, x, length(x),
+              (Cwindow, Ptr{Cdouble}, Cint, Cint), wtype, x, length(x),
               normalize)
     x
 end
@@ -27,7 +34,7 @@ for (f, wtype) in [(:blackman, 0),
     @eval begin
         function $f(n::Integer; kargs...)
             y = ones(Float64, n)
-            _window!(WindowType($wtype), y; kargs...)
+            _window!(Cwindow($wtype), y; kargs...)
         end
     end
 end

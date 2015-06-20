@@ -593,6 +593,11 @@ end
 test_waveform_generation_filters()
 
 function test_window_functions()
+    try SPTK.Cwindow(0) catch @test false end
+    try SPTK.Cwindow(5) catch @test false end
+    @test_throws ArgumentError SPTK.Cwindow(-1)
+    @test_throws ArgumentError SPTK.Cwindow(6)
+
     println("test windows functions")
     srand(98765)
     x = rand(1024)
