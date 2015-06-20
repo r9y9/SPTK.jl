@@ -217,12 +217,15 @@ function test_mgcep()
     @test_approx_eq c1 c2
 
     for order in [20, 22, 24]
-        c = mcep(dummy_input, order, 0.41)
-        @test length(c) == order+1
-        cmat = mcep(dummy_input_mat, order, 0.41)
-        @test size(cmat) == (order+1, 10)
+        for α in [0.35, 0.41, 0.5]
+            c = mcep(dummy_input, order, α)
+            @test length(c) == order+1
+            cmat = mcep(dummy_input_mat, order, α)
+            @test size(cmat) == (order+1, 10)
+        end
     end
 
+    # invalid optinal paramters
     @test_throws ArgumentError mcep(dummy_input, itype=-1)
     @test_throws ArgumentError mcep(dummy_input, itype=5)
     @test_throws ArgumentError mcep(dummy_input, eps=-1.0)
@@ -233,16 +236,54 @@ function test_mgcep()
     @test_throws ArgumentError mcep(dummy_input, min_det=-1.0)
 
     println("-- test_gcep")
-    c = gcep(dummy_input, 20, -1/4)
-    @test length(c) == 21
-    cmat = gcep(dummy_input_mat, 20, -1/4)
-    @test size(cmat) == (21, 10)
+    for order in [20, 22, 24]
+        for γ in [-1.0, -0.5, 0.0]
+            c = gcep(dummy_input, order, γ)
+            @test length(c) == order+1
+            cmat = gcep(dummy_input_mat, order, γ)
+            @test size(cmat) == (order+1, 10)
+        end
+    end
+
+    # invalid γ
+    @test_throws ArgumentError gcep(dummy_input, 40, 0.1)
+    @test_throws ArgumentError gcep(dummy_input, 40, -2.1)
+
+    # invalid optinal paramters
+    @test_throws ArgumentError gcep(dummy_input, itype=-1)
+    @test_throws ArgumentError gcep(dummy_input, itype=5)
+    @test_throws ArgumentError gcep(dummy_input, eps=-1.0)
+    @test_throws ArgumentError gcep(dummy_input, etype=-1)
+    @test_throws ArgumentError gcep(dummy_input, etype=-3)
+    @test_throws ArgumentError gcep(dummy_input, etype=1, eps=-1.0)
+    @test_throws ArgumentError gcep(dummy_input, etype=2, eps=-1.0)
+    @test_throws ArgumentError gcep(dummy_input, min_det=-1.0)
 
     println("-- test_mgcep")
-    c = mgcep(dummy_input, 20, 0.41, -1/4)
-    @test length(c) == 21
-    cmat = mgcep(dummy_input_mat, 20, 0.41, -1/4)
-    @test size(cmat) == (21, 10)
+    for order in [20, 22, 24]
+        for α in [0.35, 0.41, 0.5]
+            for γ in [-1.0, -0.5, 0.0]
+                c = mgcep(dummy_input, order, α, γ)
+                @test length(c) == order+1
+                cmat = mgcep(dummy_input_mat, order, α, γ)
+                @test size(cmat) == (order+1, 10)
+            end
+        end
+    end
+
+    # invalid γ
+    @test_throws ArgumentError mgcep(dummy_input, 40, 0.41, 0.1)
+    @test_throws ArgumentError mgcep(dummy_input, 40, 0.41, -2.0)
+
+    # invalid optinal paramters
+    @test_throws ArgumentError mgcep(dummy_input, itype=-1)
+    @test_throws ArgumentError mgcep(dummy_input, itype=5)
+    @test_throws ArgumentError mgcep(dummy_input, eps=-1.0)
+    @test_throws ArgumentError mgcep(dummy_input, etype=-1)
+    @test_throws ArgumentError mgcep(dummy_input, etype=-3)
+    @test_throws ArgumentError mgcep(dummy_input, etype=1, eps=-1.0)
+    @test_throws ArgumentError mgcep(dummy_input, etype=2, eps=-1.0)
+    @test_throws ArgumentError mgcep(dummy_input, min_det=-1.0)
 
     # TODO fix in windows
     @unix_only begin
