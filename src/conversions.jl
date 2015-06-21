@@ -229,9 +229,9 @@ function freqt!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α)
     dst_ceps
 end
 
-function freqt(c::Vector{Cdouble}, order, α)
-    dst_ceps = zeros(dst_order + 1)
-    freqt!(dst_ceps, c, α)
+function freqt(ceps::Vector{Cdouble}, order, α)
+    dst_ceps = zeros(order + 1)
+    freqt!(dst_ceps, ceps, α)
 end
 
 function frqtr!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α)

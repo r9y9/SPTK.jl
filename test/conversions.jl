@@ -79,12 +79,19 @@ function test_ignorm(order, γ)
     @test_approx_eq dummy_ceps c
 end
 
-function test_freqt(src_order, dst_order, α, f::Function)
+function test_freqt(src_order, dst_order, α, f::Symbol=:freqt)
+    f = eval(f)
+    inplacef = eval(symbol(string(f, :!)))
+
     srand(98765)
     src_ceps = rand(src_order + 1)
-    dst_ceps = zeros(dst_order + 1)
-    f(dst_ceps, src_ceps, 0.41)
+    dst_ceps_inplace = zeros(dst_order + 1)
+
+    dst_ceps = f(src_ceps, dst_order, α)
+    inplacef(dst_ceps_inplace, src_ceps, α)
+
     @test !any(isnan(dst_ceps))
+    @test_approx_eq dst_ceps dst_ceps_inplace
 end
 
 function test_mgc2mgc(dst_order, dst_α, dst_γ, src_order, src_α, src_γ)
@@ -215,8 +222,8 @@ for src_order in [15, 20, 25, 30]
     for dst_order in [15, 20, 25, 30]
         for α in [0.35, 0.41, 0.5]
             println(" where dst_order = $dst_order, src_order = $src_order, α = $α")
-            test_freqt(src_order, dst_order, α, freqt!)
-            test_freqt(src_order, dst_order, α, SPTK.frqtr!)
+            test_freqt(src_order, dst_order, α, :freqt)
+            test_freqt(src_order, dst_order, α, :frqtr)
         end
     end
 end

@@ -88,6 +88,8 @@ export
     ignorm,
     freqt!,
     freqt,
+    frqtr!,
+    frqtr,
     mgc2mgc!,
     mgc2mgc,
     mgc2sp!,
