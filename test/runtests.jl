@@ -1,650 +1,299 @@
 using SPTK
 using Base.Test
 
-# Library routines
-
-println("test library routines")
-
-function test_agexp()
-    println("-- test_agexp")
-    @test_approx_eq agexp(1, 1, 1) 5.0
-    @test_approx_eq agexp(1, 2, 3) 18.0
-    @test_approx_eq agexp(2, 3, 5) 12.206555615733702
+for fname in [
+              "lib",
+              "adaptive",
+              "mgcep",
+              "mfcc",
+              "window",
+              "f0",
+              "lpc",
+              "synthesis_filters"
+    ]
+    include(string(fname, ".jl"))
 end
-
-function test_gexp()
-    println("-- test_gexp")
-    @test_approx_eq gexp(1, 1) 2.0
-    @test_approx_eq gexp(2, 4) 3.0
-end
-
-function test_glog()
-    println("-- test_glog")
-    @test_approx_eq glog(1, 2) 1.0
-    @test_approx_eq glog(2, 3) 4.0
-end
-
-function test_mseq()
-    println("-- test_mseq")
-    for i = 1:1000 @test !isnan(mseq()) end
-end
-
-function fill_toeplitz!{T}(A::AbstractMatrix{T}, t::AbstractVector{T})
-    n = length(t)
-    for j=1:n, i=1:n
-        A[i,j] = i-j+1 >= 1 ? t[i-j+1] : t[j-i+1]
-    end
-    A
-end
-
-function fill_hankel!{T}(A::AbstractMatrix{T}, h::AbstractVector{T})
-    n = length(h)>>1 + 1
-    for j=1:n, i=1:n
-        A[i,j] = h[i+j-1]
-    end
-    A
-end
-
-# (T + H)a = b
-function test_theq()
-    println("-- test_theq")
-    srand(98765)
-
-    n = 2
-    # toeplitz elements
-    t = [1.0, -1.0]
-    T = zeros(2,2)
-    fill_toeplitz!(T, t)
-
-    # hankel elements
-    h = zeros(2n-1)
-    h[1] = 1.0
-    h[3] = 1.0
-    H = zeros(2,2)
-    fill_hankel!(H, h)
-
-    b = ones(n)
-    a = zeros(n)
-
-    # solve (T + H)a = b
-    theq!(a, t, h, b)
-    @test_approx_eq a ones(n)
-    @test_approx_eq a theq(t, h, b)
-    @test_approx_eq a (T + H) \ b
-
-    # fail to solve toeplitz plus hankel matrix system
-    for m in [3, 5, 10]
-        a = ones(m)
-        t = ones(a)
-        h = ones(2length(a)-1)
-        b = ones(a)
-        @test_throws Exception theq!(a, t, h, b)
-    end
-
-    a = ones(5)
-    t = ones(a)
-    h = ones(2length(a)-1)
-    b = ones(a)
-
-    @test_throws ArgumentError theq!(a, t, h, b, min_det=-1.0)
-    @test_throws DimensionMismatch theq!(a, t, h, ones(length(b)-1))
-    @test_throws DimensionMismatch theq!(a, t, ones(length(h)-1), b)
-    @test_throws DimensionMismatch theq!(a, t, ones(length(h)-1), b)
-    @test_throws DimensionMismatch theq!(a, ones(length(t)-1), h, b)
-    @test_throws DimensionMismatch theq!(ones(length(a)-1), t, h, b)
-end
-
-# Ta = b
-function test_toeplitz()
-    println("-- test_toeplitz")
-    srand(98765)
-
-    n = 2
-    # toeplitz elements
-    t = [2.0, -1.0]
-    T = zeros(2,2)
-    fill_toeplitz!(T, t)
-    b = [1.0, 1.0]
-    b = ones(n)
-    a = zeros(n)
-
-    # solve Ta = b
-    toeplitz!(a, t, b)
-    @test_approx_eq a ones(n)
-    @test_approx_eq a toeplitz(t, b)
-    @test_approx_eq a T \ b
-
-    # fail to solve toeplitz set of linear equations
-    for m in [3, 5, 10]
-        a = ones(m)
-        t = ones(a)
-        b = ones(a)
-        @test_throws Exception toeplitz!(a, t, b)
-    end
-
-    a = ones(5)
-    t = ones(a)
-    b = ones(a)
-    @test_throws ArgumentError toeplitz!(a, t, b, eps=-1.0)
-    @test_throws DimensionMismatch toeplitz!(a, t, ones(length(b)-1))
-    @test_throws DimensionMismatch toeplitz!(a, ones(length(t)-1), b)
-    @test_throws DimensionMismatch toeplitz!(ones(length(a)-1), t, b)
-end
-
-test_agexp()
-test_gexp()
-test_glog()
-test_mseq()
-test_theq()
-test_toeplitz()
 
 # SPTK APIs
 
-function test_adaptive_mcep()
-    println("test adaptive mel-cepstrum analysis")
+function test_mc2b(order, α)
     srand(98765)
-    dummy_input = rand(64)
-
-    println("-- test_acep!")
-    for order in [20, 22, 24]
-        c = zeros(order+1)
-        for x in dummy_input
-            acep!(c, x)
-        end
-        @test !any(isnan(c))
-    end
-
-    let
-        c = zeros(21)
-        @test_throws ArgumentError acep!(c, dummy_input[1], pd=3)
-        @test_throws ArgumentError acep!(c, dummy_input[1], pd=6)
-    end
-
-    println("-- test_agcep!")
-    for order in [20, 22, 24]
-        c = zeros(order+1)
-        for stage in 1:10
-            fill!(c, zero(eltype(c)))
-            for x in dummy_input
-                agcep!(c, x, stage)
-            end
-            @test !any(isnan(c))
-        end
-    end
-
-    let
-        c = zeros(21)
-        @test_throws ArgumentError agcep!(c, dummy_input[1], 0)
-        @test_throws ArgumentError agcep!(c, dummy_input[1], -1)
-    end
-
-    println("-- test_amcep!")
-    for order in [20, 22, 24]
-        c = zeros(order+1)
-        for α in [0.35, 0.41, 0.5]
-            for pd in 4:5
-                fill!(c, zero(eltype(c)))
-                delay = zeros(length(c))
-                for x in dummy_input
-                    amcep!(c, x, α, pd=pd)
-                    SPTK.phidf!(x, length(c)-1, α, delay)
-                end
-                @test !any(isnan(c))
-            end
-        end
-    end
-
-    let
-        c = zeros(21)
-        delay = zeros(length(c)-1)
-        x = dummy_input[1]
-        @test_throws ArgumentError SPTK.phidf!(x, length(c)-1, 0.41, delay)
-    end
-
-    let
-        c = zeros(21)
-        @test_throws ArgumentError amcep!(c, dummy_input[1], 0.35, pd=3)
-        @test_throws ArgumentError amcep!(c, dummy_input[1], 0.35, pd=6)
-    end
-end
-
-test_adaptive_mcep()
-
-function test_mgcep()
-    println("test mel-generalized cepstrum analysis")
-    srand(98765)
-    dummy_input = rand(256)
-    dummy_input_mat = repmat(dummy_input, 1, 2)
-
-    println("-- test_mcep")
-    # Since some SPTK functions have static variables inside and
-    # this may return different results even if the same input is given
-    c1 = mcep(dummy_input, 20, 0.41)
-    c2 = mcep(dummy_input, 20, 0.41)
-    @test_approx_eq c1 c2
-
-    for order in [20, 22, 24]
-        for α in [0.35, 0.41, 0.5]
-            c = mcep(dummy_input, order, α)
-            @test length(c) == order+1
-            cmat = mcep(dummy_input_mat, order, α)
-            @test size(cmat) == (order+1, 2)
-        end
-    end
-
-    # invalid optinal paramters
-    @test_throws ArgumentError mcep(dummy_input, itype=-1)
-    @test_throws ArgumentError mcep(dummy_input, itype=5)
-    @test_throws ArgumentError mcep(dummy_input, eps=-1.0)
-    @test_throws ArgumentError mcep(dummy_input, etype=-1)
-    @test_throws ArgumentError mcep(dummy_input, etype=-3)
-    @test_throws ArgumentError mcep(dummy_input, etype=1, eps=-1.0)
-    @test_throws ArgumentError mcep(dummy_input, etype=2, eps=-1.0)
-    @test_throws ArgumentError mcep(dummy_input, min_det=-1.0)
-
-    println("-- test_gcep")
-    for order in [20, 22, 24]
-        for γ in [-1.0, -0.5, 0.0]
-            c = gcep(dummy_input, order, γ)
-            @test length(c) == order+1
-            cmat = gcep(dummy_input_mat, order, γ)
-            @test size(cmat) == (order+1, 2)
-        end
-    end
-
-    # invalid γ
-    @test_throws ArgumentError gcep(dummy_input, 40, 0.1)
-    @test_throws ArgumentError gcep(dummy_input, 40, -2.1)
-
-    # invalid optinal paramters
-    @test_throws ArgumentError gcep(dummy_input, itype=-1)
-    @test_throws ArgumentError gcep(dummy_input, itype=5)
-    @test_throws ArgumentError gcep(dummy_input, eps=-1.0)
-    @test_throws ArgumentError gcep(dummy_input, etype=-1)
-    @test_throws ArgumentError gcep(dummy_input, etype=-3)
-    @test_throws ArgumentError gcep(dummy_input, etype=1, eps=-1.0)
-    @test_throws ArgumentError gcep(dummy_input, etype=2, eps=-1.0)
-    @test_throws ArgumentError gcep(dummy_input, min_det=-1.0)
-
-    println("-- test_mgcep")
-    for order in [20, 22, 24]
-        for α in [0.35, 0.41, 0.5]
-            for γ in [-1.0, -0.5, 0.0]
-                c = mgcep(dummy_input, order, α, γ)
-                @test length(c) == order+1
-                cmat = mgcep(dummy_input_mat, order, α, γ)
-                @test size(cmat) == (order+1, 2)
-            end
-        end
-    end
-
-    for otype in 1:5
-        try mgcep(dummy_input) catch @test false end
-    end
-
-    # invalid γ
-    @test_throws ArgumentError mgcep(dummy_input, 40, 0.41, 0.1)
-    @test_throws ArgumentError mgcep(dummy_input, 40, 0.41, -2.0)
-
-    # invalid optinal paramters
-    @test_throws ArgumentError mgcep(dummy_input, itype=-1)
-    @test_throws ArgumentError mgcep(dummy_input, itype=5)
-    @test_throws ArgumentError mgcep(dummy_input, eps=-1.0)
-    @test_throws ArgumentError mgcep(dummy_input, etype=-1)
-    @test_throws ArgumentError mgcep(dummy_input, etype=-3)
-    @test_throws ArgumentError mgcep(dummy_input, etype=1, eps=-1.0)
-    @test_throws ArgumentError mgcep(dummy_input, etype=2, eps=-1.0)
-    @test_throws ArgumentError mgcep(dummy_input, min_det=-1.0)
-    @test_throws ArgumentError mgcep(dummy_input, otype=-1)
-    @test_throws ArgumentError mgcep(dummy_input, otype=-6)
-
-    println("-- test_uels")
-    for order in [20, 22, 24]
-        c = uels(dummy_input, order)
-        @test length(c) == order+1
-        cmat = uels(dummy_input_mat, order)
-        @test size(cmat) == (order+1, 2)
-    end
-
-    # invalid optinal paramters
-    @test_throws ArgumentError uels(dummy_input, itype=-1)
-    @test_throws ArgumentError uels(dummy_input, itype=5)
-    @test_throws ArgumentError uels(dummy_input, eps=-1.0)
-    @test_throws ArgumentError uels(dummy_input, etype=-1)
-    @test_throws ArgumentError uels(dummy_input, etype=-3)
-    @test_throws ArgumentError uels(dummy_input, etype=1, eps=-1.0)
-    @test_throws ArgumentError uels(dummy_input, etype=2, eps=-1.0)
-
-    println("-- test_fftcep")
-    for order in [20, 22, 24]
-        c = fftcep(dummy_input, order)
-        cmat = fftcep(dummy_input_mat, order)
-        @test length(c) == order+1
-        @test size(cmat) == (order+1, 2)
-    end
-
-    println("-- test mcep and mgcep consistency")
-    # mgcep when gamma = 0, the result of mgcep is corresponds to mcep
-    mc = mcep(dummy_input, 20, 0.41)
-    mgc = mgcep(dummy_input, 20, 0.41, 0.0)
-    @test_approx_eq_eps mc mgc 1.0e-4
-
-    println("-- test_mgclsp2sp")
-    sp = mgclsp2sp(dummy_input, 0.41, -1/4, 512)
-    @test length(sp) == 256+1
-
-    # refs #5
-    # change order 20 -> 40
-    println("-- test changing order (ref: issue #5)")
-    mcep(dummy_input, 40, 0.41)
-    mgcep(dummy_input, 40, 0.41, 0.0)
-end
-
-test_mgcep()
-
-function test_mfcc()
-    println("test_mfcc")
-    srand(20121)
-    dummy = rand(1024)
-    dummy_mat = repmat(dummy, 1, 10)
-
-    # By default, c0 is not contained
-    println("-- test no c0 is expected")
-    cc = mfcc(dummy, 12)
-    @test length(cc) == 12
-    ccmat = mfcc(dummy_mat, 12)
-    @test size(ccmat) == (12, 10)
-
-    # with c0
-    println("-- test c0 is expected")
-    cc = mfcc(dummy, 12; czero=true)
-    @test length(cc) == 13
-    ccmat = mfcc(dummy_mat, 12; czero=true)
-    @test size(ccmat) == (13, 10)
-
-    # with c0 + power
-    println("-- test c0 and power are expected")
-    cc = mfcc(dummy, 12; czero=true, power=true)
-    @test length(cc) == 14
-    ccmat = mfcc(dummy_mat, 12; czero=true, power=true)
-    @test size(ccmat) == (14, 10)
-
-    # with power
-    println("-- test power is expected")
-    cc = mfcc(dummy, 12; czero=false, power=true)
-    @test length(cc) == 13
-    ccmat = mfcc(dummy_mat, 12; czero=false, power=true)
-    @test size(ccmat) == (13, 10)
-end
-
-test_mfcc()
-
-function test_mgcep_conversions()
-    println("test mgcep conversions")
-
-    srand(98765)
-    dummy_input = rand(1024)
-    dummy_sp = abs(fft(dummy_input))
-    dummy_logsp = log(dummy_sp)
-    dummy_ceps = rand(20)
-    dummy_ceps_mat = repmat(dummy_ceps, 1, 10)
-
-    println("-- test_mc2b")
-    b = mc2b(dummy_ceps, 0.41)
+    dummy_ceps = rand(order+1)
+    b = mc2b(dummy_ceps, α)
     @test length(b) == length(dummy_ceps)
-    bmat = mc2b(dummy_ceps_mat, 0.41)
-    @test size(bmat) == (length(dummy_ceps), 10)
-
-    println("-- test_b2mc")
-    c = b2mc(dummy_ceps, 0.41)
-    @test length(c) == length(dummy_ceps)
-    cmat = b2mc(dummy_ceps_mat, 0.41)
-    @test size(cmat) == (length(dummy_ceps), 10)
-
-    println("-- test_c2acr")
-    r = c2acr(dummy_ceps, 20, 512)
-    @test length(r) == 21
-    r = c2acr(dummy_ceps, 25, 512)
-    @test length(r) == 26
-    rmat = c2acr(dummy_ceps_mat, 25, 512)
-    @test size(rmat) == (26, 10)
-
-    println("-- test_c2ir")
-    ir = c2ir(dummy_ceps, 512)
-    @test length(ir) == 512
-    irmat = c2ir(dummy_ceps_mat, 512)
-    @test size(irmat) == (512, 10)
-
-    println("-- test_ic2ir invertibility")
-    c = ic2ir(ir, length(dummy_ceps)-1)
-    @test_approx_eq c dummy_ceps
-    cmat = ic2ir(irmat, length(dummy_ceps)-1)
-    @test_approx_eq cmat dummy_ceps_mat
-
-    println("-- test_c2ndps")
-    ndps = c2ndps(dummy_ceps, 512)
-    @test length(ndps) == div(512, 2) + 1
-    ndpsmat = c2ndps(dummy_ceps_mat, 512)
-    @test size(ndpsmat) == (div(512, 2) + 1, 10)
-
-    println("-- test_ndps2c")
-    c = ndps2c(ndps, 20)
-    @test length(c) == 21
-    cmat = ndps2c(repmat(ndps, 1, 10), 20)
-    @test size(cmat) == (21, 10)
-
-    println("-- test_gc2gc")
-    c = gc2gc(dummy_ceps, 0.0, 15, -1/4)
-    @test length(c) == 16
-    cmat = gc2gc(dummy_ceps_mat, 0.0, 15, -1/4)
-    @test size(cmat) == (16, 10)
-
-    println("-- test_gnorm")
-    c = gnorm(dummy_ceps, -1/4)
-    @test length(c) == length(dummy_ceps)
-    cmat = gnorm(dummy_ceps_mat, -1/4)
-    @test size(cmat) == (length(dummy_ceps), 10)
-
-    println("-- test_ignorm")
-    c = ignorm(dummy_ceps, -1/4)
-    @test length(c) == length(dummy_ceps)
-    cmat = ignorm(dummy_ceps_mat, -1/4)
-    @test size(cmat) == (length(dummy_ceps), 10)
-
-    println("-- test_freqt")
-    c = freqt(dummy_ceps, 22, 0.41)
-    @test length(c) == 23
-    cmat = freqt(dummy_ceps_mat, 22, 0.41)
-    @test size(cmat) == (23, 10)
-
-    println("-- test_frqtr")
-    c = SPTK.frqtr(dummy_ceps, 22, 0.41)
-    @test length(c) == 23
-    cmat = SPTK.frqtr(dummy_ceps_mat, 22, 0.41)
-    @test size(cmat) == (23, 10)
-
-    println("-- test_mgc2mgc")
-    c = mgc2mgc(dummy_ceps, 0.41, 0.0, 22, 0.41, -1/4)
-    @test length(c) == 23
-    cmat = mgc2mgc(dummy_ceps_mat, 0.41, 0.0, 22, 0.41, -1/4)
-    @test size(cmat) == (23, 10)
-
-    println("-- test_mgc2sp")
-    sp = mgc2sp(dummy_ceps, 0.41, 0.0, 1024)
-    @test length(sp) == 1024>>1+1
-    spmat = mgc2sp(dummy_ceps_mat, 0.41, 0.0, 1024)
-    @test size(spmat) == (1024>>1+1, 10)
+    @test !any(isnan(b))
 end
 
-test_mgcep_conversions()
-
-function test_lpc()
-    println("test lpc")
+function test_b2mc(order, α)
     srand(98765)
-    dummy_input = rand(1024)
-
-    println("-- test_lpc")
-    for order in [20, 22, 24]
-        l = lpc(dummy_input, order)
-        @test length(l) == order + 1
-        @test !any(isnan(l))
-    end
-
-    @test_throws ArgumentError lpc(dummy_input, 40, min_det=-1.0)
-
-    println("-- test_lpc2c")
-    l = lpc(dummy_input, 20)
-    c = lpc2c(l)
-    @test length(c) == length(l)
+    dummy_b = rand(order+1)
+    c = b2mc(dummy_b, α)
+    @test length(c) == length(dummy_b)
     @test !any(isnan(c))
+end
 
-    println("-- test_lpc2lsp")
-    lsp = lpc2lsp(l, 20)
-    @test length(lsp) == 21
-    @test !any(isnan(lsp))
+function test_c2acr(order, desired_order, fftlen)
+    srand(98765)
+    dummy_ceps = rand(order+1)
+    r = c2acr(dummy_ceps, desired_order, fftlen)
+    @test length(r) == desired_order + 1
+    @test !any(isnan(r))
+end
 
-    println("-- test_lpc2par")
-    par = lpc2par(l)
-    @test length(par) == 21
-    @test !any(isnan(par))
+function test_c2ir(order, len)
+    srand(98765)
+    dummy_ceps = rand(order+1)
+    ir = c2ir(dummy_ceps, len)
+    @test length(ir) == len
+    @test !any(isnan(ir))
+end
 
-    println("-- test_lsp2sp")
-    sp = lsp2sp(lsp, 1024)
-    @test length(sp) == 1024>>1+1
+function test_ic2ir(len, order)
+    srand(98765)
+    dummy_ir = rand(len)
+    c = ic2ir(dummy_ir, order)
+    @test length(c) == order + 1
+    @test !any(isnan(c))
+end
+
+function test_ic2ir_invertibility(order, len)
+    srand(98765)
+    dummy_ceps = rand(order+1)
+    ir = c2ir(dummy_ceps, len)
+    c = ic2ir(ir, order)
+    @test_approx_eq c dummy_ceps
+end
+
+function test_gc2gc(src_order, dst_order, src_γ, dst_γ)
+    srand(98765)
+    src_ceps = rand(src_order + 1)
+    dst_ceps = zeros(dst_order + 1)
+    gc2gc!(dst_ceps, dst_γ, src_ceps, src_γ)
+    @test !any(isnan(dst_ceps))
+end
+
+function test_gnorm(order, γ)
+    srand(98765)
+    dummy_ceps = rand(order + 1)
+    c = gnorm(dummy_ceps, γ)
+    @test length(c) == length(dummy_ceps)
+    @test !any(isnan(c))
+    gnorm!(dummy_ceps, γ)
+    @test_approx_eq dummy_ceps c
+end
+
+function test_ignorm(order, γ)
+    srand(98765)
+    dummy_ceps = rand(order + 1)
+    c = ignorm(dummy_ceps, γ)
+    @test length(c) == length(dummy_ceps)
+    @test !any(isnan(c))
+    ignorm!(dummy_ceps, γ)
+    @test_approx_eq dummy_ceps c
+end
+
+function test_freqt(src_order, dst_order, α, f::Function)
+    srand(98765)
+    src_ceps = rand(src_order + 1)
+    dst_ceps = zeros(dst_order + 1)
+    f(dst_ceps, src_ceps, 0.41)
+    @test !any(isnan(dst_ceps))
+end
+
+function test_mgc2mgc(dst_order, dst_α, dst_γ, src_order, src_α, src_γ)
+    srand(98765)
+    src_ceps = rand(src_order + 1)
+    dst_ceps = zeros(dst_order + 1)
+    mgc2mgc!(dst_ceps, dst_α, dst_γ, src_ceps, src_α, src_γ)
+    @test !any(isnan(dst_ceps))
+end
+
+function test_mgc2sp(order, α, γ, fftlen)
+    srand(98765)
+    dummy_ceps = rand(order + 1)
+    sp = mgc2sp(dummy_ceps, α, γ, fftlen)
+    @test length(sp) == fftlen>>1 + 1
     @test !any(isnan(sp))
-
-    println("-- test_lspcheck")
-    try lspcheck(l); catch @test false; end
 end
 
-test_lpc()
-
-function test_f0()
-    println("test f0 estimation")
+function test_c2ndps(order, fftlen)
     srand(98765)
-    dummy_input = rand(1024)
-
-    println("-- test_swipe")
-    f0 = swipe(dummy_input, 16000, 80)
-    @test length(f0) == div(length(dummy_input), 80) + 1
-    @test !any(isnan(f0))
-    @test all(f0 .>= 0)
-
-    @test_throws ArgumentError swipe(dummy_input, 16000, 80, otype=-1)
-    @test_throws ArgumentError swipe(dummy_input, 16000, 80, otype=-3)
+    dummy_ceps = rand(order + 1)
+    ndps = c2ndps(dummy_ceps, fftlen)
+    @test length(ndps) == fftlen>>1 + 1
+    @test !any(isnan(ndps))
 end
 
-test_f0()
-
-function test_waveform_generation_filters()
-    println("test waveform generation filters")
-
+function test_ndps2c(order, fftlen)
     srand(98765)
-    dummy_input = rand(1024)
-    dummy_sp = abs(fft(dummy_input))
-    dummy_logsp = log(dummy_sp)
-    dummy_ceps = rand(20)
-    dummy_lpc = rand(20)
+    dummy_ndps = rand(fftlen>>1 + 1)
+    c = ndps2c(dummy_ndps, order)
+    @test length(c) == order + 1
+    @test !any(isnan(c))
+end
 
-    pd = 5
-    order = length(dummy_ceps)-1
-
-    println("-- test_poledf")
-    d = poledf_delay(order)
-    for x in dummy_input
-        @test !isnan(poledf(x, dummy_lpc, d))
+println("-- test_mc2b")
+for order in [15, 20, 25, 30]
+    for α in [0.35, 0.41, 0.5]
+        println(" where order = $order, α = $α")
+        test_mc2b(order, α)
     end
+end
 
-    println("-- test_lmadf")
-    d = lmadf_delay(order, pd)
-    for x in dummy_input
-        @test !isnan(lmadf(x, dummy_ceps, pd, d))
+let
+    @test_throws DimensionMismatch mc2b!(ones(10), ones(9), 0.41)
+end
+
+println("-- test_b2mc")
+for order in [15, 20, 25, 30]
+    for α in [0.35, 0.41, 0.5]
+        println(" where order = $order, α = $α")
+        test_b2mc(order, α)
     end
+end
 
-    println("-- test_lspdf")
-    dummy_lsp1 = rand(20) # odd order
-    d1 = lspdf_delay(19)
-    dummy_lsp2 = rand(21) # even order
-    d2 = lspdf_delay(20)
-    for x in dummy_input
-        @test !isnan(lspdf(x, dummy_lsp1, d1))
-        @test !isnan(lspdf(x, dummy_lsp2, d2))
-    end
+let
+    @test_throws DimensionMismatch b2mc!(ones(10), ones(9), 0.41)
+end
 
-    println("-- test_ltcdf")
-    d = ltcdf_delay(order)
-    for x in dummy_input
-        @test !isnan(ltcdf(x, dummy_ceps, d))
-    end
-
-    println("-- test_glsadf")
-    for stage in [1, 2, 4, 8]
-        d = glsadf_delay(order, stage)
-        for x in dummy_input
-            @test !isnan(glsadf(x, dummy_ceps, stage, d))
-        end
-    end
-
-    println("-- test_mlsadf")
-    d = mlsadf_delay(order, pd)
-    for x in dummy_input
-        @test !isnan(mlsadf(x, dummy_ceps, 0.41, pd, d))
-    end
-
-    println("-- test_mglsadf")
-    for stage in [1, 2, 4, 8, 12]
-        d = mglsadf_delay(order, stage)
-        for x in dummy_input
-            @test !isnan(mglsadf(x, dummy_ceps, 0.41, stage, d))
+println("-- test_c2acr")
+for order in [15, 20, 25, 30]
+    for desired_order in [15, 20, 25, 30]
+        for fftlen in [256, 512, 1024]
+            println(" where order = $order, desired_order = $desired_order, fftlen = $fftlen")
+            test_c2acr(order, desired_order, fftlen)
         end
     end
 end
 
-test_waveform_generation_filters()
-
-function test_window_functions()
-    try SPTK.Cwindow(0) catch @test false end
-    try SPTK.Cwindow(5) catch @test false end
-    @test_throws ArgumentError SPTK.Cwindow(-1)
-    @test_throws ArgumentError SPTK.Cwindow(6)
-
-    println("test windows functions")
-    srand(98765)
-    x = rand(1024)
-
-    println("-- test_blackman")
-    y = blackman(length(x))
-    @test length(y) == length(x)
-    @test !any(isnan(y))
-
-    println("-- test_hamming")
-    y = hamming(length(x))
-    @test length(y) == length(x)
-    @test !any(isnan(y))
-
-    println("-- test_hanning")
-    y = hanning(length(x))
-    @test length(y) == length(x)
-    @test !any(isnan(y))
-
-    println("-- test_bartlett")
-    y = bartlett(length(x))
-    @test length(y) == length(x)
-    @test !any(isnan(y))
-
-    println("-- test_trapezoid")
-    y = trapezoid(length(x))
-    @test length(y) == length(x)
-    @test !any(isnan(y))
-
-    println("-- test_rectangular")
-    y = rectangular(length(x))
-    @test length(y) == length(x)
-    @test !any(isnan(y))
-
-    # invalid normalize flag
-    @test_throws ArgumentError blackman(512, normalize=-1)
-    @test_throws ArgumentError blackman(512, normalize=3)
+let
+    # invalid fftlen
+    @test_throws ArgumentError c2acr(ones(20), 19, 513)
 end
 
-test_window_functions()
+println("-- test_c2ir")
+for order in [15, 20, 25, 30]
+    for len in [256, 512, 1024]
+        println(" where order = $order, len = $len")
+        test_c2ir(order, len)
+    end
+end
+
+println("-- test_ic2ir")
+for len in [256, 512, 1024]
+    for order in [15, 20, 25, 30]
+        println(" where len = $len, order = $order")
+        test_ic2ir(len, order)
+    end
+end
+
+println("-- test_ic2ir invertibility")
+for order in [15, 20, 25, 30]
+    for len in [256, 512, 1024]
+        println(" where order = $order, len = $len")
+        test_ic2ir_invertibility(order, len)
+    end
+end
+
+println("-- test_gc2gc")
+for src_order in [15, 20, 25, 30]
+    for dst_order in [15, 20, 25, 30]
+        for src_γ in [-1.0, -0.5, 0.0]
+            for dst_γ in [-1.0, -0.5, 0.0]
+                println(" where dst_order = $dst_order, dst_γ = $dst_γ, src_order = $src_order, src_γ = $src_γ")
+                test_gc2gc(src_order, dst_order, src_γ, dst_γ)
+            end
+        end
+    end
+end
+
+println("-- test_gnorm")
+for order in [15, 20, 25, 30]
+    for γ in [-1.0, -0.5, 0.0]
+        println(" where order = $order, γ = $γ")
+        test_gnorm(order, γ)
+    end
+end
+
+println("-- test_ignorm")
+for order in [15, 20, 25, 30]
+    for γ in [-1.0, -0.5, 0.0]
+        println(" where order = $order, γ = $γ")
+        test_ignorm(order, γ)
+    end
+end
+
+println("-- test_freqt and fqtr")
+for src_order in [15, 20, 25, 30]
+    for dst_order in [15, 20, 25, 30]
+        for α in [0.35, 0.41, 0.5]
+            println(" where dst_order = $dst_order, src_order = $src_order, α = $α")
+            test_freqt(src_order, dst_order, α, freqt!)
+            test_freqt(src_order, dst_order, α, SPTK.frqtr!)
+        end
+    end
+end
+
+println("-- test_mgc2mgc")
+for dst_order in [15, 20, 25, 30]
+    for dst_α in [-0.35, 0.41, 0.5]
+        for src_γ in [-1.0, -0.5, 0.0]
+            for src_order in [15, 20, 25, 30]
+                for src_α in [0.35, 0.41, 0.5]
+                    for dst_γ in [-1.0, -0.5, 0.0]
+                        println(" where dst_order = $dst_order, dst_α = $dst_α, dst_γ = $dst_γ, src_order = $src_order, src_α = $src_α, dst_γ = $dst_γ")
+                        test_mgc2mgc(dst_order, dst_α, dst_γ, src_order, src_α, src_γ)
+                    end
+                end
+            end
+        end
+    end
+end
+
+println("-- test_mgc2sp")
+for order in [15, 20, 25, 30]
+    for α in [0.35, 0.41, 0.5]
+        for γ in [-1.0, -0.5, 0.0]
+            for fftlen in [256, 512, 1024]
+                println(" where order = $order, α = $α, γ = $γ, fftlen = $fftlen")
+                test_mgc2sp(order, α, γ, fftlen)
+            end
+        end
+    end
+end
+
+let
+    try mgc2sp(zeros(20), 0.0, 0.0, 512) catch @test false end
+    # invalid fftlen
+    @test_throws ArgumentError mgc2sp(zeros(20), 0.0, 0.0, 513)
+end
+
+println("-- test_c2ndps")
+for order in [15, 20, 25, 30]
+    for fftlen in [256, 512, 1024]
+        println(" where order = $order, fftlen = $fftlen")
+        test_c2ndps(order, fftlen)
+    end
+end
+
+let
+    try c2ndps(zeros(20), 512) catch @test false end
+    try c2ndps!(zeros(257), zeros(20)) catch @test false end
+    # invalid fftlen
+    @test_throws ArgumentError c2ndps(zeros(20), 513)
+    @test_throws ArgumentError c2ndps!(zeros(256), zeros(20))
+end
+
+println("-- test_ndps2c")
+for order in [15, 20, 25, 30]
+    for fftlen in [256, 512, 1024]
+        println(" where order = $order, fftlen = $fftlen")
+        test_ndps2c(order, fftlen)
+    end
+end
+
+let
+    try ndps2c(zeros(257), 20) catch @test false end
+    # invalid fftlen
+    @test_throws ArgumentError ndps2c(zeros(256), 20)
+end

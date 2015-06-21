@@ -6,7 +6,7 @@ function acep!(c::Vector{Cdouble}, x::Cdouble;
                τ::Float64=0.9,
                pd::Int=4,
                eps::Float64=1.0e-6)
-    if pd != 4 && pd != 5
+    if pd ∉ 4:5
         throw(ArgumentError("4 or 5 pade approximation is supported"))
     end
     order = length(c) - 1
@@ -38,7 +38,7 @@ function amcep!(b::Vector{Cdouble}, x::Cdouble, α=0.41;
                 τ::Float64=0.9,
                 pd::Int=4,
                 eps::Float64=1.0e-6)
-    if pd != 4 && pd != 5
+    if pd ∉ 4:5
         throw(ArgumentError("4 or 5 pade approximation is supported"))
     end
     order = length(b) - 1

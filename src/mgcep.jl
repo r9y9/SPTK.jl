@@ -44,7 +44,7 @@ function gcep!(gc::Vector{Cdouble}, windowed::Vector{Cdouble}, γ=0.0;
                threshold::Float64=0.001,
                etype::Int=0,
                eps::Float64=0.0,
-               min_det::Float64=0.000001,
+               min_det::Float64=1.0e-6,
                itype::Int=0)
     if !(-1 <= γ <= 0.0)
         throw(ArgumentError("unsupported γ: must be -1 <= γ <= 0)"))
@@ -87,7 +87,7 @@ function mgcep!(mgc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41,
                 threshold::Float64=0.001,
                 etype::Int=0,
                 eps::Float64=0.0,
-                min_det::Float64=0.0001,
+                min_det::Float64=1.0e-6,
                 itype::Int=0,
                 otype::Int=0)
     if !(-1 <= γ <= 0.0)

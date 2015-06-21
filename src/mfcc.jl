@@ -2,9 +2,15 @@
 
 function mfcc(x::Vector{Cdouble}, order=20, samplerate=16000;
               α::Float64=0.97,
-              eps::Float64=1.0, numfilterbunks::Int=20, cepslift::Int=22,
-              usedft::Bool=false, usehamming::Bool=true,
-              czero::Bool=false, power::Bool=false)
+              eps::Float64=1.0,
+              windowlen::Int=length(x),
+              framelen::Int=length(x),
+              numfilterbunks::Int=20,
+              cepslift::Int=22,
+              usedft::Bool=false,
+              usehamming::Bool=true,
+              czero::Bool=false,
+              power::Bool=false)
 
     if order > numfilterbunks - 1
         throw(ArgumentError("order must be larger than num filterbanks-1"))
@@ -17,7 +23,7 @@ function mfcc(x::Vector{Cdouble}, order=20, samplerate=16000;
           (Ptr{Cdouble}, Ptr{Cdouble}, Cdouble, Cdouble, Cdouble,
            Cint, Cint, Cint, Cint, Cint, Bool, Bool),
           x, cc, samplerate, α, eps,
-          length(x), length(x), order+1, numfilterbunks, cepslift,
+          windowlen, framelen, order+1, numfilterbunks, cepslift,
           usedft, usehamming)
 
     # after ccall we get
