@@ -1,5 +1,7 @@
 # tests for library routines
 
+import SPTK: agexp, gexp, glog, mseq, theq!, theq, toeplitz!, toeplitz
+
 function test_agexp()
     println("-- test_agexp")
     @test_approx_eq agexp(1, 1, 1) 5.0

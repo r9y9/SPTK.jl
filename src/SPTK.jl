@@ -29,16 +29,6 @@ module SPTK
 #    in Julia before `ccall`.
 
 export
-    # Library routines
-    agexp,
-    gexp,
-    glog,
-    mseq,
-    theq!,
-    theq,
-    toeplitz!,
-    toeplitz,
-
     # Adaptive mel-cepstrum analysis
     acep!,
     agcep!,
