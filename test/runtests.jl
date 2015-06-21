@@ -8,9 +8,9 @@ for fname in [
               "f0",
               "mfcc",
               "mgcep",
-              "lpc",
               "synthesis_filters",
-              "window",
+              "utils",
+              "window"
     ]
     include(string(fname, ".jl"))
 end

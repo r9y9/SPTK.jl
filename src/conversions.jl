@@ -1,5 +1,100 @@
 # Conversions
 
+## LPC, LSP, PARCOR conversions
+
+function lpc2c!(dst_ceps::Vector{Cdouble}, src_lpc::Vector{Cdouble})
+    src_order = length(src_lpc) - 1
+    dst_order = length(dst_ceps) - 1
+    ccall((:lpc2c, libSPTK), Void,
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint),
+          src_lpc, src_order, dst_ceps, dst_order)
+    dst_ceps
+end
+
+function lpc2c(src_lpc::Vector{Cdouble}, dst_order=length(src_lpc)-1)
+    src_order = length(src_lpc) - 1
+    dst_ceps = Array(Cdouble, dst_order+1)
+    lpc2c!(dst_ceps, src_lpc)
+end
+
+function lpc2lsp!(lsp::Vector{Cdouble}, lpc::Vector{Cdouble};
+                  numsp::Int=128,
+                  maxiter::Int=4,
+                  eps::Float64=1e-6,
+                  loggain::Bool=true,
+                 otype::Int=0,
+                  fs=nothing)
+    dst_order = length(lsp) - 1
+    ccall((:lpc2lsp, libSPTK), Void,
+          (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Cdouble),
+          lpc, sub(lsp, 2:length(lsp)), dst_order, numsp, maxiter, eps)
+
+    if otype == 0
+        for i=2:length(lsp)
+            @inbounds lsp[i] *= 2π
+        end
+    elseif otype ∈ 2:3
+        fs == nothing && error("fs must be specified when otype == 2 or 3")
+        for i=2:length(lsp)
+            @inbounds lsp[i] *= fs
+        end
+    end
+
+    # this is really ugly...
+    if otype == 3
+        for i=2:length(lsp)
+            @inbounds lsp[i] *= 1000.0
+        end
+    end
+
+    if loggain
+        lsp[1] = log(lpc[1])
+    else
+        lsp[1] = lpc[1]
+    end
+
+    lsp
+end
+
+function lpc2lsp(lpc::Vector{Cdouble}, dst_order; kargs...)
+    lsp = zeros(Cdouble, dst_order+1)
+    lpc2lsp!(lsp, lpc; kargs...)
+end
+
+function lpc2par!(par::Vector{Cdouble}, lpc::Vector{Cdouble})
+    if length(par) != length(lpc)
+        throw(DimensionMismatch("inconsistent dimentions"))
+    end
+    ccall((:lpc2par, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble}, Cint),
+          lpc, par, length(lpc)-1)
+    par
+end
+
+function lpc2par(lpc::Vector{Cdouble})
+    par = similar(lpc)
+    lpc2par!(par, lpc)
+end
+
+# assume lsp has loggain at lsp[1]
+function lsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble})
+    fftlen = (length(sp) - 1)<<1
+    if !ispow2(fftlen)
+        throw(ArgumentError("fftlen must be power of 2"))
+    end
+    ccall((:lsp2sp, libSPTK), Void,
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cint),
+          lsp, length(lsp)-1, sp, length(sp), 1)
+    sp
+end
+
+function lsp2sp(lsp::Vector{Cdouble}, fftlen)
+    if !ispow2(fftlen)
+        throw(ArgumentError("fftlen must be power of 2"))
+    end
+    sp = Array(Cdouble, fftlen>>1+1)
+    lsp2sp!(sp, lsp)
+end
+
 function mc2b!(b::Vector{Cdouble}, mc::Vector{Cdouble}, α=0.41)
     if length(b) != length(mc)
         throw(DimensionMismatch("inconstent dimensions"))
@@ -9,6 +104,8 @@ function mc2b!(b::Vector{Cdouble}, mc::Vector{Cdouble}, α=0.41)
           mc, b, order, α)
     b
 end
+
+## Mel-generalized cepstrum conversions
 
 function mc2b(mc::Vector{Cdouble}, α=0.41)
     order = length(mc) - 1
@@ -30,6 +127,20 @@ function b2mc(b::Vector{Cdouble}, α=0.41)
     order = length(b) - 1
     mc = zeros(length(b))
     b2mc!(mc, b, α)
+end
+
+function b2c!(dst_ceps::Vector{Cdouble}, src_b::Vector{Cdouble}, α)
+    src_order = length(src_b) - 1
+    dst_order = length(dst_ceps) - 1
+    ccall((:b2c, libSPTK), Void,
+          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cdouble),
+          src_b, src_order, dst_ceps, dst_order, α)
+    dst_ceps
+end
+
+function b2c(src_b::Vector{Cdouble}, dst_order, α)
+    dst_ceps = zeros(dst_order + 1)
+    b2c!(dst_ceps, src_b, α)
 end
 
 function c2acr!(r::Vector{Cdouble}, c::Vector{Cdouble}, fftlen=256)
@@ -125,69 +236,6 @@ function gc2gc(src_ceps::Vector{Cdouble}, src_γ, dst_order, dst_γ)
     src_order = length(src_ceps) - 1
     dst_ceps = zeros(dst_order + 1)
     gc2gc!(dst_ceps, dst_γ, src_ceps, src_γ)
-end
-
-function lpc2c(a::Vector{Cdouble})
-    order = length(a) - 1
-    c = Array(Cdouble, order+1)
-    ccall((:lpc2c, libSPTK), Void,
-          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint), a, order, c, order)
-    c
-end
-
-function lpc2lsp(lpc::Vector{Cdouble}, order;
-                 numsp::Int=128,
-                 maxiter::Int=4,
-                 e::Float64=1e-6,
-                 loggain::Bool=true,
-                 otype::Int=0,
-                 fs=nothing)
-    lsp = zeros(Cdouble, order+1)
-    ccall((:lpc2lsp, libSPTK), Void,
-          (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Cdouble),
-          lpc, sub(lsp, 2:length(lsp)), order, numsp, maxiter, e)
-
-    if otype == 0
-        for i=2:length(lsp)
-            @inbounds lsp[i] *= 2π
-        end
-    elseif otype == 2 || otype == 3
-        fs == nothing && error("fs must be specified when otype == 2 or 3")
-        for i=2:length(lsp)
-            @inbounds lsp[i] *= fs
-        end
-    end
-
-    # this is really ugly...
-    if otype == 3
-        for i=2:length(lsp)
-            @inbounds lsp[i] *= 1000.0
-        end
-    end
-
-    if loggain
-        lsp[1] = log(lpc[1])
-    else
-        lsp[1] = lpc[1]
-    end
-
-    lsp
-end
-
-function lpc2par(lpc::Vector{Cdouble})
-    par = similar(lpc)
-    ccall((:lpc2par, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble}, Cint),
-          lpc, par, length(lpc)-1)
-    par
-end
-
-function lsp2sp(lsp::Vector{Cdouble}, fftlen)
-    # assume lsp has loggain at lsp[1]
-    sp = Array(Cdouble, fftlen>>1+1)
-    ccall((:lsp2sp, libSPTK), Void,
-          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cint),
-          lsp, length(lsp)-1, sp, length(sp), 1)
-    sp
 end
 
 function gnorm!(c::Vector{Cdouble}, γ)
@@ -295,21 +343,23 @@ function mgc2sp(mgc::Vector{Cdouble}, α, γ, fftlen)
     mgc2sp!(sp, mgc, α, γ)
 end
 
-function mgclsp2sp(lsp::Vector{Cdouble}, α, γ, fftlen;
-                   gain::Bool=true)
-    sp = zeros(fftlen>>1 + 1)
-    m = gain ? length(lsp)-1 : length(lsp)
+function mgclsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble}, α, γ;
+                    gain::Bool=true)
+    fftlen = (length(sp) - 1)<<1
+    if !ispow2(fftlen)
+        throw(ArgumentError("fftlen must be power of 2"))
+    end
+    order = gain ? length(lsp)-1 : length(lsp)
     ccall((:mgclsp2sp, libSPTK), Void, (Cdouble, Cdouble, Ptr{Cdouble}, Cint,
                                         Ptr{Cdouble}, Cint, Cint),
-          α, γ, lsp, m, sp, length(sp), convert(Int, gain))
+          α, γ, lsp, order, sp, length(sp), convert(Cint, gain))
     sp
 end
 
-function b2c(c::Vector{Cdouble}, order, α)
-    org_order = length(c)-1
-    converted = zeros(order+1)
-    ccall((:b2c, libSPTK), Void,
-          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cdouble),
-          c, org_order, converted, order, α)
-    converted
+function mgclsp2sp(lsp::Vector{Cdouble}, α, γ, fftlen; kargs...)
+    if !ispow2(fftlen)
+        throw(ArgumentError("fftlen must be power of 2"))
+    end
+    sp = zeros(fftlen>>1 + 1)
+    mgclsp2sp!(sp, lsp, α, γ; kargs...)
 end

@@ -61,11 +61,23 @@ export
     # MFCC
     mfcc,
 
-    # Conversions
+    # LPC, LSP, PARCOR conversions
+    lpc2c!,
+    lpc2c,
+    lpc2lsp!,
+    lpc2lsp,
+    lpc2par!,
+    lpc2par,
+    lsp2sp!,
+    lsp2sp,
+
+    # Mel-generalized cepstrum conversions
     mc2b!,
     mc2b,
     b2mc!,
     b2mc,
+    b2c!,
+    b2c,
     c2acr!,
     c2acr,
     c2ir!,
@@ -78,10 +90,6 @@ export
     ndps2c,
     gc2gc!,
     gc2gc,
-    lpc2c,
-    lpc2lsp,
-    lpc2par,
-    lsp2sp,
     gnorm!,
     gnorm,
     ignorm!,
@@ -94,6 +102,7 @@ export
     mgc2mgc,
     mgc2sp!,
     mgc2sp,
+    mgclsp2sp!,
     mgclsp2sp,
 
     # F0 estimation

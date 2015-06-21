@@ -10,8 +10,7 @@ function phidf!(x::Cdouble, order, α, delay::Vector{Cdouble})
           x, order, α, delay)
 end
 
-function lspcheck(lpc::Vector{Cdouble})
-    r = ccall((:lspcheck, libSPTK),
-              Cint, (Ptr{Cdouble}, Cint), lpc, length(lpc)-1)::Cint
-    ifelse(r == 0, true, false)
+function lspcheck(lsp::Vector{Cdouble})
+    ccall((:lspcheck, libSPTK),
+          Cint, (Ptr{Cdouble}, Cint), lsp, length(lsp)-1)
 end

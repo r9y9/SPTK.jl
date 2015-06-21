@@ -112,21 +112,20 @@ function test_mgcep()
         @test size(cmat) == (order+1, 2)
     end
 
+    println("-- test_lpc")
+    for order in [20, 22, 24]
+        l = lpc(dummy_input, order)
+        @test length(l) == order + 1
+        @test !any(isnan(l))
+    end
+
+    @test_throws ArgumentError lpc(dummy_input, 40, min_det=-1.0)
+
     println("-- test mcep and mgcep consistency")
     # mgcep when gamma = 0, the result of mgcep is corresponds to mcep
     mc = mcep(dummy_input, 20, 0.41)
     mgc = mgcep(dummy_input, 20, 0.41, 0.0)
     @test_approx_eq_eps mc mgc 1.0e-4
-
-    println("-- test_mgclsp2sp")
-    sp = mgclsp2sp(dummy_input, 0.41, -1/4, 512)
-    @test length(sp) == 256+1
-
-    # refs #5
-    # change order 20 -> 40
-    println("-- test changing order (ref: issue #5)")
-    mcep(dummy_input, 40, 0.41)
-    mgcep(dummy_input, 40, 0.41, 0.0)
 end
 
 test_mgcep()
