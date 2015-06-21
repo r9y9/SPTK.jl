@@ -51,9 +51,12 @@ end
 function test_gc2gc(src_order, dst_order, src_γ, dst_γ)
     srand(98765)
     src_ceps = rand(src_order + 1)
-    dst_ceps = zeros(dst_order + 1)
-    gc2gc!(dst_ceps, dst_γ, src_ceps, src_γ)
+    dst_ceps_inplace = zeros(dst_order + 1)
+
+    dst_ceps = gc2gc(src_ceps, src_γ, dst_order, dst_γ)
+    gc2gc!(dst_ceps_inplace, dst_γ, src_ceps, src_γ)
     @test !any(isnan(dst_ceps))
+    @test_approx_eq dst_ceps dst_ceps_inplace
 end
 
 function test_gnorm(order, γ)
