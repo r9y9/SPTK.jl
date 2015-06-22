@@ -19,7 +19,7 @@ function test_mcep_and_mgcep_consistency(order)
 end
 
 function test_mcep_exceptions()
-    dummy_input = rand(256)
+    dummy_input = ones(256)
     @test_throws ArgumentError mcep(dummy_input, itype=-1)
     @test_throws ArgumentError mcep(dummy_input, itype=5)
     @test_throws ArgumentError mcep(dummy_input, eps=-1.0)
@@ -28,6 +28,24 @@ function test_mcep_exceptions()
     @test_throws ArgumentError mcep(dummy_input, etype=1, eps=-1.0)
     @test_throws ArgumentError mcep(dummy_input, etype=2, eps=-1.0)
     @test_throws ArgumentError mcep(dummy_input, min_det=-1.0)
+end
+
+function test_gcep_exceptions()
+    dummy_input = ones(256)
+
+    # invalid γ
+    @test_throws ArgumentError gcep(dummy_input, 40, 0.1)
+    @test_throws ArgumentError gcep(dummy_input, 40, -2.1)
+
+    # invalid optinal paramters
+    @test_throws ArgumentError gcep(dummy_input, itype=-1)
+    @test_throws ArgumentError gcep(dummy_input, itype=5)
+    @test_throws ArgumentError gcep(dummy_input, eps=-1.0)
+    @test_throws ArgumentError gcep(dummy_input, etype=-1)
+    @test_throws ArgumentError gcep(dummy_input, etype=-3)
+    @test_throws ArgumentError gcep(dummy_input, etype=1, eps=-1.0)
+    @test_throws ArgumentError gcep(dummy_input, etype=2, eps=-1.0)
+    @test_throws ArgumentError gcep(dummy_input, min_det=-1.0)
 end
 
 function test_mgcep_exceptions()
@@ -81,6 +99,8 @@ for order in [20, 22, 24]
     end
 end
 
+test_gcep_exceptions()
+
 let
     dummy_input = ones(256)
     # invalid γ
@@ -102,7 +122,8 @@ let
     srand(98765)
     dummy_input = rand(256)
     for otype in 1:5
-        try mgcep(dummy_input) catch @test false end
+        mgc = mgcep(dummy_input, otype=otype)
+        @test !any(isnan(mgc))
     end
     # should have error in theq
     @test_throws Exception mgcep(ones(256))
