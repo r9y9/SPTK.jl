@@ -22,7 +22,7 @@ function lpc2lsp!(lsp::Vector{Cdouble}, lpc::Vector{Cdouble};
                   maxiter::Int=4,
                   eps::Float64=1e-6,
                   loggain::Bool=true,
-                 otype::Int=0,
+                  otype::Int=0,
                   fs=nothing)
     dst_order = length(lsp) - 1
     ccall((:lpc2lsp, libSPTK), Void,
@@ -95,6 +95,8 @@ function lsp2sp(lsp::Vector{Cdouble}, fftlen)
     lsp2sp!(sp, lsp)
 end
 
+## Mel-generalized cepstrum conversions
+
 function mc2b!(b::Vector{Cdouble}, mc::Vector{Cdouble}, α=0.41)
     if length(b) != length(mc)
         throw(DimensionMismatch("inconstent dimensions"))
@@ -104,8 +106,6 @@ function mc2b!(b::Vector{Cdouble}, mc::Vector{Cdouble}, α=0.41)
           mc, b, order, α)
     b
 end
-
-## Mel-generalized cepstrum conversions
 
 function mc2b(mc::Vector{Cdouble}, α=0.41)
     order = length(mc) - 1
