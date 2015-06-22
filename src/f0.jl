@@ -1,6 +1,6 @@
 # F0 estimation
 
-function swipe(x::Vector{Cdouble}, samplerate, hopsize=80;
+function swipe(x::Vector{Cdouble}, fs, hopsize=80;
                min::Float64=50.0,
                max::Float64=800.0,
                threshold::Float64=0.3,
@@ -14,6 +14,6 @@ function swipe(x::Vector{Cdouble}, samplerate, hopsize=80;
     ccall((:swipe, libSPTK), Void,
           (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Cdouble, Cdouble,
            Cdouble, Cint),
-          x, f0, length(x), samplerate, hopsize, min, max, threshold, otype)
+          x, f0, length(x), fs, hopsize, min, max, threshold, otype)
     f0
 end

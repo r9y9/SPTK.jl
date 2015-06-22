@@ -208,6 +208,6 @@ function lpc!(a::Vector{Cdouble}, x::Vector{Cdouble};
 end
 
 function lpc(x::Vector{Cdouble}, order=40; kargs...)
-    a = zeros(Cdouble, order+1)
+    a = Array(Cdouble, order+1)
     lpc!(a, x; kargs...)
 end

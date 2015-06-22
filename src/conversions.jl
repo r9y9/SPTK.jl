@@ -24,6 +24,7 @@ function lpc2lsp!(lsp::Vector{Cdouble}, lpc::Vector{Cdouble};
                   loggain::Bool=true,
                   otype::Int=0,
                   fs=nothing)
+    fill!(lsp, zero(eltype(lsp)))
     dst_order = length(lsp) - 1
     ccall((:lpc2lsp, libSPTK), Void,
           (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Cdouble),
@@ -57,7 +58,7 @@ function lpc2lsp!(lsp::Vector{Cdouble}, lpc::Vector{Cdouble};
 end
 
 function lpc2lsp(lpc::Vector{Cdouble}, dst_order; kargs...)
-    lsp = zeros(Cdouble, dst_order+1)
+    lsp = Array(Cdouble, dst_order+1)
     lpc2lsp!(lsp, lpc; kargs...)
 end
 
@@ -177,7 +178,7 @@ end
 function c2ndps!(ndps::Vector{Cdouble}, c::Vector{Cdouble})
     fftlen = (length(ndps) - 1)<<1
     assert_fftlen(fftlen)
-    buf = zeros(fftlen)
+    buf = Array(Cdouble, fftlen)
     m = length(c)-1
     ccall((:c2ndps, libSPTK), Void, (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint),
           c, m, buf, fftlen)

@@ -205,9 +205,28 @@ for src_order in [15, 20, 25, 30]
     end
 end
 
+let
+    srand(98765)
+    dummy_lpc = lpc(rand(512), 21)
+    @test_throws Exception lpc2lsp(lpc, 20, otype=2)
+    @test_throws Exception lpc2lsp(lpc, 20, otype=3)
+    lsp1 = lpc2lsp(dummy_lpc, 20, otype=2, fs=16000)
+    lsp2 = lpc2lsp(dummy_lpc, 20, otype=3, fs=16)
+    @test_approx_eq lsp1 lsp2
+    lsp3 = lpc2lsp(dummy_lpc, 20, otype=3, fs=16, loggain=false)
+    @test_approx_eq log(first(lsp3)) first(lsp2)
+end
+
 println("-- test_lpc2par")
 for order in [15, 20, 25, 30]
     test_lpc2par(order)
+end
+
+let
+    srand(98765)
+    dummy_lpc = lpc(rand(512), 21)
+    par = zeros(length(dummy_lpc) - 1)
+    @test_throws DimensionMismatch lpc2par!(par, dummy_lpc)
 end
 
 println("-- test_lsp2sp")
