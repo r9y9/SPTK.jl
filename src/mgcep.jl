@@ -46,9 +46,7 @@ function gcep!(gc::Vector{Cdouble}, windowed::Vector{Cdouble}, γ=0.0;
                eps::Float64=0.0,
                min_det::Float64=1.0e-6,
                itype::Int=0)
-    if !(-1 <= γ <= 0.0)
-        throw(ArgumentError("unsupported γ: must be -1 <= γ <= 0)"))
-    end
+    assert_gamma(γ)
     if itype ∉ 0:4
         throw(ArgumentError("unsupported itype: $itype, must be ∈ 0:4"))
     end
@@ -90,9 +88,7 @@ function mgcep!(mgc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41,
                 min_det::Float64=1.0e-6,
                 itype::Int=0,
                 otype::Int=0)
-    if !(-1 <= γ <= 0.0)
-        throw(ArgumentError("unsupported γ: must be -1 <= γ <= 0)"))
-    end
+    assert_gamma(γ)
     if itype ∉ 0:4
         throw(ArgumentError("unsupported itype: $itype, must be ∈ 0:4"))
     end

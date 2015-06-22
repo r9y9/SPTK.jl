@@ -78,9 +78,7 @@ end
 # assume lsp has loggain at lsp[1]
 function lsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble})
     fftlen = (length(sp) - 1)<<1
-    if !ispow2(fftlen)
-        throw(ArgumentError("fftlen must be power of 2"))
-    end
+    assert_fftlen(fftlen)
     ccall((:lsp2sp, libSPTK), Void,
           (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cint),
           lsp, length(lsp)-1, sp, length(sp), 1)
@@ -88,9 +86,7 @@ function lsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble})
 end
 
 function lsp2sp(lsp::Vector{Cdouble}, fftlen)
-    if !ispow2(fftlen)
-        throw(ArgumentError("fftlen must be power of 2"))
-    end
+    assert_fftlen(fftlen)
     sp = Array(Cdouble, fftlen>>1+1)
     lsp2sp!(sp, lsp)
 end
@@ -144,9 +140,7 @@ function b2c(src_b::Vector{Cdouble}, dst_order, α)
 end
 
 function c2acr!(r::Vector{Cdouble}, c::Vector{Cdouble}, fftlen=256)
-    if !ispow2(fftlen)
-        throw(ArgumentError("fftlen must be power of 2"))
-    end
+    assert_fftlen(fftlen)
     designed_order = length(r) - 1
     ccall((:c2acr, libSPTK), Void,
           (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cint),
@@ -184,9 +178,7 @@ end
 
 function c2ndps!(ndps::Vector{Cdouble}, c::Vector{Cdouble})
     fftlen = (length(ndps)-1)<<1
-    if !ispow2(fftlen)
-        throw(ArgumentError("fftlen must be power of 2"))
-    end
+    assert_fftlen(fftlen)
     buf = zeros(fftlen)
     m = length(c)-1
     ccall((:c2ndps, libSPTK), Void, (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint),
@@ -199,9 +191,7 @@ function c2ndps!(ndps::Vector{Cdouble}, c::Vector{Cdouble})
 end
 
 function c2ndps(c::Vector{Cdouble}, fftlen)
-    if !ispow2(fftlen)
-        throw(ArgumentError("fftlen must be power of 2"))
-    end
+    assert_fftlen(fftlen)
     ndps = zeros(fftlen>>1 + 1)
     c2ndps!(ndps, c)
 end
@@ -209,9 +199,7 @@ end
 function ndps2c!(dst_ceps::Vector{Cdouble}, ndps::Vector{Cdouble})
     order = length(dst_ceps) - 1
     fftlen = (length(ndps) - 1)<<1 # assuming the length of npds is fftsize/2+1
-    if !ispow2(fftlen)
-        throw(ArgumentError("fftlen must be power of 2"))
-    end
+    assert_fftlen(fftlen)
     ccall((:ndps2c, libSPTK), Void, (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint),
           ndps, fftlen, dst_ceps, order)
     dst_ceps
@@ -318,9 +306,7 @@ end
 function mgc2sp!(sp::Vector{Complex{Cdouble}},
                  mgc::Vector{Cdouble}, α, γ)
     fftlen = (length(sp)-1)<<1
-    if !ispow2(fftlen)
-        throw(ArgumentError("fftlen must be power of 2"))
-    end
+    assert_fftlen(fftlen)
 
     order = length(mgc) - 1
     sp_r = zeros(Cdouble, fftlen)
@@ -335,9 +321,7 @@ function mgc2sp!(sp::Vector{Complex{Cdouble}},
 end
 
 function mgc2sp(mgc::Vector{Cdouble}, α, γ, fftlen)
-    if !ispow2(fftlen)
-        throw(ArgumentError("fftlen must be power of 2"))
-    end
+    assert_fftlen(fftlen)
     order = length(mgc) - 1
     sp = Array(Complex{Cdouble}, fftlen>>1 + 1)
     mgc2sp!(sp, mgc, α, γ)
@@ -346,9 +330,7 @@ end
 function mgclsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble}, α, γ;
                     gain::Bool=true)
     fftlen = (length(sp) - 1)<<1
-    if !ispow2(fftlen)
-        throw(ArgumentError("fftlen must be power of 2"))
-    end
+    assert_fftlen(fftlen)
     order = gain ? length(lsp)-1 : length(lsp)
     ccall((:mgclsp2sp, libSPTK), Void, (Cdouble, Cdouble, Ptr{Cdouble}, Cint,
                                         Ptr{Cdouble}, Cint, Cint),
@@ -357,9 +339,7 @@ function mgclsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble}, α, γ;
 end
 
 function mgclsp2sp(lsp::Vector{Cdouble}, α, γ, fftlen; kargs...)
-    if !ispow2(fftlen)
-        throw(ArgumentError("fftlen must be power of 2"))
-    end
+    assert_fftlen(fftlen)
     sp = zeros(fftlen>>1 + 1)
     mgclsp2sp!(sp, lsp, α, γ; kargs...)
 end

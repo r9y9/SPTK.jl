@@ -133,6 +133,7 @@ else
 end
 
 for fname in [
+              "common",
               "lib",
               "adaptive",
               "conversions",

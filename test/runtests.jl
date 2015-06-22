@@ -2,6 +2,7 @@ using SPTK
 using Base.Test
 
 for fname in [
+              "common",
               "lib",
               "adaptive",
               "conversions",
