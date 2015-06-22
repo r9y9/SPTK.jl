@@ -104,6 +104,8 @@ let
     for otype in 1:5
         try mgcep(dummy_input) catch @test false end
     end
+    # should have error in theq
+    @test_throws Exception mgcep(ones(256))
 end
 
 test_mgcep_exceptions()

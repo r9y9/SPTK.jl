@@ -5,7 +5,7 @@ using Compat
 
 sptk = library_dependency("libSPTK", aliases=["libSPTK", "SPTK-3"])
 
-const version = "3.8.5"
+const version = "3.8.6"
 
 github_root = "https://github.com/r9y9/SPTK"
 arch = WORD_SIZE == 64 ? "x86_64" : "i686"

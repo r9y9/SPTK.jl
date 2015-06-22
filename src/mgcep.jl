@@ -109,11 +109,15 @@ function mgcep!(mgc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41,
     end
 
     order = length(mgc) - 1
-    ccall((:mgcep, libSPTK), Cint,
-          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cdouble, Cdouble,
-           Cint, Cint, Cint, Cdouble, Cint, Cdouble, Cdouble, Cint),
-          windowed, length(windowed), mgc, order, α, γ, num_recursions,
-          miniter, maxiter, threshold, etype, eps, min_det, itype)
+    ret = ccall((:mgcep, libSPTK), Cint,
+                (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cdouble, Cdouble,
+                 Cint, Cint, Cint, Cdouble, Cint, Cdouble, Cdouble, Cint),
+                windowed, length(windowed), mgc, order, α, γ, num_recursions,
+                miniter, maxiter, threshold, etype, eps, min_det, itype)
+    @assert ret ∈ -1:0 || ret == 3
+    if ret == 3
+        error("failed to compute mgcep; error occured in theq")
+    end
 
     if otype ∈ 0:2 || otype == 4
         ccall((:ignorm, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble},
