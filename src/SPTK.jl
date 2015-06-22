@@ -13,9 +13,9 @@ module SPTK
 #
 # 1. Avoid really short names for variables (e.g. a, b, c, aa, bb, dd) .
 #
-#    Variable names should be informative. If the C functions have such names,
-#    use self-descriptive names for Julia interfaces, unless they have clear
-#    meanings in context.
+#    Variable names should be informative. If the C functions have such short
+#    names, use self-descriptive names instead for Julia interfaces, unless
+#    they have clear meanings in their context.
 #
 # 2. Avoid too many function arguments.
 #
