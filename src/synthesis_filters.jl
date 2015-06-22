@@ -9,9 +9,7 @@ end
 poledf_delay(order) = zeros(order)
 
 function lmadf(x::Cdouble, b::Vector{Cdouble}, pd, delay::Vector{Cdouble})
-    if pd != 4 && pd != 5
-        throw(ArgumentError("4 or 5 pade approximation is supported"))
-    end
+    assert_pade(pd)
     ccall((:lmadf, libSPTK), Cdouble,
           (Cdouble, Ptr{Cdouble}, Cint, Cint, Ptr{Cdouble}),
           x, b, length(b)-1, pd, delay)
@@ -64,9 +62,7 @@ end
 glsadf_delay(order, stage) = zeros(order * (stage + 1) + 1)
 
 function mlsadf(x::Cdouble, b::Vector{Cdouble}, α, pd, delay::Vector{Cdouble})
-    if pd != 4 && pd != 5
-        throw(ArgumentError("4 or 5 pade approximation is supported"))
-    end
+    assert_pade(pd)
     ccall((:mlsadf, libSPTK), Cdouble,
           (Cdouble, Ptr{Cdouble}, Cint, Cdouble, Cint, Ptr{Cdouble}),
           x, b, length(b)-1, α, pd, delay)

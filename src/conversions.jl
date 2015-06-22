@@ -104,8 +104,7 @@ function mc2b!(b::Vector{Cdouble}, mc::Vector{Cdouble}, α=0.41)
 end
 
 function mc2b(mc::Vector{Cdouble}, α=0.41)
-    order = length(mc) - 1
-    b = zeros(length(mc))
+    b = similar(mc)
     mc2b!(b, mc, α)
 end
 
@@ -120,8 +119,7 @@ function b2mc!(mc::Vector{Cdouble}, b::Vector{Cdouble}, α=0.41)
 end
 
 function b2mc(b::Vector{Cdouble}, α=0.41)
-    order = length(b) - 1
-    mc = zeros(length(b))
+    mc = similar(b)
     b2mc!(mc, b, α)
 end
 
@@ -135,7 +133,7 @@ function b2c!(dst_ceps::Vector{Cdouble}, src_b::Vector{Cdouble}, α)
 end
 
 function b2c(src_b::Vector{Cdouble}, dst_order, α)
-    dst_ceps = zeros(dst_order + 1)
+    dst_ceps = Array(Cdouble, dst_order + 1)
     b2c!(dst_ceps, src_b, α)
 end
 
@@ -149,7 +147,7 @@ function c2acr!(r::Vector{Cdouble}, c::Vector{Cdouble}, fftlen=256)
 end
 
 function c2acr(c::Vector{Cdouble}, order=length(c)-1, fftlen=256)
-    r = zeros(order + 1)
+    r = Array(Cdouble, order + 1)
     c2acr!(r, c, fftlen)
 end
 
@@ -161,7 +159,7 @@ function c2ir!(h::Vector{Cdouble}, c::Vector{Cdouble})
 end
 
 function c2ir(c::Vector{Cdouble}, len)
-    h = zeros(len)
+    h = Array(Cdouble, len)
     c2ir!(h, c)
 end
 
@@ -172,12 +170,12 @@ function ic2ir!(c::Vector{Cdouble}, h::Vector{Cdouble})
 end
 
 function ic2ir(h::Vector{Cdouble}, order)
-    c = zeros(order+1)
+    c = Array(Cdouble, order+1)
     ic2ir!(c, h)
 end
 
 function c2ndps!(ndps::Vector{Cdouble}, c::Vector{Cdouble})
-    fftlen = (length(ndps)-1)<<1
+    fftlen = (length(ndps) - 1)<<1
     assert_fftlen(fftlen)
     buf = zeros(fftlen)
     m = length(c)-1
@@ -192,7 +190,7 @@ end
 
 function c2ndps(c::Vector{Cdouble}, fftlen)
     assert_fftlen(fftlen)
-    ndps = zeros(fftlen>>1 + 1)
+    ndps = Array(Cdouble, fftlen>>1 + 1)
     c2ndps!(ndps, c)
 end
 
@@ -206,7 +204,7 @@ function ndps2c!(dst_ceps::Vector{Cdouble}, ndps::Vector{Cdouble})
 end
 
 function ndps2c(ndps::Vector{Cdouble}, order)
-    dst_ceps = zeros(order + 1)
+    dst_ceps = Array(Cdouble, order + 1)
     ndps2c!(dst_ceps, ndps)
 end
 
@@ -222,7 +220,7 @@ end
 
 function gc2gc(src_ceps::Vector{Cdouble}, src_γ, dst_order, dst_γ)
     src_order = length(src_ceps) - 1
-    dst_ceps = zeros(dst_order + 1)
+    dst_ceps = Array(Cdouble, dst_order + 1)
     gc2gc!(dst_ceps, dst_γ, src_ceps, src_γ)
 end
 
@@ -266,7 +264,7 @@ function freqt!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α)
 end
 
 function freqt(ceps::Vector{Cdouble}, order, α)
-    dst_ceps = zeros(order + 1)
+    dst_ceps = Array(Cdouble, order + 1)
     freqt!(dst_ceps, ceps, α)
 end
 
@@ -280,7 +278,7 @@ function frqtr!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α)
 end
 
 function frqtr(c::Vector{Cdouble}, order, α)
-    dst_ceps = zeros(order + 1)
+    dst_ceps = Array(Cdouble, order + 1)
     frqtr!(dst_ceps, c, α)
 end
 
@@ -298,7 +296,7 @@ end
 
 function mgc2mgc(src_ceps::Vector{Cdouble}, src_α, src_γ,
                  dst_order, dst_α, dst_γ)
-    dst_ceps = zeros(dst_order + 1)
+    dst_ceps = Array(Cdouble, dst_order + 1)
     src_order = length(src_ceps) - 1
     mgc2mgc!(dst_ceps, dst_α, dst_γ, src_ceps, src_α, src_γ)
 end
@@ -340,6 +338,6 @@ end
 
 function mgclsp2sp(lsp::Vector{Cdouble}, α, γ, fftlen; kargs...)
     assert_fftlen(fftlen)
-    sp = zeros(fftlen>>1 + 1)
+    sp = Array(Cdouble, fftlen>>1 + 1)
     mgclsp2sp!(sp, lsp, α, γ; kargs...)
 end

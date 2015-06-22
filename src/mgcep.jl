@@ -34,7 +34,7 @@ function mcep!(mc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41;
 end
 
 function mcep(windowed::Vector{Cdouble}, order=40, α=0.41; kargs...)
-    mc = zeros(order+1)
+    mc = Array(Cdouble, order+1)
     mcep!(mc, windowed, α; kargs...)
 end
 
@@ -73,7 +73,7 @@ function gcep!(gc::Vector{Cdouble}, windowed::Vector{Cdouble}, γ=0.0;
 end
 
 function gcep(windowed::Vector{Cdouble}, order=40, γ=0.0; kargs...)
-    gc = zeros(order + 1)
+    gc = Array(Cdouble, order + 1)
     gcep!(gc, windowed, γ; kargs...)
 end
 
@@ -141,7 +141,7 @@ function mgcep!(mgc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41,
 end
 
 function mgcep(windowed::Vector{Cdouble}, order=40, α=0.41, γ=0.0; kargs...)
-    mgc = zeros(order + 1)
+    mgc = Array(Cdouble, order + 1)
     mgcep!(mgc, windowed, α, γ; kargs...)
 end
 
@@ -175,7 +175,7 @@ function uels!(c::Vector{Cdouble}, windowed::Vector{Cdouble};
 end
 
 function uels(windowed::Vector{Cdouble}, order=40; kargs...)
-    c = zeros(order + 1)
+    c = Array(Cdouble, order + 1)
     uels!(c, windowed; kargs...)
 end
 
@@ -190,7 +190,7 @@ function fftcep!(c::Vector{Cdouble}, logsp::Vector{Cdouble};
 end
 
 function fftcep(logsp::Vector{Cdouble}, order=40; kargs...)
-    c = zeros(order + 1)
+    c = Array(Cdouble, order + 1)
     fftcep!(c, logsp; kargs...)
 end
 
@@ -208,6 +208,6 @@ function lpc!(a::Vector{Cdouble}, x::Vector{Cdouble};
 end
 
 function lpc(x::Vector{Cdouble}, order=40; kargs...)
-    a = Array(Cdouble, order+1)
+    a = zeros(Cdouble, order+1)
     lpc!(a, x; kargs...)
 end

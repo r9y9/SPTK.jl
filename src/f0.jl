@@ -10,7 +10,7 @@ function swipe(x::Vector{Cdouble}, samplerate, hopsize=80;
     end
 
     expectedlen = div(length(x), hopsize) + 1
-    f0 = zeros(expectedlen)
+    f0 = Array(Cdouble, expectedlen)
     ccall((:swipe, libSPTK), Void,
           (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Cdouble, Cdouble,
            Cdouble, Cint),
