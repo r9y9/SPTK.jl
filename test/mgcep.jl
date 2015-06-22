@@ -1,27 +1,25 @@
 println("test mel-generalized cepstrum analysis")
 
-function test_mgcep()
+function test_mgcep_base(f::Function, order, args...)
     srand(98765)
     dummy_input = rand(256)
-    dummy_input_mat = repmat(dummy_input, 1, 2)
+    @assert applicable(f, dummy_input, order, args...)
+    c = f(dummy_input, order, args...)
+    @test length(c) == order + 1
+    @test !any(isnan(c))
+end
 
-    println("-- test_mcep")
-    # Since some SPTK functions have static variables inside and
-    # this may return different results even if the same input is given
-    c1 = mcep(dummy_input, 20, 0.41)
-    c2 = mcep(dummy_input, 20, 0.41)
-    @test_approx_eq c1 c2
+function test_mcep_and_mgcep_consistency(order)
+    srand(98765)
+    dummy_input = rand(256)
+    # mgcep when gamma = 0, the result of mgcep is corresponds to mcep
+    mc = mcep(dummy_input, order, 0.41)
+    mgc = mgcep(dummy_input, order, 0.41, 0.0)
+    @test_approx_eq_eps mc mgc 1.0e-4
+end
 
-    for order in [20, 22, 24]
-        for α in [0.35, 0.41, 0.5]
-            c = mcep(dummy_input, order, α)
-            @test length(c) == order+1
-            cmat = mcep(dummy_input_mat, order, α)
-            @test size(cmat) == (order+1, 2)
-        end
-    end
-
-    # invalid optinal paramters
+function test_mcep_exceptions()
+    dummy_input = rand(256)
     @test_throws ArgumentError mcep(dummy_input, itype=-1)
     @test_throws ArgumentError mcep(dummy_input, itype=5)
     @test_throws ArgumentError mcep(dummy_input, eps=-1.0)
@@ -30,46 +28,10 @@ function test_mgcep()
     @test_throws ArgumentError mcep(dummy_input, etype=1, eps=-1.0)
     @test_throws ArgumentError mcep(dummy_input, etype=2, eps=-1.0)
     @test_throws ArgumentError mcep(dummy_input, min_det=-1.0)
+end
 
-    println("-- test_gcep")
-    for order in [20, 22, 24]
-        for γ in [-1.0, -0.5, 0.0]
-            c = gcep(dummy_input, order, γ)
-            @test length(c) == order+1
-            cmat = gcep(dummy_input_mat, order, γ)
-            @test size(cmat) == (order+1, 2)
-        end
-    end
-
-    # invalid γ
-    @test_throws ArgumentError gcep(dummy_input, 40, 0.1)
-    @test_throws ArgumentError gcep(dummy_input, 40, -2.1)
-
-    # invalid optinal paramters
-    @test_throws ArgumentError gcep(dummy_input, itype=-1)
-    @test_throws ArgumentError gcep(dummy_input, itype=5)
-    @test_throws ArgumentError gcep(dummy_input, eps=-1.0)
-    @test_throws ArgumentError gcep(dummy_input, etype=-1)
-    @test_throws ArgumentError gcep(dummy_input, etype=-3)
-    @test_throws ArgumentError gcep(dummy_input, etype=1, eps=-1.0)
-    @test_throws ArgumentError gcep(dummy_input, etype=2, eps=-1.0)
-    @test_throws ArgumentError gcep(dummy_input, min_det=-1.0)
-
-    println("-- test_mgcep")
-    for order in [20, 22, 24]
-        for α in [0.35, 0.41, 0.5]
-            for γ in [-1.0, -0.5, 0.0]
-                c = mgcep(dummy_input, order, α, γ)
-                @test length(c) == order+1
-                cmat = mgcep(dummy_input_mat, order, α, γ)
-                @test size(cmat) == (order+1, 2)
-            end
-        end
-    end
-
-    for otype in 1:5
-        try mgcep(dummy_input) catch @test false end
-    end
+function test_mgcep_exceptions()
+    dummy_input = ones(256)
 
     # invalid γ
     @test_throws ArgumentError mgcep(dummy_input, 40, 0.41, 0.1)
@@ -86,14 +48,10 @@ function test_mgcep()
     @test_throws ArgumentError mgcep(dummy_input, min_det=-1.0)
     @test_throws ArgumentError mgcep(dummy_input, otype=-1)
     @test_throws ArgumentError mgcep(dummy_input, otype=-6)
+end
 
-    println("-- test_uels")
-    for order in [20, 22, 24]
-        c = uels(dummy_input, order)
-        @test length(c) == order+1
-        cmat = uels(dummy_input_mat, order)
-        @test size(cmat) == (order+1, 2)
-    end
+function test_uels_exceptions()
+    dummy_input = ones(256)
 
     # invalid optinal paramters
     @test_throws ArgumentError uels(dummy_input, itype=-1)
@@ -103,29 +61,79 @@ function test_mgcep()
     @test_throws ArgumentError uels(dummy_input, etype=-3)
     @test_throws ArgumentError uels(dummy_input, etype=1, eps=-1.0)
     @test_throws ArgumentError uels(dummy_input, etype=2, eps=-1.0)
-
-    println("-- test_fftcep")
-    for order in [20, 22, 24]
-        c = fftcep(dummy_input, order)
-        cmat = fftcep(dummy_input_mat, order)
-        @test length(c) == order+1
-        @test size(cmat) == (order+1, 2)
-    end
-
-    println("-- test_lpc")
-    for order in [20, 22, 24]
-        l = lpc(dummy_input, order)
-        @test length(l) == order + 1
-        @test !any(isnan(l))
-    end
-
-    @test_throws ArgumentError lpc(dummy_input, 40, min_det=-1.0)
-
-    println("-- test mcep and mgcep consistency")
-    # mgcep when gamma = 0, the result of mgcep is corresponds to mcep
-    mc = mcep(dummy_input, 20, 0.41)
-    mgc = mgcep(dummy_input, 20, 0.41, 0.0)
-    @test_approx_eq_eps mc mgc 1.0e-4
 end
 
-test_mgcep()
+println("-- test_mcep")
+for order in [20, 22, 24]
+    for α in [0.35, 0.41, 0.5]
+        println(" where order = $order, α = $α")
+        test_mgcep_base(mcep, order, α)
+    end
+end
+
+test_mcep_exceptions()
+
+println("-- test_gcep")
+for order in [20, 22, 24]
+    for γ in [-1.0, -0.5, 0.0]
+        println(" where order = $order, γ = $γ")
+        test_mgcep_base(gcep, order, γ)
+    end
+end
+
+let
+    dummy_input = ones(256)
+    # invalid γ
+    @test_throws ArgumentError gcep(dummy_input, 40, 0.1)
+    @test_throws ArgumentError gcep(dummy_input, 40, -2.1)
+end
+
+println("-- test_mgcep")
+for order in [15, 20, 25, 30]
+    for α in [0.35, 0.41, 0.5]
+        for γ in [-1.0, -0.5, 0.0]
+            println(" where order = $order, α = $α, γ = $γ")
+            test_mgcep_base(mgcep, order, α, γ)
+        end
+    end
+end
+
+let
+    srand(98765)
+    dummy_input = rand(256)
+    for otype in 1:5
+        try mgcep(dummy_input) catch @test false end
+    end
+end
+
+test_mgcep_exceptions()
+
+println("-- test_fftcep")
+for order in [20, 22, 24]
+    println(" where order = $order")
+    test_mgcep_base(fftcep, order)
+end
+
+println("-- test_uels")
+for order in [20, 22, 24]
+    println(" where order = $order")
+    test_mgcep_base(uels, order)
+end
+
+test_uels_exceptions()
+
+println("-- test_lpc")
+for order in [20, 22, 24]
+    println(" where order = $order")
+    test_mgcep_base(lpc, order)
+end
+
+let
+    @test_throws ArgumentError lpc(ones(256), 40, min_det=-1.0)
+end
+
+println("-- test mcep and mgcep consistency")
+for order in [20, 22, 24]
+    println(" where order = $order")
+    test_mcep_and_mgcep_consistency(order)
+end

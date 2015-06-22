@@ -115,9 +115,9 @@ function mgcep!(mgc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41,
           windowed, length(windowed), mgc, order, α, γ, num_recursions,
           miniter, maxiter, threshold, etype, eps, min_det, itype)
 
-    if otype == 0 || otype == 1 || otype == 2 || otype == 4
+    if otype ∈ 0:2 || otype == 4
         ccall((:ignorm, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble},
-                                           Cint, Cdouble),
+                                         Cint, Cdouble),
               mgc, mgc, order, γ)
     end
 
@@ -129,11 +129,11 @@ function mgcep!(mgc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41,
 
     if otype == 2 || otype == 4
         ccall((:gnorm, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble},
-                                          Cint, Cdouble),
+                                        Cint, Cdouble),
               mgc, mgc, order, γ)
     end
 
-    if otype == 4 || otype == 5
+    if otype ∈ 4:5
         mgc = [mgc[1], mgc[2:end]*γ]
     end
 
