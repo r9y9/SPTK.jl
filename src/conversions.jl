@@ -24,11 +24,15 @@ function lpc2lsp!(lsp::Vector{Cdouble}, lpc::Vector{Cdouble};
                   loggain::Bool=true,
                   otype::Int=0,
                   fs=nothing)
+    if length(lsp) != length(lpc)
+        throw(DimensionMismatch("inconsistent dimentions"))
+    end
     fill!(lsp, zero(eltype(lsp)))
-    dst_order = length(lsp) - 1
+    order = length(lsp) - 1
     ccall((:lpc2lsp, libSPTK), Void,
           (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Cdouble),
-          lpc, sub(lsp, 2:length(lsp)), dst_order, numsp, maxiter, eps)
+          # lpc, sub(lsp, 2:length(lsp)), dst_order, numsp, maxiter, eps)
+          lpc, pointer(lsp, 2), order, numsp, maxiter, eps)
 
     if otype == 0
         for i=2:length(lsp)
@@ -57,8 +61,8 @@ function lpc2lsp!(lsp::Vector{Cdouble}, lpc::Vector{Cdouble};
     lsp
 end
 
-function lpc2lsp(lpc::Vector{Cdouble}, dst_order; kargs...)
-    lsp = Array(Cdouble, dst_order+1)
+function lpc2lsp(lpc::Vector{Cdouble}; kargs...)
+    lsp = zeros(lpc)
     lpc2lsp!(lsp, lpc; kargs...)
 end
 
@@ -140,10 +144,10 @@ end
 
 function c2acr!(r::Vector{Cdouble}, c::Vector{Cdouble}, fftlen=256)
     assert_fftlen(fftlen)
-    designed_order = length(r) - 1
+    dst_order = length(r) - 1
     ccall((:c2acr, libSPTK), Void,
           (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cint),
-          c, length(c) - 1, r, designed_order, fftlen)
+          c, length(c) - 1, r, dst_order, fftlen)
     r
 end
 
@@ -225,34 +229,33 @@ function gc2gc(src_ceps::Vector{Cdouble}, src_γ, dst_order, dst_γ)
     gc2gc!(dst_ceps, dst_γ, src_ceps, src_γ)
 end
 
-function gnorm!(c::Vector{Cdouble}, γ)
-    m = length(c) - 1
+function gnorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ)
+    if length(dst_ceps) != length(src_ceps)
+        throw(ArgumentError("Inconsistent dimensions"))
+    end
+    order = length(dst_ceps) - 1
     ccall((:gnorm, libSPTK), Void,
-          (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble), c, c, m, γ)
-    c
+          (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble),
+          src_ceps, dst_ceps, order, γ)
+    dst_ceps
 end
 
-function gnorm(c::Vector{Cdouble}, γ)
-    normalizedC = similar(c)
-    m = length(c) - 1
-    ccall((:gnorm, libSPTK), Void,
-          (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble), c, normalizedC, m, γ)
-    normalizedC
+function gnorm(src_ceps::Vector{Cdouble}, γ)
+    dst_ceps = similar(src_ceps)
+    gnorm!(dst_ceps, src_ceps, γ)
 end
 
-function ignorm!(c::Vector{Cdouble}, γ)
-    m = length(c) - 1
+function ignorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ)
+    order = length(dst_ceps) - 1
     ccall((:ignorm, libSPTK), Void,
-          (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble), c, c, m, γ)
-    c
+          (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble),
+          src_ceps, dst_ceps, order, γ)
+    dst_ceps
 end
 
-function ignorm(normalizedC::Vector{Cdouble}, γ)
-    c = similar(normalizedC)
-    m = length(c) - 1
-    ccall((:ignorm, libSPTK), Void,
-          (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble), normalizedC, c, m, γ)
-    c
+function ignorm(src_ceps::Vector{Cdouble}, γ)
+    dst_ceps = similar(src_ceps)
+    ignorm!(dst_ceps, src_ceps, γ)
 end
 
 function freqt!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α)

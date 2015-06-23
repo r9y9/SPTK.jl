@@ -1,97 +1,49 @@
 # Conversions
 
-function test_lpc2c(src_order, dst_order)
+function test_conversion_base(f::Function, src_order, dst_order, args...;
+                              kargs...)
+    f! = eval(symbol(string(f, "!")))
+
+    # expected dst length
+    ka = Dict{Symbol,Any}(kargs)
+    dst_length = haskey(ka, :dst_length) ? ka[:dst_length] : dst_order + 1
+
     srand(98765)
-    src_lpc = rand(src_order + 1)
-    dst_ceps_inplace = zeros(dst_order + 1)
+    src = rand(src_order + 1)
+    dst_inplace = zeros(dst_length)
+    @assert applicable(f, src, dst_order, args...)
+    @assert applicable(f!, dst_inplace, src, args...)
 
-
-    dst_ceps = lpc2c(src_lpc, dst_order)
-    lpc2c!(dst_ceps_inplace, src_lpc)
-    @test !any(isnan(dst_ceps))
-    @test_approx_eq dst_ceps dst_ceps_inplace
+    dst = f(src, dst_order, args...)
+    f!(dst_inplace, src, args...)
+    @test !any(isnan(dst))
+    @test_approx_eq dst dst_inplace
 end
 
-function test_lpc2lsp(src_order, dst_order)
-    srand(98765)
-    dummy_lpc = lpc(rand(512), src_order)
-    lsp_inplace = zeros(dst_order + 1)
+function test_transform_base(f::Function, order, args...)
+    f! = eval(symbol(string(f, "!")))
 
-    lsp = lpc2lsp(dummy_lpc, dst_order)
+    srand(98765)
+    src = rand(order + 1)
+    dst_inplace = zeros(order + 1)
+    @assert applicable(f, src, args...)
+    @assert applicable(f!, dst_inplace, src, args...)
+
+    dst = f(src, args...)
+    f!(dst_inplace, src, args...)
+    @test !any(isnan(dst))
+    @test_approx_eq dst dst_inplace
+end
+
+function test_lpc2lsp(order)
+    srand(98765)
+    dummy_lpc = lpc(rand(512), order)
+    lsp_inplace = zeros(order + 1)
+
+    lsp = lpc2lsp(dummy_lpc)
     lpc2lsp!(lsp_inplace, dummy_lpc)
     @test !any(isnan(lsp))
     @test_approx_eq lsp lsp_inplace
-end
-
-function test_lpc2par(order)
-    srand(98765)
-    dummy_lpc = lpc(rand(512), order)
-    par_inplace = zeros(order + 1)
-
-    par = lpc2par(dummy_lpc)
-    lpc2par!(par_inplace, dummy_lpc)
-    @test !any(isnan(par))
-    @test_approx_eq par par_inplace
-end
-
-function test_lsp2sp(order, fftlen)
-    srand(98765)
-    dummy_lsp = rand(order + 1)
-    sp_inplace = zeros(fftlen>>1 + 1)
-
-    sp = lsp2sp(dummy_lsp, fftlen)
-    @test length(sp) == fftlen>>1 + 1
-    @test !any(isnan(sp))
-    lsp2sp!(sp_inplace, dummy_lsp)
-    @test_approx_eq sp sp_inplace
-end
-
-function test_mc2b(order, α)
-    srand(98765)
-    dummy_ceps = rand(order+1)
-    b = mc2b(dummy_ceps, α)
-    @test length(b) == length(dummy_ceps)
-    @test !any(isnan(b))
-end
-
-function test_b2mc(order, α)
-    srand(98765)
-    dummy_b = rand(order+1)
-    c = b2mc(dummy_b, α)
-    @test length(c) == length(dummy_b)
-    @test !any(isnan(c))
-end
-
-function test_b2c(src_order, dst_order, α)
-    srand(98765)
-    dummy_b = rand(src_order+1)
-    c = b2c(dummy_b, dst_order, α)
-    @test length(c) == dst_order + 1
-    @test !any(isnan(c))
-end
-
-function test_c2acr(order, desired_order, fftlen)
-    srand(98765)
-    dummy_ceps = rand(order+1)
-    r = c2acr(dummy_ceps, desired_order, fftlen)
-    @test length(r) == desired_order + 1
-    @test !any(isnan(r))
-end
-
-function test_c2ir(order, len)
-    srand(98765)
-    dummy_ceps = rand(order+1)
-    ir = c2ir(dummy_ceps, len)
-    @test length(ir) == len
-    @test !any(isnan(ir))
-end
-
-function test_ic2ir(len, order)
-    srand(98765)
-    dummy_ir = rand(len)
-    c = ic2ir(dummy_ir, order)
-    @test length(c) == order + 1
-    @test !any(isnan(c))
 end
 
 function test_ic2ir_invertibility(order, len)
@@ -109,41 +61,6 @@ function test_gc2gc(src_order, dst_order, src_γ, dst_γ)
 
     dst_ceps = gc2gc(src_ceps, src_γ, dst_order, dst_γ)
     gc2gc!(dst_ceps_inplace, dst_γ, src_ceps, src_γ)
-    @test !any(isnan(dst_ceps))
-    @test_approx_eq dst_ceps dst_ceps_inplace
-end
-
-function test_gnorm(order, γ)
-    srand(98765)
-    dummy_ceps = rand(order + 1)
-    c = gnorm(dummy_ceps, γ)
-    @test length(c) == length(dummy_ceps)
-    @test !any(isnan(c))
-    gnorm!(dummy_ceps, γ)
-    @test_approx_eq dummy_ceps c
-end
-
-function test_ignorm(order, γ)
-    srand(98765)
-    dummy_ceps = rand(order + 1)
-    c = ignorm(dummy_ceps, γ)
-    @test length(c) == length(dummy_ceps)
-    @test !any(isnan(c))
-    ignorm!(dummy_ceps, γ)
-    @test_approx_eq dummy_ceps c
-end
-
-function test_freqt(src_order, dst_order, α, f::Symbol=:freqt)
-    f = eval(f)
-    inplacef = eval(symbol(string(f, :!)))
-
-    srand(98765)
-    src_ceps = rand(src_order + 1)
-    dst_ceps_inplace = zeros(dst_order + 1)
-
-    dst_ceps = f(src_ceps, dst_order, α)
-    inplacef(dst_ceps_inplace, src_ceps, α)
-
     @test !any(isnan(dst_ceps))
     @test_approx_eq dst_ceps dst_ceps_inplace
 end
@@ -175,51 +92,43 @@ function test_mgclsp2sp(order, α, γ, fftlen)
     @test !any(isnan(sp))
 end
 
-function test_c2ndps(order, fftlen)
-    srand(98765)
-    dummy_ceps = rand(order + 1)
-    ndps = c2ndps(dummy_ceps, fftlen)
-    @test length(ndps) == fftlen>>1 + 1
-    @test !any(isnan(ndps))
-end
-
-function test_ndps2c(order, fftlen)
-    srand(98765)
-    dummy_ndps = rand(fftlen>>1 + 1)
-    c = ndps2c(dummy_ndps, order)
-    @test length(c) == order + 1
-    @test !any(isnan(c))
-end
-
 println("-- test_lpc2c")
 for src_order in [15, 20, 25, 30]
     for dst_order in [15, 20, 25, 30]
-        test_lpc2c(src_order, dst_order)
+        test_conversion_base(lpc2c, src_order, dst_order)
     end
 end
 
 println("-- test_lpc2lsp")
-for src_order in [15, 20, 25, 30]
-    for dst_order in [15, 20, 25, 30]
-        test_lpc2lsp(src_order, dst_order)
-    end
+for order in [15, 20, 25, 30, 40, 50]
+    println(" where order = $order")
+    # test_transform_base(lpc2lsp, order)
+    test_lpc2lsp(order)
 end
 
 let
     srand(98765)
     dummy_lpc = lpc(rand(512), 21)
-    @test_throws Exception lpc2lsp(lpc, 20, otype=2)
-    @test_throws Exception lpc2lsp(lpc, 20, otype=3)
-    lsp1 = lpc2lsp(dummy_lpc, 20, otype=2, fs=16000)
-    lsp2 = lpc2lsp(dummy_lpc, 20, otype=3, fs=16)
+    @test_throws Exception lpc2lsp(lpc, otype=2)
+    @test_throws Exception lpc2lsp(lpc, otype=3)
+    lsp1 = lpc2lsp(dummy_lpc, otype=2, fs=16000)
+    lsp2 = lpc2lsp(dummy_lpc, otype=3, fs=16)
     @test_approx_eq lsp1 lsp2
-    lsp3 = lpc2lsp(dummy_lpc, 20, otype=3, fs=16, loggain=false)
+    lsp3 = lpc2lsp(dummy_lpc, otype=3, fs=16, loggain=false)
     @test_approx_eq log(first(lsp3)) first(lsp2)
+end
+
+let
+    srand(98765)
+    dummy_lpc = lpc(rand(512), 21)
+    dummy_lsp_inplace = rand(50)
+    @test_throws DimensionMismatch lpc2lsp!(dummy_lsp_inplace, dummy_lpc)
 end
 
 println("-- test_lpc2par")
 for order in [15, 20, 25, 30]
-    test_lpc2par(order)
+    println(" where order = $order")
+    test_transform_base(lpc2par, order)
 end
 
 let
@@ -233,7 +142,7 @@ println("-- test_lsp2sp")
 for order in [15, 20, 25, 30]
     for fftlen in [256, 512, 1024]
         println(" where order = $order, fftlen = $fftlen")
-        test_lsp2sp(order, fftlen)
+        test_conversion_base(lsp2sp, order, fftlen; dst_length=fftlen>>1 + 1)
     end
 end
 
@@ -249,7 +158,7 @@ println("-- test_mc2b")
 for order in [15, 20, 25, 30]
     for α in [0.35, 0.41, 0.5]
         println(" where order = $order, α = $α")
-        test_mc2b(order, α)
+        test_transform_base(mc2b, order, α)
     end
 end
 
@@ -261,7 +170,7 @@ println("-- test_b2mc")
 for order in [15, 20, 25, 30]
     for α in [0.35, 0.41, 0.5]
         println(" where order = $order, α = $α")
-        test_b2mc(order, α)
+        test_transform_base(b2mc, order, α)
     end
 end
 
@@ -274,17 +183,17 @@ for src_order in [15, 20, 25, 30]
     for dst_order in [15, 20, 25, 30]
         for α in [0.35, 0.41, 0.5]
             println(" where src_order = $src_order, dst_order = $dst_order, α = $α")
-            test_b2c(src_order, dst_order, α)
+            test_conversion_base(b2c, src_order, dst_order, α)
         end
     end
 end
 
 println("-- test_c2acr")
-for order in [15, 20, 25, 30]
-    for desired_order in [15, 20, 25, 30]
+for src_order in [15, 20, 25, 30]
+    for dst_order in [15, 20, 25, 30]
         for fftlen in [256, 512, 1024]
-            println(" where order = $order, desired_order = $desired_order, fftlen = $fftlen")
-            test_c2acr(order, desired_order, fftlen)
+            println(" where src_order = $src_order, dst_order = $dst_order, fftlen = $fftlen")
+            test_conversion_base(c2acr, src_order, dst_order, fftlen)
         end
     end
 end
@@ -298,7 +207,7 @@ println("-- test_c2ir")
 for order in [15, 20, 25, 30]
     for len in [256, 512, 1024]
         println(" where order = $order, len = $len")
-        test_c2ir(order, len)
+        test_conversion_base(c2ir, order, len; dst_length=len)
     end
 end
 
@@ -306,7 +215,7 @@ println("-- test_ic2ir")
 for len in [256, 512, 1024]
     for order in [15, 20, 25, 30]
         println(" where len = $len, order = $order")
-        test_ic2ir(len, order)
+        test_conversion_base(ic2ir, len, order)
     end
 end
 
@@ -334,7 +243,7 @@ println("-- test_gnorm")
 for order in [15, 20, 25, 30]
     for γ in [-1.0, -0.5, 0.0]
         println(" where order = $order, γ = $γ")
-        test_gnorm(order, γ)
+        test_transform_base(gnorm, order, γ)
     end
 end
 
@@ -342,7 +251,7 @@ println("-- test_ignorm")
 for order in [15, 20, 25, 30]
     for γ in [-1.0, -0.5, 0.0]
         println(" where order = $order, γ = $γ")
-        test_ignorm(order, γ)
+        test_transform_base(ignorm, order, γ)
     end
 end
 
@@ -351,8 +260,8 @@ for src_order in [15, 20, 25, 30]
     for dst_order in [15, 20, 25, 30]
         for α in [0.35, 0.41, 0.5]
             println(" where dst_order = $dst_order, src_order = $src_order, α = $α")
-            test_freqt(src_order, dst_order, α, :freqt)
-            test_freqt(src_order, dst_order, α, :frqtr)
+            test_conversion_base(freqt, src_order, dst_order, α)
+            test_conversion_base(frqtr, src_order, dst_order, α)
         end
     end
 end
@@ -423,7 +332,7 @@ println("-- test_c2ndps")
 for order in [15, 20, 25, 30]
     for fftlen in [256, 512, 1024]
         println(" where order = $order, fftlen = $fftlen")
-        test_c2ndps(order, fftlen)
+        test_conversion_base(c2ndps, order, fftlen, dst_length=fftlen>>1 + 1)
     end
 end
 
@@ -439,7 +348,7 @@ println("-- test_ndps2c")
 for order in [15, 20, 25, 30]
     for fftlen in [256, 512, 1024]
         println(" where order = $order, fftlen = $fftlen")
-        test_ndps2c(order, fftlen)
+        test_conversion_base(ndps2c, fftlen>>1, order)
     end
 end
 
