@@ -1,65 +1,115 @@
-function test_waveform_generation_filters()
-    println("test waveform generation filters")
-
+function test_filt_base!(f::Function, order, delay, args...)
     srand(98765)
     dummy_input = rand(1024)
     dummy_sp = abs(fft(dummy_input))
     dummy_logsp = log(dummy_sp)
-    dummy_ceps = rand(20)
-    dummy_lpc = rand(20)
+    dummy_mgceps = rand(order + 1)
 
-    pd = 5
-    order = length(dummy_ceps)-1
-
-    println("-- test_poledf")
-    d = poledf_delay(order)
+    @assert applicable(f, first(dummy_input), dummy_mgceps, args..., delay)
     for x in dummy_input
-        @test !isnan(poledf(x, dummy_lpc, d))
+        @test !isnan(f(x, dummy_mgceps, args..., delay))
     end
+end
 
-    println("-- test_lmadf")
-    d = lmadf_delay(order, pd)
-    for x in dummy_input
-        @test !isnan(lmadf(x, dummy_ceps, pd, d))
+println("test waveform generation filters")
+
+println("-- test_poledf")
+for order in [20,  25, 30]
+    println(" where order = $order")
+    delay = poledf_delay(order)
+    test_filt_base!(poledf, order, delay)
+end
+
+let
+    @test_throws DimensionMismatch poledf(0.0, ones(10), ones(1))
+end
+
+println("-- test_lmadf")
+for order in [20,  25, 30]
+    for pd in 4:5
+        println(" where order = $order, pd = $pd")
+        delay = lmadf_delay(order, pd)
+        test_filt_base!(lmadf, order, delay, pd)
     end
+end
 
-    println("-- test_lspdf")
-    dummy_lsp1 = rand(20) # odd order
-    d1 = lspdf_delay(19)
-    dummy_lsp2 = rand(21) # even order
-    d2 = lspdf_delay(20)
-    for x in dummy_input
-        @test !isnan(lspdf(x, dummy_lsp1, d1))
-        @test !isnan(lspdf(x, dummy_lsp2, d2))
+let
+    # invalid delay length
+    @test_throws DimensionMismatch lmadf(0.0, ones(10), 5, ones(1))
+    # invalid pade
+    @test_throws ArgumentError lmadf(0.0, ones(10), 3, lmadf_delay(9, 3))
+end
+
+println("-- test_lspdf")
+for order in [20, 21, 25, 26, 30, 31]
+    println(" where order = $order")
+    delay = lspdf_delay(order)
+    test_filt_base!(lspdf, order, delay)
+end
+
+let
+    @test_throws DimensionMismatch lspdf(0.0, ones(10), ones(1))
+end
+
+println("-- test_ltcdf")
+for order in [20, 21, 25, 26, 30, 31]
+    println(" where order = $order")
+    delay = ltcdf_delay(order)
+    test_filt_base!(ltcdf, order, delay)
+end
+
+let
+    @test_throws DimensionMismatch ltcdf(0.0, ones(10), ones(1))
+end
+
+println("-- test_glsadf")
+for order in [20, 21, 25, 26, 30, 31]
+    for stage in 1:10
+        println(" where order = $order, stage = $stage")
+        delay = glsadf_delay(order, stage)
+        test_filt_base!(glsadf, order, delay, stage)
     end
+end
 
-    println("-- test_ltcdf")
-    d = ltcdf_delay(order)
-    for x in dummy_input
-        @test !isnan(ltcdf(x, dummy_ceps, d))
-    end
+let
+    # invalid delay length
+    @test_throws DimensionMismatch glsadf(0.0, ones(10), 1, ones(1))
+    # invalid stage
+    @test_throws ArgumentError glsadf(0.0, ones(10), 0, glsadf_delay(9, 0))
+end
 
-    println("-- test_glsadf")
-    for stage in [1, 2, 4, 8]
-        d = glsadf_delay(order, stage)
-        for x in dummy_input
-            @test !isnan(glsadf(x, dummy_ceps, stage, d))
-        end
-    end
-
-    println("-- test_mlsadf")
-    d = mlsadf_delay(order, pd)
-    for x in dummy_input
-        @test !isnan(mlsadf(x, dummy_ceps, 0.41, pd, d))
-    end
-
-    println("-- test_mglsadf")
-    for stage in [1, 2, 4, 8, 12]
-        d = mglsadf_delay(order, stage)
-        for x in dummy_input
-            @test !isnan(mglsadf(x, dummy_ceps, 0.41, stage, d))
+println("-- test_mlsadf")
+for order in [20,  25, 30]
+    for α in [0.0, 0.35, 0.41, 0.5]
+        for pd in 4:5
+            println(" where order = $order, α = $α, pd = $pd")
+            delay = mlsadf_delay(order, pd)
+            test_filt_base!(mlsadf, order, delay, α, pd)
         end
     end
 end
 
-test_waveform_generation_filters()
+let
+    # invalid delay length
+    @test_throws DimensionMismatch mlsadf(0.0, ones(10), 0.41, 5, ones(1))
+    # invalid pade
+    @test_throws ArgumentError mlsadf(0.0, ones(10), 0.41, 3, mlsadf_delay(9, 3))
+end
+
+println("-- test_mglsadf")
+for order in [20,  25, 30]
+    for α in [0.0, 0.35, 0.41, 0.5]
+        for stage in 1:10
+            println(" where order = $order, α = $α, stage = $stage")
+            delay = mglsadf_delay(order, stage)
+            test_filt_base!(mglsadf, order, delay, α, stage)
+        end
+    end
+end
+
+let
+    # invalid delay length
+    @test_throws DimensionMismatch mglsadf(0.0, ones(10), 0.41, 1, ones(1))
+    # invalid stage
+    @test_throws ArgumentError mglsadf(0.0, ones(10), 0.41, 0, glsadf_delay(9, 0))
+end

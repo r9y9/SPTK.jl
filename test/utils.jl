@@ -20,7 +20,7 @@ end
 println("-- test_phidf")
 for order in [20, 22, 24]
     for α in [0.35, 0.41, 0.5]
-        println("  where order = $order, α = $α")
+        println(" where order = $order, α = $α")
         test_phidf(order, α)
     end
 end
@@ -34,6 +34,6 @@ end
 
 println("-- test_lspcheck")
 for order in [20, 22, 24]
-    println("  where order = $order")
+    println(" where order = $order")
     test_lspcheck(order)
 end

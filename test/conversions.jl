@@ -239,6 +239,11 @@ for src_order in [15, 20, 25, 30]
     end
 end
 
+let
+    @test_throws ArgumentError gc2gc!(ones(20), -0.1, ones(20), 0.1)
+    @test_throws ArgumentError gc2gc!(ones(20), 0.1, ones(20), -0.1)
+end
+
 println("-- test_gnorm")
 for order in [15, 20, 25, 30]
     for γ in [-1.0, -0.5, 0.0]
@@ -253,6 +258,15 @@ for order in [15, 20, 25, 30]
         println(" where order = $order, γ = $γ")
         test_transform_base(ignorm, order, γ)
     end
+end
+
+let
+    c1 = ones(10)
+    c2 = ones(11)
+    @test_throws DimensionMismatch gnorm!(c1, c2, 0.0)
+    @test_throws DimensionMismatch ignorm!(c1, c2, 0.0)
+    @test_throws ArgumentError gnorm!(c1, c2, 0.1)
+    @test_throws ArgumentError ignorm!(c1, c2, 0.1)
 end
 
 println("-- test_freqt and fqtr")
@@ -282,6 +296,13 @@ for dst_order in [15, 20, 25, 30]
     end
 end
 
+let
+    c1 = ones(20)
+    c2 = copy(c1)
+    @test_throws ArgumentError mgc2mgc!(c2, 0.0, -0.1, c1, 0.0, 1.0)
+    @test_throws ArgumentError mgc2mgc!(c2, 0.0, 1.0, c1, 0.0, -0.1)
+end
+
 println("-- test_mgc2sp")
 for order in [15, 20, 25, 30]
     for α in [0.35, 0.41, 0.5]
@@ -304,6 +325,9 @@ function mgc2sp_exceptions()
     let sp = zeros(Complex{Cdouble}, 512)
         @test_throws ArgumentError mgc2sp!(sp, zeros(20), 0.0, 0.0)
     end
+
+    # invalid γ
+    @test_throws ArgumentError mgc2sp(zeros(20), 0.0, 1.0, 513)
 end
 
 mgc2sp_exceptions()
@@ -323,6 +347,8 @@ end
 let
     try mgclsp2sp(zeros(20), 0.0, 0.0, 512) catch @test false end
     try mgclsp2sp!(zeros(513), zeros(20), 0.0, 0.0) catch @test false end
+    # invalid γ
+    @test_throws ArgumentError mgclsp2sp!(zeros(513), zeros(20), 0.0, 1.0)
     # invalid fftlen
     @test_throws ArgumentError mgclsp2sp(zeros(20), 0.0, 0.0, 513)
     @test_throws ArgumentError mgclsp2sp!(zeros(512), zeros(20), 0.0, 0.0)

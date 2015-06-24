@@ -215,6 +215,8 @@ end
 
 function gc2gc!(dst_ceps::Vector{Cdouble}, dst_γ,
                 src_ceps::Vector{Cdouble}, src_γ)
+    assert_gamma(dst_γ)
+    assert_gamma(src_γ)
     dst_order = length(dst_ceps) - 1
     src_order = length(src_ceps) - 1
     ccall((:gc2gc, libSPTK), Void,
@@ -230,8 +232,9 @@ function gc2gc(src_ceps::Vector{Cdouble}, src_γ, dst_order, dst_γ)
 end
 
 function gnorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ)
+    assert_gamma(γ)
     if length(dst_ceps) != length(src_ceps)
-        throw(ArgumentError("Inconsistent dimensions"))
+        throw(DimensionMismatch("inconsistent dimensions"))
     end
     order = length(dst_ceps) - 1
     ccall((:gnorm, libSPTK), Void,
@@ -246,6 +249,10 @@ function gnorm(src_ceps::Vector{Cdouble}, γ)
 end
 
 function ignorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ)
+    assert_gamma(γ)
+    if length(dst_ceps) != length(src_ceps)
+        throw(DimensionMismatch("inconsistent dimensions"))
+    end
     order = length(dst_ceps) - 1
     ccall((:ignorm, libSPTK), Void,
           (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cdouble),
@@ -288,6 +295,8 @@ end
 
 function mgc2mgc!(dst_ceps::Vector{Cdouble}, dst_α, dst_γ,
                   src_ceps::Vector{Cdouble}, src_α, src_γ)
+    assert_gamma(dst_γ)
+    assert_gamma(src_γ)
     src_order = length(src_ceps) - 1
     dst_order = length(dst_ceps) - 1
     ccall((:mgc2mgc, libSPTK), Void,
@@ -307,6 +316,7 @@ end
 
 function mgc2sp!(sp::Vector{Complex{Cdouble}},
                  mgc::Vector{Cdouble}, α, γ)
+    assert_gamma(γ)
     fftlen = (length(sp)-1)<<1
     assert_fftlen(fftlen)
 
@@ -331,6 +341,7 @@ end
 
 function mgclsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble}, α, γ;
                     gain::Bool=true)
+    assert_gamma(γ)
     fftlen = (length(sp) - 1)<<1
     assert_fftlen(fftlen)
     order = gain ? length(lsp)-1 : length(lsp)
