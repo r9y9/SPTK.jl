@@ -113,3 +113,13 @@ let
     # invalid stage
     @test_throws ArgumentError mglsadf(0.0, ones(10), 0.41, 0, glsadf_delay(9, 0))
 end
+
+let
+    @test applicable(SPTK.poledf_delay_length, 10)
+    @test applicable(SPTK.lmadf_delay_length, 10, 5)
+    @test applicable(SPTK.lspdf_delay_length, 10)
+    @test applicable(SPTK.ltcdf_delay_length, 10)
+    @test applicable(SPTK.glsadf_delay_length, 10, 1)
+    @test applicable(SPTK.mlsadf_delay_length, 10, 5)
+    @test applicable(SPTK.mglsadf_delay_length, 10, 1)
+end
