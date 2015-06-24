@@ -25,11 +25,18 @@ function mcep!(mc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41;
     end
 
     order = length(mc) - 1
-    ccall((:mcep, libSPTK), Cint,
-          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint,
-           Cdouble, Cint, Cint, Cdouble, Cint, Cdouble, Cdouble, Cint),
-          windowed, length(windowed), mc, order, α,
-          miniter, maxiter, threshold, etype, eps, min_det, itype)
+    ret = ccall((:mcep, libSPTK), Cint,
+                (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint,
+                 Cdouble, Cint, Cint, Cdouble, Cint, Cdouble, Cdouble, Cint),
+                windowed, length(windowed), mc, order, α,
+                miniter, maxiter, threshold, etype, eps, min_det, itype)
+    @assert ret ∈ -1:0 || ret ∈ 3:4
+    if ret == 3
+        error("failed to compute mcep; error occured in theq")
+    elseif ret == 4
+        error("zero(s) are found in periodogram, use eps option to floor")
+    end
+
     mc
 end
 
@@ -64,11 +71,16 @@ function gcep!(gc::Vector{Cdouble}, windowed::Vector{Cdouble}, γ=0.0;
     end
 
     order = length(gc) - 1
-    ccall((:gcep, libSPTK), Cint,
-          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint,
-           Cdouble, Cint, Cint, Cdouble, Cint, Cdouble, Cdouble, Cint),
-          windowed, length(windowed), gc, order, γ,
-          miniter, maxiter, threshold, etype, eps, min_det, itype)
+    ret = ccall((:gcep, libSPTK), Cint,
+                (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint,
+                 Cdouble, Cint, Cint, Cdouble, Cint, Cdouble, Cdouble, Cint),
+                windowed, length(windowed), gc, order, γ,
+                miniter, maxiter, threshold, etype, eps, min_det, itype)
+    @assert ret ∈ -1:0 || ret == 3
+    if ret == 3
+        error("failed to compute gcep; error occured in theq")
+    end
+
     gc
 end
 
@@ -170,11 +182,16 @@ function uels!(c::Vector{Cdouble}, windowed::Vector{Cdouble};
     end
 
     order = length(c) - 1
-    ccall((:uels, libSPTK), Cint,
-          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cint, Cint, Cdouble, Cint,
-           Cdouble, Cint),
-          windowed, length(windowed), c, order,
-          miniter, maxiter, threshold, etype, eps, itype)
+    ret = ccall((:uels, libSPTK), Cint,
+                (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cint, Cint, Cdouble, Cint,
+                 Cdouble, Cint),
+                windowed, length(windowed), c, order,
+                miniter, maxiter, threshold, etype, eps, itype)
+    @assert ret ∈ -1:0 || ret == 3
+    if ret == 3
+        error("zero(s) are found in periodogram, use eps option to floor")
+    end
+
     c
 end
 
@@ -205,9 +222,16 @@ function lpc!(a::Vector{Cdouble}, x::Vector{Cdouble};
     end
 
     order = length(a) - 1
-    ccall((:lpc, libSPTK), Void,
-          (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cdouble),
-          x, length(x), a, order, min_det)
+    ret = ccall((:lpc, libSPTK), Cint,
+                (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cdouble),
+                x, length(x), a, order, min_det)
+    @assert ret ∈ -2:0
+    if ret == -2
+        warn("failed to compute `stable` LPC. Please try again with different parameters")
+    elseif ret == -1
+        error("failed to compute LPC. Please try again with different parameters")
+    end
+
     a
 end
 

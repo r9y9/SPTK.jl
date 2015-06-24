@@ -1,6 +1,6 @@
 println("test mel-generalized cepstrum analysis")
 
-function test_mgcep_base(f::Function, order, args...)
+function test_mgcep_base(f::Function, order, args...; kargs...)
     srand(98765)
     dummy_input = rand(256)
     @assert applicable(f, dummy_input, order, args...)
@@ -28,6 +28,9 @@ function test_mcep_exceptions()
     @test_throws ArgumentError mcep(dummy_input, etype=1, eps=-1.0)
     @test_throws ArgumentError mcep(dummy_input, etype=2, eps=-1.0)
     @test_throws ArgumentError mcep(dummy_input, min_det=-1.0)
+
+    # should have error in computing log periodogram
+    @test_throws Exception mcep(ones(256), 40, 0.41)
 end
 
 function test_gcep_exceptions()
@@ -46,6 +49,13 @@ function test_gcep_exceptions()
     @test_throws ArgumentError gcep(dummy_input, etype=1, eps=-1.0)
     @test_throws ArgumentError gcep(dummy_input, etype=2, eps=-1.0)
     @test_throws ArgumentError gcep(dummy_input, min_det=-1.0)
+
+    # invalid γ
+    @test_throws ArgumentError gcep(dummy_input, 40, 0.1)
+    @test_throws ArgumentError gcep(dummy_input, 40, -2.1)
+
+    # should have error in theq
+    @test_throws Exception gcep(ones(256), 40, 0.0)
 end
 
 function test_mgcep_exceptions()
@@ -66,6 +76,9 @@ function test_mgcep_exceptions()
     @test_throws ArgumentError mgcep(dummy_input, min_det=-1.0)
     @test_throws ArgumentError mgcep(dummy_input, otype=-1)
     @test_throws ArgumentError mgcep(dummy_input, otype=-6)
+
+    # should have error in theq
+    @test_throws Exception mgcep(ones(256))
 end
 
 function test_uels_exceptions()
@@ -79,6 +92,14 @@ function test_uels_exceptions()
     @test_throws ArgumentError uels(dummy_input, etype=-3)
     @test_throws ArgumentError uels(dummy_input, etype=1, eps=-1.0)
     @test_throws ArgumentError uels(dummy_input, etype=2, eps=-1.0)
+
+    # should have error in computing log periodogram
+    @test_throws Exception uels(ones(256), 40)
+end
+
+function test_lpc_exceptions()
+    @test_throws ArgumentError lpc(ones(256), 40, min_det=-1.0)
+    @test_throws Exception lpc(zeros(256), 40)
 end
 
 println("-- test_mcep")
@@ -101,32 +122,16 @@ end
 
 test_gcep_exceptions()
 
-let
-    dummy_input = ones(256)
-    # invalid γ
-    @test_throws ArgumentError gcep(dummy_input, 40, 0.1)
-    @test_throws ArgumentError gcep(dummy_input, 40, -2.1)
-end
-
 println("-- test_mgcep")
 for order in [15, 20, 25, 30]
     for α in [0.35, 0.41, 0.5]
         for γ in [-1.0, -0.5, 0.0]
-            println(" where order = $order, α = $α, γ = $γ")
-            test_mgcep_base(mgcep, order, α, γ)
+            for otype in 1:5
+                println(" where order = $order, α = $α, γ = $γ, otype=$otype")
+                test_mgcep_base(mgcep, order, α, γ, otype=otype)
+            end
         end
     end
-end
-
-let
-    srand(98765)
-    dummy_input = rand(256)
-    for otype in 1:5
-        mgc = mgcep(dummy_input, otype=otype)
-        @test !any(isnan(mgc))
-    end
-    # should have error in theq
-    @test_throws Exception mgcep(ones(256))
 end
 
 test_mgcep_exceptions()
@@ -151,9 +156,8 @@ for order in [20, 22, 24]
     test_mgcep_base(lpc, order)
 end
 
-let
-    @test_throws ArgumentError lpc(ones(256), 40, min_det=-1.0)
-end
+
+test_lpc_exceptions()
 
 println("-- test mcep and mgcep consistency")
 for order in [20, 22, 24]
