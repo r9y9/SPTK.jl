@@ -49,6 +49,7 @@ end
 
 let
     @test_throws DimensionMismatch lspdf(0.0, ones(10), ones(1))
+    @test_throws DimensionMismatch lspdf(0.0, ones(9), ones(1))
 end
 
 println("-- test_ltcdf")
