@@ -1,6 +1,6 @@
 module SPTK
 
-# Julia wrapper for Speech signal Processing Toolkit (SPTK).
+# A thin Julia wrapper for Speech signal Processing Toolkit (SPTK).
 #
 # The original SPTK: http://sp-tk.sourceforge.net/
 # Note that the SPTK.jl is based on the slightly modified SPTK
@@ -29,7 +29,7 @@ module SPTK
 #    in Julia before `ccall`.
 
 export
-    # Adaptive mel-cepstrum analysis
+    # Adaptive mel-generalized analysis
     acep!,
     agcep!,
     amcep!,
@@ -51,7 +51,7 @@ export
     # MFCC
     mfcc,
 
-    # LPC, LSP, PARCOR conversions
+    # LPC, LSP and PARCOR conversions
     lpc2c!,
     lpc2c,
     lpc2lsp!,

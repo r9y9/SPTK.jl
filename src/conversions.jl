@@ -231,6 +231,10 @@ function gc2gc(src_ceps::Vector{Cdouble}, src_γ=0.0,
     gc2gc!(dst_ceps, dst_γ, src_ceps, src_γ)
 end
 
+function gc2gc{T<:FloatingPoint}(src_ceps::Vector{Cdouble}, src_γ::T, dst_γ::T)
+    gc2gc(src_ceps, src_γ, length(src_ceps)-1, dst_γ)
+end
+
 function gnorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ=0.0)
     assert_gamma(γ)
     if length(dst_ceps) != length(src_ceps)
@@ -279,6 +283,10 @@ function freqt(ceps::Vector{Cdouble}, order=25, α=0.0)
     freqt!(dst_ceps, ceps, α)
 end
 
+function freqt{T<:FloatingPoint}(ceps::Vector{Cdouble}, α::T)
+    freqt(ceps, length(ceps)-1, α)
+end
+
 function frqtr!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α=0.0)
     src_order = length(src_ceps) - 1
     dst_order = length(dst_ceps) - 1
@@ -288,9 +296,13 @@ function frqtr!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α=0.0)
     dst_ceps
 end
 
-function frqtr(c::Vector{Cdouble}, order=25, α=0.0)
+function frqtr(ceps::Vector{Cdouble}, order=25, α=0.0)
     dst_ceps = Array(Cdouble, order + 1)
-    frqtr!(dst_ceps, c, α)
+    frqtr!(dst_ceps, ceps, α)
+end
+
+function frqtr{T<:FloatingPoint}(ceps::Vector{Cdouble}, α::T)
+    frqtr(ceps, length(ceps)-1, α)
 end
 
 function mgc2mgc!(dst_ceps::Vector{Cdouble}, dst_α, dst_γ,
@@ -312,6 +324,11 @@ function mgc2mgc(src_ceps::Vector{Cdouble}, src_α=0.0, src_γ=0.0,
     dst_ceps = Array(Cdouble, dst_order + 1)
     src_order = length(src_ceps) - 1
     mgc2mgc!(dst_ceps, dst_α, dst_γ, src_ceps, src_α, src_γ)
+end
+
+function mgc2mgc{T<:FloatingPoint}(src_ceps::Vector{Cdouble}, src_α::T,
+                                   src_γ::T, dst_α::T, dst_γ::T)
+    mgc2mgc(src_ceps, src_α, src_γ, length(src_ceps)-1, dst_α, dst_γ)
 end
 
 function mgc2sp!(sp::Vector{Complex{Cdouble}},

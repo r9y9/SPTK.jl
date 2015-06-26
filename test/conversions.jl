@@ -244,6 +244,13 @@ let
     @test_throws ArgumentError gc2gc!(ones(20), 0.1, ones(20), -0.1)
 end
 
+let
+    srand(98765)
+    order = 20
+    src = rand(order + 1)
+    @test_approx_eq gc2gc(src, 0.0, order, -0.1) gc2gc(src, 0.0, -0.1)
+end
+
 println("-- test_gnorm")
 for order in [15, 20, 25, 30]
     for γ in [-1.0, -0.5, 0.0]
@@ -280,6 +287,14 @@ for src_order in [15, 20, 25, 30]
     end
 end
 
+let
+    srand(98765)
+    order = 20
+    src = rand(order + 1)
+    @test_approx_eq freqt(src, order, 0.41) freqt(src, 0.41)
+    @test_approx_eq frqtr(src, order, 0.41) frqtr(src, 0.41)
+end
+
 println("-- test_mgc2mgc")
 for dst_order in [15, 20, 25, 30]
     for dst_α in [-0.35, 0.41, 0.5]
@@ -301,6 +316,13 @@ let
     c2 = copy(c1)
     @test_throws ArgumentError mgc2mgc!(c2, 0.0, -0.1, c1, 0.0, 1.0)
     @test_throws ArgumentError mgc2mgc!(c2, 0.0, 1.0, c1, 0.0, -0.1)
+end
+
+let
+    srand(98765)
+    order = 20
+    src = rand(order + 1)
+    @test_approx_eq mgc2mgc(src, 0.0, 0.0, order, 0.41, -0.1) mgc2mgc(src, 0.0, 0.0, 0.41, -0.1)
 end
 
 println("-- test_mgc2sp")
