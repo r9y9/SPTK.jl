@@ -11,7 +11,8 @@ for fname in [
               "mgcep",
               "synthesis_filters",
               "utils",
-              "window"
+              "window",
+              "extend"
     ]
     include(string(fname, ".jl"))
 end

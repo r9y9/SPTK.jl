@@ -89,7 +89,7 @@ function lsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble})
     sp
 end
 
-function lsp2sp(lsp::Vector{Cdouble}, fftlen)
+function lsp2sp(lsp::Vector{Cdouble}, fftlen=256)
     assert_fftlen(fftlen)
     sp = Array(Cdouble, fftlen>>1+1)
     lsp2sp!(sp, lsp)
