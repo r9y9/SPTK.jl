@@ -31,7 +31,6 @@ function lpc2lsp!(lsp::Vector{Cdouble}, lpc::Vector{Cdouble};
     order = length(lsp) - 1
     ccall((:lpc2lsp, libSPTK), Void,
           (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Cdouble),
-          # lpc, sub(lsp, 2:length(lsp)), dst_order, numsp, maxiter, eps)
           lpc, pointer(lsp, 2), order, numsp, maxiter, eps)
 
     if otype == 0
@@ -98,7 +97,7 @@ end
 
 ## Mel-generalized cepstrum conversions
 
-function mc2b!(b::Vector{Cdouble}, mc::Vector{Cdouble}, α=0.41)
+function mc2b!(b::Vector{Cdouble}, mc::Vector{Cdouble}, α=0.35)
     if length(b) != length(mc)
         throw(DimensionMismatch("inconstent dimensions"))
     end
@@ -108,12 +107,12 @@ function mc2b!(b::Vector{Cdouble}, mc::Vector{Cdouble}, α=0.41)
     b
 end
 
-function mc2b(mc::Vector{Cdouble}, α=0.41)
+function mc2b(mc::Vector{Cdouble}, α=0.35)
     b = similar(mc)
     mc2b!(b, mc, α)
 end
 
-function b2mc!(mc::Vector{Cdouble}, b::Vector{Cdouble}, α=0.41)
+function b2mc!(mc::Vector{Cdouble}, b::Vector{Cdouble}, α=0.35)
     if length(mc) != length(b)
         throw(DimensionMismatch("inconstent dimensions"))
     end
@@ -123,7 +122,7 @@ function b2mc!(mc::Vector{Cdouble}, b::Vector{Cdouble}, α=0.41)
     mc
 end
 
-function b2mc(b::Vector{Cdouble}, α=0.41)
+function b2mc(b::Vector{Cdouble}, α=0.35)
     mc = similar(b)
     b2mc!(mc, b, α)
 end
@@ -137,7 +136,7 @@ function b2c!(dst_ceps::Vector{Cdouble}, src_b::Vector{Cdouble}, α)
     dst_ceps
 end
 
-function b2c(src_b::Vector{Cdouble}, dst_order, α)
+function b2c(src_b::Vector{Cdouble}, dst_order=length(src_b)-1, α=0.35)
     dst_ceps = Array(Cdouble, dst_order + 1)
     b2c!(dst_ceps, src_b, α)
 end
@@ -163,7 +162,7 @@ function c2ir!(h::Vector{Cdouble}, c::Vector{Cdouble})
     h
 end
 
-function c2ir(c::Vector{Cdouble}, len)
+function c2ir(c::Vector{Cdouble}, len=256)
     h = Array(Cdouble, len)
     c2ir!(h, c)
 end
@@ -174,7 +173,7 @@ function ic2ir!(c::Vector{Cdouble}, h::Vector{Cdouble})
     c
 end
 
-function ic2ir(h::Vector{Cdouble}, order)
+function ic2ir(h::Vector{Cdouble}, order=25)
     c = Array(Cdouble, order+1)
     ic2ir!(c, h)
 end
@@ -193,7 +192,7 @@ function c2ndps!(ndps::Vector{Cdouble}, c::Vector{Cdouble})
     ndps
 end
 
-function c2ndps(c::Vector{Cdouble}, fftlen)
+function c2ndps(c::Vector{Cdouble}, fftlen=256)
     assert_fftlen(fftlen)
     ndps = Array(Cdouble, fftlen>>1 + 1)
     c2ndps!(ndps, c)
@@ -208,7 +207,7 @@ function ndps2c!(dst_ceps::Vector{Cdouble}, ndps::Vector{Cdouble})
     dst_ceps
 end
 
-function ndps2c(ndps::Vector{Cdouble}, order)
+function ndps2c(ndps::Vector{Cdouble}, order=25)
     dst_ceps = Array(Cdouble, order + 1)
     ndps2c!(dst_ceps, ndps)
 end
@@ -225,13 +224,14 @@ function gc2gc!(dst_ceps::Vector{Cdouble}, dst_γ,
     dst_ceps
 end
 
-function gc2gc(src_ceps::Vector{Cdouble}, src_γ, dst_order, dst_γ)
+function gc2gc(src_ceps::Vector{Cdouble}, src_γ=0.0,
+               dst_order=length(src_ceps)-1, dst_γ=0.0)
     src_order = length(src_ceps) - 1
     dst_ceps = Array(Cdouble, dst_order + 1)
     gc2gc!(dst_ceps, dst_γ, src_ceps, src_γ)
 end
 
-function gnorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ)
+function gnorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ=0.0)
     assert_gamma(γ)
     if length(dst_ceps) != length(src_ceps)
         throw(DimensionMismatch("inconsistent dimensions"))
@@ -243,12 +243,12 @@ function gnorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ)
     dst_ceps
 end
 
-function gnorm(src_ceps::Vector{Cdouble}, γ)
+function gnorm(src_ceps::Vector{Cdouble}, γ=0.0)
     dst_ceps = similar(src_ceps)
     gnorm!(dst_ceps, src_ceps, γ)
 end
 
-function ignorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ)
+function ignorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ=0.0)
     assert_gamma(γ)
     if length(dst_ceps) != length(src_ceps)
         throw(DimensionMismatch("inconsistent dimensions"))
@@ -260,12 +260,12 @@ function ignorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ)
     dst_ceps
 end
 
-function ignorm(src_ceps::Vector{Cdouble}, γ)
+function ignorm(src_ceps::Vector{Cdouble}, γ=0.0)
     dst_ceps = similar(src_ceps)
     ignorm!(dst_ceps, src_ceps, γ)
 end
 
-function freqt!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α)
+function freqt!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α=0.0)
     src_order = length(src_ceps) - 1
     dst_order = length(dst_ceps) - 1
     ccall((:freqt, libSPTK), Void,
@@ -274,12 +274,12 @@ function freqt!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α)
     dst_ceps
 end
 
-function freqt(ceps::Vector{Cdouble}, order, α)
+function freqt(ceps::Vector{Cdouble}, order=25, α=0.0)
     dst_ceps = Array(Cdouble, order + 1)
     freqt!(dst_ceps, ceps, α)
 end
 
-function frqtr!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α)
+function frqtr!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α=0.0)
     src_order = length(src_ceps) - 1
     dst_order = length(dst_ceps) - 1
     ccall((:frqtr, libSPTK), Void,
@@ -288,7 +288,7 @@ function frqtr!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α)
     dst_ceps
 end
 
-function frqtr(c::Vector{Cdouble}, order, α)
+function frqtr(c::Vector{Cdouble}, order=25, α=0.0)
     dst_ceps = Array(Cdouble, order + 1)
     frqtr!(dst_ceps, c, α)
 end
@@ -307,15 +307,15 @@ function mgc2mgc!(dst_ceps::Vector{Cdouble}, dst_α, dst_γ,
     dst_ceps
 end
 
-function mgc2mgc(src_ceps::Vector{Cdouble}, src_α, src_γ,
-                 dst_order, dst_α, dst_γ)
+function mgc2mgc(src_ceps::Vector{Cdouble}, src_α=0.0, src_γ=0.0,
+                 dst_order=length(src_ceps)-1, dst_α=0.0, dst_γ=0.0)
     dst_ceps = Array(Cdouble, dst_order + 1)
     src_order = length(src_ceps) - 1
     mgc2mgc!(dst_ceps, dst_α, dst_γ, src_ceps, src_α, src_γ)
 end
 
 function mgc2sp!(sp::Vector{Complex{Cdouble}},
-                 mgc::Vector{Cdouble}, α, γ)
+                 mgc::Vector{Cdouble}, α=0.0, γ=0.0)
     assert_gamma(γ)
     fftlen = (length(sp)-1)<<1
     assert_fftlen(fftlen)
@@ -332,14 +332,14 @@ function mgc2sp!(sp::Vector{Complex{Cdouble}},
     sp
 end
 
-function mgc2sp(mgc::Vector{Cdouble}, α, γ, fftlen)
+function mgc2sp(mgc::Vector{Cdouble}, α=0.0, γ=0.0, fftlen=256)
     assert_fftlen(fftlen)
     order = length(mgc) - 1
     sp = Array(Complex{Cdouble}, fftlen>>1 + 1)
     mgc2sp!(sp, mgc, α, γ)
 end
 
-function mgclsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble}, α, γ;
+function mgclsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble}, α=0.0, γ=0.0;
                     gain::Bool=true)
     assert_gamma(γ)
     fftlen = (length(sp) - 1)<<1
@@ -351,7 +351,7 @@ function mgclsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble}, α, γ;
     sp
 end
 
-function mgclsp2sp(lsp::Vector{Cdouble}, α, γ, fftlen; kargs...)
+function mgclsp2sp(lsp::Vector{Cdouble}, α=0.0, γ=0.0, fftlen=256; kargs...)
     assert_fftlen(fftlen)
     sp = Array(Cdouble, fftlen>>1 + 1)
     mgclsp2sp!(sp, lsp, α, γ; kargs...)

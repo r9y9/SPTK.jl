@@ -1,6 +1,6 @@
 # Mel-generalized cepstrum analysis
 
-function mcep!(mc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41;
+function mcep!(mc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.35;
                miniter::Int=2,
                maxiter::Int=30,
                threshold::Float64=0.001,
@@ -40,7 +40,7 @@ function mcep!(mc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41;
     mc
 end
 
-function mcep(windowed::Vector{Cdouble}, order=40, α=0.41; kargs...)
+function mcep(windowed::Vector{Cdouble}, order=25, α=0.35; kargs...)
     mc = Array(Cdouble, order+1)
     mcep!(mc, windowed, α; kargs...)
 end
@@ -84,12 +84,12 @@ function gcep!(gc::Vector{Cdouble}, windowed::Vector{Cdouble}, γ=0.0;
     gc
 end
 
-function gcep(windowed::Vector{Cdouble}, order=40, γ=0.0; kargs...)
+function gcep(windowed::Vector{Cdouble}, order=25, γ=0.0; kargs...)
     gc = Array(Cdouble, order + 1)
     gcep!(gc, windowed, γ; kargs...)
 end
 
-function mgcep!(mgc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41,
+function mgcep!(mgc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.35,
                 γ=0.0;
                 num_recursions::Int=length(windowed)-1,
                 miniter::Int=2,
@@ -156,7 +156,7 @@ function mgcep!(mgc::Vector{Cdouble}, windowed::Vector{Cdouble}, α=0.41,
     mgc
 end
 
-function mgcep(windowed::Vector{Cdouble}, order=40, α=0.41, γ=0.0; kargs...)
+function mgcep(windowed::Vector{Cdouble}, order=25, α=0.35, γ=0.0; kargs...)
     mgc = Array(Cdouble, order + 1)
     mgcep!(mgc, windowed, α, γ; kargs...)
 end
@@ -195,7 +195,7 @@ function uels!(c::Vector{Cdouble}, windowed::Vector{Cdouble};
     c
 end
 
-function uels(windowed::Vector{Cdouble}, order=40; kargs...)
+function uels(windowed::Vector{Cdouble}, order=25; kargs...)
     c = Array(Cdouble, order + 1)
     uels!(c, windowed; kargs...)
 end
@@ -210,7 +210,7 @@ function fftcep!(c::Vector{Cdouble}, logsp::Vector{Cdouble};
     c
 end
 
-function fftcep(logsp::Vector{Cdouble}, order=40; kargs...)
+function fftcep(logsp::Vector{Cdouble}, order=25; kargs...)
     c = Array(Cdouble, order + 1)
     fftcep!(c, logsp; kargs...)
 end
@@ -235,7 +235,7 @@ function lpc!(a::Vector{Cdouble}, x::Vector{Cdouble};
     a
 end
 
-function lpc(x::Vector{Cdouble}, order=40; kargs...)
+function lpc(x::Vector{Cdouble}, order=25; kargs...)
     a = Array(Cdouble, order+1)
     lpc!(a, x; kargs...)
 end
