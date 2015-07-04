@@ -132,10 +132,17 @@ for order in [15, 20, 25, 30]
 end
 
 let
-    srand(98765)
-    dummy_lpc = lpc(rand(512), 21)
-    par = zeros(length(dummy_lpc) - 1)
-    @test_throws DimensionMismatch lpc2par!(par, dummy_lpc)
+    @test_throws DimensionMismatch lpc2par!(ones(10), ones(9))
+end
+
+println("-- test_par2lpc")
+for order in [15, 20, 25, 30]
+    println(" where order = $order")
+    test_transform_base(par2lpc, order)
+end
+
+let
+    @test_throws DimensionMismatch lpc2par!(ones(10), ones(9))
 end
 
 println("-- test_lsp2sp")

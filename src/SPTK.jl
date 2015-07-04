@@ -58,6 +58,8 @@ export
     lpc2lsp,
     lpc2par!,
     lpc2par,
+    par2lpc!,
+    par2lpc,
     lsp2sp!,
     lsp2sp,
 

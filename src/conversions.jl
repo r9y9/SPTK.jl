@@ -79,6 +79,23 @@ function lpc2par(lpc::Vector{Cdouble})
     lpc2par!(par, lpc)
 end
 
+function par2lpc!(lpc::Vector{Cdouble}, par::Vector{Cdouble})
+    if length(lpc) != length(par)
+        throw(DimensionMismatch("inconsistent dimentions"))
+    end
+    # NOTE: Since par2lpc destroys input PARCOR coefficients,
+    # so passing its copy to the ccall to keep PARCOR coeff. unchanged
+    ccall((:par2lpc, libSPTK), Void, (Ptr{Cdouble}, Ptr{Cdouble}, Cint),
+          copy(par), lpc, length(par)-1)
+    lpc
+end
+
+function par2lpc(par::Vector{Cdouble})
+    lpc = similar(par)
+    par2lpc!(lpc, par)
+    return lpc
+end
+
 # assume lsp has loggain at lsp[1]
 function lsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble})
     fftlen = (length(sp) - 1)<<1

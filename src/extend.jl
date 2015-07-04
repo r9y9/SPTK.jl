@@ -13,6 +13,7 @@ const vec2vec = [
                  :lpc2c,
                  :lpc2lsp,
                  :lpc2par,
+                 :par2lpc,
                  :lsp2sp,
 
                  :mc2b,
