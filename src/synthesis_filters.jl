@@ -3,7 +3,8 @@
 poledf_delay_length(order) = order
 poledf_delay(order) = zeros(poledf_delay_length(order))
 
-function poledf(x::Cdouble, a::Vector{Cdouble}, delay::Vector{Cdouble})
+function poledf(x::Cdouble, a::StridedVector{Cdouble},
+                delay::StridedVector{Cdouble})
     order = length(a) - 1
     if length(delay) != poledf_delay_length(order)
         throw(DimensionMismatch("inconsistent delay length"))
@@ -16,7 +17,8 @@ end
 lmadf_delay_length(order, pd) = 2pd*(order + 1)
 lmadf_delay(order, pd) = zeros(lmadf_delay_length(order, pd))
 
-function lmadf(x::Cdouble, b::Vector{Cdouble}, pd, delay::Vector{Cdouble})
+function lmadf(x::Cdouble, b::StridedVector{Cdouble}, pd,
+               delay::StridedVector{Cdouble})
     assert_pade(pd)
     order = length(b) - 1
     if length(delay) != lmadf_delay_length(order, pd)
@@ -30,7 +32,8 @@ end
 lspdf_delay_length(order) = 2order + 1
 lspdf_delay(order) = zeros(lspdf_delay_length(order))
 
-function lspdf(x::Cdouble, f::Vector{Cdouble}, delay::Vector{Cdouble})
+function lspdf(x::Cdouble, f::StridedVector{Cdouble},
+               delay::StridedVector{Cdouble})
     order = length(f) - 1
     if iseven(order)
         lspdf_even(x, f, delay)
@@ -39,7 +42,8 @@ function lspdf(x::Cdouble, f::Vector{Cdouble}, delay::Vector{Cdouble})
     end
 end
 
-function lspdf_even(x::Cdouble, f::Vector{Cdouble}, delay::Vector{Cdouble})
+function lspdf_even(x::Cdouble, f::StridedVector{Cdouble},
+                    delay::StridedVector{Cdouble})
     order = length(f) - 1
     if length(delay) != lspdf_delay_length(order)
         throw(DimensionMismatch("inconsistent delay length"))
@@ -49,7 +53,8 @@ function lspdf_even(x::Cdouble, f::Vector{Cdouble}, delay::Vector{Cdouble})
           x, f, length(f) - 1, delay)
 end
 
-function lspdf_odd(x::Cdouble, f::Vector{Cdouble}, delay::Vector{Cdouble})
+function lspdf_odd(x::Cdouble, f::StridedVector{Cdouble},
+                   delay::StridedVector{Cdouble})
     order = length(f) - 1
     if length(delay) != lspdf_delay_length(order)
         throw(DimensionMismatch("inconsistent delay length"))
@@ -62,7 +67,8 @@ end
 ltcdf_delay_length(order) = order + 1
 ltcdf_delay(order) = zeros(ltcdf_delay_length(order))
 
-function ltcdf(x::Cdouble, k::Vector{Cdouble}, delay::Vector{Cdouble})
+function ltcdf(x::Cdouble, k::StridedVector{Cdouble},
+               delay::StridedVector{Cdouble})
     order = length(k) - 1
     if length(delay) != ltcdf_delay_length(order)
         throw(DimensionMismatch("invalid delay length"))
@@ -76,7 +82,8 @@ glsadf_delay_length(order, stage) = order * (stage + 1) + 1
 glsadf_delay(order, stage) = zeros(glsadf_delay_length(order, stage))
 
 # NOTE: stage = -1/γ
-function glsadf(x::Cdouble, c::Vector{Cdouble}, stage, delay::Vector{Cdouble})
+function glsadf(x::Cdouble, c::StridedVector{Cdouble}, stage,
+                delay::StridedVector{Cdouble})
     stage >= 1 || throw(ArgumentError("stage >= 1 (-1 <= γ < 0)"))
     order = length(c) - 1
     if length(delay) != glsadf_delay_length(order, stage)
@@ -91,7 +98,8 @@ end
 mlsadf_delay_length(order, pd) = 3*(pd+1) + pd*(order+2)
 mlsadf_delay(order, pd) = zeros(mlsadf_delay_length(order, pd))
 
-function mlsadf(x::Cdouble, b::Vector{Cdouble}, α, pd, delay::Vector{Cdouble})
+function mlsadf(x::Cdouble, b::StridedVector{Cdouble}, α, pd,
+                delay::StridedVector{Cdouble})
     assert_pade(pd)
     order = length(b) - 1
     if length(delay) != mlsadf_delay_length(order, pd)
@@ -106,8 +114,8 @@ end
 mglsadf_delay_length(order, stage) = (order+1)*stage
 mglsadf_delay(order, stage) = zeros(mglsadf_delay_length(order, stage))
 
-function mglsadf(x::Cdouble, b::Vector{Cdouble}, α, stage,
-                 delay::Vector{Cdouble})
+function mglsadf(x::Cdouble, b::StridedVector{Cdouble}, α, stage,
+                 delay::StridedVector{Cdouble})
     stage >= 1 || throw(ArgumentError("stage >= 1 (-1 <= γ < 0)"))
     order = length(b) - 1
     if length(delay) != mglsadf_delay_length(order, stage)

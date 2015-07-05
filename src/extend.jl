@@ -38,7 +38,7 @@ const vec2vec = [
 # should accept a function call like: f(x) where x is a input matrix
 for f in vec2vec
     @eval begin
-        function $f(x::Matrix{Cdouble}, args...; kargs...)
+        function $f(x::StridedMatrix{Cdouble}, args...; kargs...)
             # TODO: avoid allocations (pass SubArray instead of Array?)
             r = $f(x[:, 1], args...; kargs...)
             ret = Array(eltype(r), size(r, 1), size(x, 2))

@@ -2,7 +2,8 @@
 
 ## LPC, LSP, PARCOR conversions
 
-function lpc2c!(dst_ceps::Vector{Cdouble}, src_lpc::Vector{Cdouble})
+function lpc2c!(dst_ceps::StridedVector{Cdouble},
+                src_lpc::StridedVector{Cdouble})
     src_order = length(src_lpc) - 1
     dst_order = length(dst_ceps) - 1
     ccall((:lpc2c, libSPTK), Void,
@@ -11,13 +12,13 @@ function lpc2c!(dst_ceps::Vector{Cdouble}, src_lpc::Vector{Cdouble})
     dst_ceps
 end
 
-function lpc2c(src_lpc::Vector{Cdouble}, dst_order=length(src_lpc)-1)
+function lpc2c(src_lpc::StridedVector{Cdouble}, dst_order=length(src_lpc)-1)
     src_order = length(src_lpc) - 1
     dst_ceps = Array(Cdouble, dst_order+1)
     lpc2c!(dst_ceps, src_lpc)
 end
 
-function lpc2lsp!(lsp::Vector{Cdouble}, lpc::Vector{Cdouble};
+function lpc2lsp!(lsp::StridedVector{Cdouble}, lpc::StridedVector{Cdouble};
                   numsp::Int=128,
                   maxiter::Int=4,
                   eps::Float64=1e-6,
@@ -60,12 +61,12 @@ function lpc2lsp!(lsp::Vector{Cdouble}, lpc::Vector{Cdouble};
     lsp
 end
 
-function lpc2lsp(lpc::Vector{Cdouble}; kargs...)
+function lpc2lsp(lpc::StridedVector{Cdouble}; kargs...)
     lsp = zeros(lpc)
     lpc2lsp!(lsp, lpc; kargs...)
 end
 
-function lpc2par!(par::Vector{Cdouble}, lpc::Vector{Cdouble})
+function lpc2par!(par::StridedVector{Cdouble}, lpc::StridedVector{Cdouble})
     if length(par) != length(lpc)
         throw(DimensionMismatch("inconsistent dimentions"))
     end
@@ -74,12 +75,12 @@ function lpc2par!(par::Vector{Cdouble}, lpc::Vector{Cdouble})
     par
 end
 
-function lpc2par(lpc::Vector{Cdouble})
+function lpc2par(lpc::StridedVector{Cdouble})
     par = similar(lpc)
     lpc2par!(par, lpc)
 end
 
-function par2lpc!(lpc::Vector{Cdouble}, par::Vector{Cdouble})
+function par2lpc!(lpc::StridedVector{Cdouble}, par::StridedVector{Cdouble})
     if length(lpc) != length(par)
         throw(DimensionMismatch("inconsistent dimentions"))
     end
@@ -90,14 +91,14 @@ function par2lpc!(lpc::Vector{Cdouble}, par::Vector{Cdouble})
     lpc
 end
 
-function par2lpc(par::Vector{Cdouble})
+function par2lpc(par::StridedVector{Cdouble})
     lpc = similar(par)
     par2lpc!(lpc, par)
     return lpc
 end
 
 # assume lsp has loggain at lsp[1]
-function lsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble})
+function lsp2sp!(sp::StridedVector{Cdouble}, lsp::StridedVector{Cdouble})
     fftlen = (length(sp) - 1)<<1
     assert_fftlen(fftlen)
     ccall((:lsp2sp, libSPTK), Void,
@@ -106,7 +107,7 @@ function lsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble})
     sp
 end
 
-function lsp2sp(lsp::Vector{Cdouble}, fftlen=256)
+function lsp2sp(lsp::StridedVector{Cdouble}, fftlen=256)
     assert_fftlen(fftlen)
     sp = Array(Cdouble, fftlen>>1+1)
     lsp2sp!(sp, lsp)
@@ -114,7 +115,7 @@ end
 
 ## Mel-generalized cepstrum conversions
 
-function mc2b!(b::Vector{Cdouble}, mc::Vector{Cdouble}, α=0.35)
+function mc2b!(b::StridedVector{Cdouble}, mc::StridedVector{Cdouble}, α=0.35)
     if length(b) != length(mc)
         throw(DimensionMismatch("inconstent dimensions"))
     end
@@ -124,12 +125,12 @@ function mc2b!(b::Vector{Cdouble}, mc::Vector{Cdouble}, α=0.35)
     b
 end
 
-function mc2b(mc::Vector{Cdouble}, α=0.35)
+function mc2b(mc::StridedVector{Cdouble}, α=0.35)
     b = similar(mc)
     mc2b!(b, mc, α)
 end
 
-function b2mc!(mc::Vector{Cdouble}, b::Vector{Cdouble}, α=0.35)
+function b2mc!(mc::StridedVector{Cdouble}, b::StridedVector{Cdouble}, α=0.35)
     if length(mc) != length(b)
         throw(DimensionMismatch("inconstent dimensions"))
     end
@@ -139,12 +140,13 @@ function b2mc!(mc::Vector{Cdouble}, b::Vector{Cdouble}, α=0.35)
     mc
 end
 
-function b2mc(b::Vector{Cdouble}, α=0.35)
+function b2mc(b::StridedVector{Cdouble}, α=0.35)
     mc = similar(b)
     b2mc!(mc, b, α)
 end
 
-function b2c!(dst_ceps::Vector{Cdouble}, src_b::Vector{Cdouble}, α)
+function b2c!(dst_ceps::StridedVector{Cdouble}, src_b::StridedVector{Cdouble},
+              α)
     src_order = length(src_b) - 1
     dst_order = length(dst_ceps) - 1
     ccall((:b2c, libSPTK), Void,
@@ -153,12 +155,13 @@ function b2c!(dst_ceps::Vector{Cdouble}, src_b::Vector{Cdouble}, α)
     dst_ceps
 end
 
-function b2c(src_b::Vector{Cdouble}, dst_order=length(src_b)-1, α=0.35)
+function b2c(src_b::StridedVector{Cdouble}, dst_order=length(src_b)-1, α=0.35)
     dst_ceps = Array(Cdouble, dst_order + 1)
     b2c!(dst_ceps, src_b, α)
 end
 
-function c2acr!(r::Vector{Cdouble}, c::Vector{Cdouble}, fftlen=256)
+function c2acr!(r::StridedVector{Cdouble}, c::StridedVector{Cdouble},
+                fftlen=256)
     assert_fftlen(fftlen)
     dst_order = length(r) - 1
     ccall((:c2acr, libSPTK), Void,
@@ -167,35 +170,35 @@ function c2acr!(r::Vector{Cdouble}, c::Vector{Cdouble}, fftlen=256)
     r
 end
 
-function c2acr(c::Vector{Cdouble}, order=length(c)-1, fftlen=256)
+function c2acr(c::StridedVector{Cdouble}, order=length(c)-1, fftlen=256)
     r = Array(Cdouble, order + 1)
     c2acr!(r, c, fftlen)
 end
 
-function c2ir!(h::Vector{Cdouble}, c::Vector{Cdouble})
+function c2ir!(h::StridedVector{Cdouble}, c::StridedVector{Cdouble})
     order = length(c) # NOT length(c) - 1
     ccall((:c2ir, libSPTK), Void, (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint),
           c, order, h, length(h))
     h
 end
 
-function c2ir(c::Vector{Cdouble}, len=256)
+function c2ir(c::StridedVector{Cdouble}, len=256)
     h = Array(Cdouble, len)
     c2ir!(h, c)
 end
 
-function ic2ir!(c::Vector{Cdouble}, h::Vector{Cdouble})
+function ic2ir!(c::StridedVector{Cdouble}, h::StridedVector{Cdouble})
     ccall((:ic2ir, libSPTK), Void, (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint),
           h, length(h), c, length(c))
     c
 end
 
-function ic2ir(h::Vector{Cdouble}, order=25)
+function ic2ir(h::StridedVector{Cdouble}, order=25)
     c = Array(Cdouble, order+1)
     ic2ir!(c, h)
 end
 
-function c2ndps!(ndps::Vector{Cdouble}, c::Vector{Cdouble})
+function c2ndps!(ndps::StridedVector{Cdouble}, c::StridedVector{Cdouble})
     fftlen = (length(ndps) - 1)<<1
     assert_fftlen(fftlen)
     buf = Array(Cdouble, fftlen)
@@ -209,13 +212,13 @@ function c2ndps!(ndps::Vector{Cdouble}, c::Vector{Cdouble})
     ndps
 end
 
-function c2ndps(c::Vector{Cdouble}, fftlen=256)
+function c2ndps(c::StridedVector{Cdouble}, fftlen=256)
     assert_fftlen(fftlen)
     ndps = Array(Cdouble, fftlen>>1 + 1)
     c2ndps!(ndps, c)
 end
 
-function ndps2c!(dst_ceps::Vector{Cdouble}, ndps::Vector{Cdouble})
+function ndps2c!(dst_ceps::StridedVector{Cdouble}, ndps::StridedVector{Cdouble})
     order = length(dst_ceps) - 1
     fftlen = (length(ndps) - 1)<<1 # assuming the length of npds is fftsize/2+1
     assert_fftlen(fftlen)
@@ -224,13 +227,13 @@ function ndps2c!(dst_ceps::Vector{Cdouble}, ndps::Vector{Cdouble})
     dst_ceps
 end
 
-function ndps2c(ndps::Vector{Cdouble}, order=25)
+function ndps2c(ndps::StridedVector{Cdouble}, order=25)
     dst_ceps = Array(Cdouble, order + 1)
     ndps2c!(dst_ceps, ndps)
 end
 
-function gc2gc!(dst_ceps::Vector{Cdouble}, dst_γ,
-                src_ceps::Vector{Cdouble}, src_γ)
+function gc2gc!(dst_ceps::StridedVector{Cdouble}, dst_γ,
+                src_ceps::StridedVector{Cdouble}, src_γ)
     assert_gamma(dst_γ)
     assert_gamma(src_γ)
     dst_order = length(dst_ceps) - 1
@@ -241,18 +244,20 @@ function gc2gc!(dst_ceps::Vector{Cdouble}, dst_γ,
     dst_ceps
 end
 
-function gc2gc(src_ceps::Vector{Cdouble}, src_γ=0.0,
+function gc2gc(src_ceps::StridedVector{Cdouble}, src_γ=0.0,
                dst_order=length(src_ceps)-1, dst_γ=0.0)
     src_order = length(src_ceps) - 1
     dst_ceps = Array(Cdouble, dst_order + 1)
     gc2gc!(dst_ceps, dst_γ, src_ceps, src_γ)
 end
 
-function gc2gc{T<:FloatingPoint}(src_ceps::Vector{Cdouble}, src_γ::T, dst_γ::T)
+function gc2gc{T<:FloatingPoint}(src_ceps::StridedVector{Cdouble}, src_γ::T,
+                                 dst_γ::T)
     gc2gc(src_ceps, src_γ, length(src_ceps)-1, dst_γ)
 end
 
-function gnorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ=0.0)
+function gnorm!(dst_ceps::StridedVector{Cdouble},
+                src_ceps::StridedVector{Cdouble}, γ=0.0)
     assert_gamma(γ)
     if length(dst_ceps) != length(src_ceps)
         throw(DimensionMismatch("inconsistent dimensions"))
@@ -264,12 +269,13 @@ function gnorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ=0.0)
     dst_ceps
 end
 
-function gnorm(src_ceps::Vector{Cdouble}, γ=0.0)
+function gnorm(src_ceps::StridedVector{Cdouble}, γ=0.0)
     dst_ceps = similar(src_ceps)
     gnorm!(dst_ceps, src_ceps, γ)
 end
 
-function ignorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ=0.0)
+function ignorm!(dst_ceps::StridedVector{Cdouble},
+                 src_ceps::StridedVector{Cdouble}, γ=0.0)
     assert_gamma(γ)
     if length(dst_ceps) != length(src_ceps)
         throw(DimensionMismatch("inconsistent dimensions"))
@@ -281,12 +287,13 @@ function ignorm!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, γ=0.0)
     dst_ceps
 end
 
-function ignorm(src_ceps::Vector{Cdouble}, γ=0.0)
+function ignorm(src_ceps::StridedVector{Cdouble}, γ=0.0)
     dst_ceps = similar(src_ceps)
     ignorm!(dst_ceps, src_ceps, γ)
 end
 
-function freqt!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α=0.0)
+function freqt!(dst_ceps::StridedVector{Cdouble},
+                src_ceps::StridedVector{Cdouble}, α=0.0)
     src_order = length(src_ceps) - 1
     dst_order = length(dst_ceps) - 1
     ccall((:freqt, libSPTK), Void,
@@ -295,16 +302,17 @@ function freqt!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α=0.0)
     dst_ceps
 end
 
-function freqt(ceps::Vector{Cdouble}, order=25, α=0.0)
+function freqt(ceps::StridedVector{Cdouble}, order=25, α=0.0)
     dst_ceps = Array(Cdouble, order + 1)
     freqt!(dst_ceps, ceps, α)
 end
 
-function freqt{T<:FloatingPoint}(ceps::Vector{Cdouble}, α::T)
+function freqt{T<:FloatingPoint}(ceps::StridedVector{Cdouble}, α::T)
     freqt(ceps, length(ceps)-1, α)
 end
 
-function frqtr!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α=0.0)
+function frqtr!(dst_ceps::StridedVector{Cdouble},
+                src_ceps::StridedVector{Cdouble}, α=0.0)
     src_order = length(src_ceps) - 1
     dst_order = length(dst_ceps) - 1
     ccall((:frqtr, libSPTK), Void,
@@ -313,17 +321,17 @@ function frqtr!(dst_ceps::Vector{Cdouble}, src_ceps::Vector{Cdouble}, α=0.0)
     dst_ceps
 end
 
-function frqtr(ceps::Vector{Cdouble}, order=25, α=0.0)
+function frqtr(ceps::StridedVector{Cdouble}, order=25, α=0.0)
     dst_ceps = Array(Cdouble, order + 1)
     frqtr!(dst_ceps, ceps, α)
 end
 
-function frqtr{T<:FloatingPoint}(ceps::Vector{Cdouble}, α::T)
+function frqtr{T<:FloatingPoint}(ceps::StridedVector{Cdouble}, α::T)
     frqtr(ceps, length(ceps)-1, α)
 end
 
-function mgc2mgc!(dst_ceps::Vector{Cdouble}, dst_α, dst_γ,
-                  src_ceps::Vector{Cdouble}, src_α, src_γ)
+function mgc2mgc!(dst_ceps::StridedVector{Cdouble}, dst_α, dst_γ,
+                  src_ceps::StridedVector{Cdouble}, src_α, src_γ)
     assert_gamma(dst_γ)
     assert_gamma(src_γ)
     src_order = length(src_ceps) - 1
@@ -336,20 +344,20 @@ function mgc2mgc!(dst_ceps::Vector{Cdouble}, dst_α, dst_γ,
     dst_ceps
 end
 
-function mgc2mgc(src_ceps::Vector{Cdouble}, src_α=0.0, src_γ=0.0,
+function mgc2mgc(src_ceps::StridedVector{Cdouble}, src_α=0.0, src_γ=0.0,
                  dst_order=length(src_ceps)-1, dst_α=0.0, dst_γ=0.0)
     dst_ceps = Array(Cdouble, dst_order + 1)
     src_order = length(src_ceps) - 1
     mgc2mgc!(dst_ceps, dst_α, dst_γ, src_ceps, src_α, src_γ)
 end
 
-function mgc2mgc{T<:FloatingPoint}(src_ceps::Vector{Cdouble}, src_α::T,
+function mgc2mgc{T<:FloatingPoint}(src_ceps::StridedVector{Cdouble}, src_α::T,
                                    src_γ::T, dst_α::T, dst_γ::T)
     mgc2mgc(src_ceps, src_α, src_γ, length(src_ceps)-1, dst_α, dst_γ)
 end
 
 function mgc2sp!(sp::Vector{Complex{Cdouble}},
-                 mgc::Vector{Cdouble}, α=0.0, γ=0.0)
+                 mgc::StridedVector{Cdouble}, α=0.0, γ=0.0)
     assert_gamma(γ)
     fftlen = (length(sp)-1)<<1
     assert_fftlen(fftlen)
@@ -366,14 +374,15 @@ function mgc2sp!(sp::Vector{Complex{Cdouble}},
     sp
 end
 
-function mgc2sp(mgc::Vector{Cdouble}, α=0.0, γ=0.0, fftlen=256)
+function mgc2sp(mgc::StridedVector{Cdouble}, α=0.0, γ=0.0, fftlen=256)
     assert_fftlen(fftlen)
     order = length(mgc) - 1
     sp = Array(Complex{Cdouble}, fftlen>>1 + 1)
     mgc2sp!(sp, mgc, α, γ)
 end
 
-function mgclsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble}, α=0.0, γ=0.0;
+function mgclsp2sp!(sp::StridedVector{Cdouble},
+                    lsp::StridedVector{Cdouble}, α=0.0, γ=0.0;
                     gain::Bool=true)
     assert_gamma(γ)
     fftlen = (length(sp) - 1)<<1
@@ -385,7 +394,8 @@ function mgclsp2sp!(sp::Vector{Cdouble}, lsp::Vector{Cdouble}, α=0.0, γ=0.0;
     sp
 end
 
-function mgclsp2sp(lsp::Vector{Cdouble}, α=0.0, γ=0.0, fftlen=256; kargs...)
+function mgclsp2sp(lsp::StridedVector{Cdouble}, α=0.0, γ=0.0, fftlen=256;
+                   kargs...)
     assert_fftlen(fftlen)
     sp = Array(Cdouble, fftlen>>1 + 1)
     mgclsp2sp!(sp, lsp, α, γ; kargs...)

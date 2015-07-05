@@ -1,6 +1,6 @@
 # F0 estimation
 
-function swipe(x::Vector{Cdouble}, fs, hopsize=80;
+function swipe(x::StridedVector{Cdouble}, fs, hopsize=80;
                min::Float64=50.0,
                max::Float64=800.0,
                threshold::Float64=0.3,

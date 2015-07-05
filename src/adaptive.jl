@@ -1,6 +1,6 @@
 # Adaptive mel-cepstrum analysis
 
-function acep!(c::Vector{Cdouble}, x::Cdouble;
+function acep!(c::StridedVector{Cdouble}, x::Cdouble;
                λ::Float64=0.98,
                step::Float64=0.1,
                τ::Float64=0.9,
@@ -16,7 +16,7 @@ function acep!(c::Vector{Cdouble}, x::Cdouble;
 end
 
 # γ = -1/stage (-1 <= γ < 0)
-function agcep!(c::Vector{Cdouble}, x::Cdouble, stage=1;
+function agcep!(c::StridedVector{Cdouble}, x::Cdouble, stage=1;
                 λ::Float64=0.98,
                 step::Float64=0.1,
                 τ::Float64=0.9,
@@ -30,7 +30,7 @@ function agcep!(c::Vector{Cdouble}, x::Cdouble, stage=1;
     prederr
 end
 
-function amcep!(b::Vector{Cdouble}, x::Cdouble, α=0.41;
+function amcep!(b::StridedVector{Cdouble}, x::Cdouble, α=0.41;
                 λ::Float64=0.98,
                 step::Float64=0.1,
                 τ::Float64=0.9,
