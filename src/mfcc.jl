@@ -1,19 +1,18 @@
 # MFCC
 
-function mfcc(x::Vector{Cdouble}, order=20, samplerate=16000;
+function mfcc(x::Vector{Cdouble}, order=13, samplerate=16000;
               α::Float64=0.97,
               eps::Float64=1.0,
               windowlen::Int=length(x),
               framelen::Int=length(x),
-              numfilterbunks::Int=20,
-              cepslift::Int=22,
+              numfilterbunks::Int=26,
+              cepslift::Int=13,
               usedft::Bool=false,
               usehamming::Bool=true,
               czero::Bool=false,
               power::Bool=false)
-
-    if order > numfilterbunks - 1
-        throw(ArgumentError("order must be larger than num filterbanks-1"))
+    if order+1 > numfilterbunks
+        throw(ArgumentError("order+1 must be less than or equal to the number of filterbanks"))
     end
 
     # order of MFCC + 0-th + power
