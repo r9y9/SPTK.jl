@@ -48,9 +48,6 @@ export
     lpc!,
     lpc,
 
-    # MFCC
-    mfcc,
-
     # LPC, LSP and PARCOR conversions
     lpc2c!,
     lpc2c,

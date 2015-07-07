@@ -1,13 +1,14 @@
 # MFCC
 
+# Please note that mfcc is NOT stable
 function mfcc(x::StridedVector{Cdouble}, order=13, samplerate=16000;
               α::Float64=0.97,
               eps::Float64=1.0,
               windowlen::Int=length(x),
               framelen::Int=length(x),
-              numfilterbunks::Int=26,
-              cepslift::Int=13,
-              usedft::Bool=false,
+              numfilterbunks::Int=20,
+              cepslift::Int=22,
+              usedft::Bool=true,
               usehamming::Bool=true,
               czero::Bool=false,
               power::Bool=false)
