@@ -19,10 +19,10 @@ function lpc2c(src_lpc::StridedVector{Cdouble}, dst_order=length(src_lpc)-1)
 end
 
 function lpc2lsp!(lsp::StridedVector{Cdouble}, lpc::StridedVector{Cdouble};
-                  numsp::Int=128,
+                  numsp::Int=512,
                   maxiter::Int=4,
                   eps::Float64=1e-6,
-                  loggain::Bool=true,
+                  loggain::Bool=false,
                   otype::Int=0,
                   fs=nothing)
     if length(lsp) != length(lpc)
