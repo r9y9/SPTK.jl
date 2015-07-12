@@ -102,7 +102,7 @@ end
 println("-- test_lpc2lsp")
 for order in [15, 20, 25, 30, 40, 50]
     println(" where order = $order")
-    # test_transform_base(lpc2lsp, order)
+    test_transform_base(lpc2lsp, order)
     test_lpc2lsp(order)
 end
 
@@ -114,8 +114,8 @@ let
     lsp1 = lpc2lsp(dummy_lpc, otype=2, fs=16000)
     lsp2 = lpc2lsp(dummy_lpc, otype=3, fs=16)
     @test_approx_eq lsp1 lsp2
-    lsp3 = lpc2lsp(dummy_lpc, otype=3, fs=16, loggain=false)
-    @test_approx_eq log(first(lsp3)) first(lsp2)
+    lsp3 = lpc2lsp(dummy_lpc, otype=3, fs=16, loggain=true)
+    @test_approx_eq first(lsp3) log(first(lsp2))
 end
 
 let
