@@ -54,7 +54,8 @@ function gcep!(gc::StridedVector{Cdouble}, windowed::StridedVector{Cdouble},
                etype::Int=0,
                eps::Float64=0.0,
                min_det::Float64=1.0e-6,
-               itype::Int=0)
+               itype::Int=0,
+               norm::Bool=false)
     assert_gamma(γ)
     if itype ∉ 0:4
         throw(ArgumentError("unsupported itype: $itype, must be ∈ 0:4"))
@@ -73,6 +74,7 @@ function gcep!(gc::StridedVector{Cdouble}, windowed::StridedVector{Cdouble},
     end
 
     order = length(gc) - 1
+    # Note that the output is gain-normalized
     ret = ccall((:gcep, libSPTK), Cint,
                 (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint,
                  Cdouble, Cint, Cint, Cdouble, Cint, Cdouble, Cdouble, Cint),
@@ -82,6 +84,8 @@ function gcep!(gc::StridedVector{Cdouble}, windowed::StridedVector{Cdouble},
     if ret == 3
         error("failed to compute gcep; error occured in theq")
     end
+
+    !norm && ignorm!(gc, gc, γ)
 
     gc
 end
