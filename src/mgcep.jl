@@ -157,7 +157,9 @@ function mgcep!(mgc::StridedVector{Cdouble}, windowed::StridedVector{Cdouble},
     end
 
     if otype ∈ 4:5
-        mgc = [mgc[1], mgc[2:end]*γ]
+        for i=2:length(mgc)
+            mgc[i] *= γ
+        end
     end
 
     mgc
