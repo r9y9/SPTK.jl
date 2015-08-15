@@ -7,9 +7,9 @@
 
 SPTK.jl is a Julia wrapper for the [Speech Signal Processing Toolkit (SPTK)](http://sp-tk.sourceforge.net/), which provides a lot of functionalities for speech signal processing such as linear prediction analysis, mel-cepstrum analysis, generalized cepstrum analysis and mel-generalized cepstrum analysis to name a few. See the original project page for more details.
 
-Functions that SPTK.jl provides are basically same as the SPTK, so if you are new to SPTK, please take a look at the original documentation first (I think it's well written) and then use SPTK.jl for your need.
 
 **NOTE**: SPTK.jl is based on a modified version of SPTK ([r9y9/SPTK](https://github.com/r9y9/SPTK)).
+
 
 ## Supported Platforms
 
@@ -24,6 +24,12 @@ Pkg.clone("https://github.com/r9y9/SPTK.jl.git")
 Pkg.build("SPTK)
 ```
 
-## Exported functions
+## Getting started
 
-List of exported functions can be found in [src/SPTK.jl](src/SPTK.jl).
+Functions that SPTK.jl provides are basically same as the SPTK, so if you are new to SPTK, please take a look at the original documentation first and then use SPTK.jl for your need. Also Notice that there is no function exported, so you should explicitly import functions if you need. 
+
+e.g. 
+
+```julia
+import SPTK: mcep, mgcep, freqt, mc2b
+```
