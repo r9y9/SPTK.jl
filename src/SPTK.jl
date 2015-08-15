@@ -6,7 +6,10 @@ module SPTK
 # Note that the SPTK.jl is based on the slightly modified SPTK
 # https://github.com/r9y9/SPTK
 #
-# NOTE: Function interfaces might be different betweeen C and Julia,
+# NOTE1: no function is exported; i.e., you should explicitly import functions
+# if you need.
+#
+# NOTE2: Function interfaces might be different betweeen C and Julia,
 # as the following convensions.
 #
 # Conventions for wrapping C interface
@@ -27,102 +30,6 @@ module SPTK
 #    Since C functions might `exit` (unfortunately) inside thier functions for
 #    unexpected inputs, it should be check if the inputs are supported or not
 #    in Julia before `ccall`.
-
-export
-    # Adaptive mel-generalized analysis
-    acep!,
-    agcep!,
-    amcep!,
-
-    # Mel-generalized cepstrum analysis
-    mcep!,
-    mcep,
-    gcep!,
-    gcep,
-    mgcep!,
-    mgcep,
-    uels!,
-    uels,
-    fftcep!,
-    fftcep,
-    lpc!,
-    lpc,
-
-    # LPC, LSP and PARCOR conversions
-    lpc2c!,
-    lpc2c,
-    lpc2lsp!,
-    lpc2lsp,
-    lpc2par!,
-    lpc2par,
-    par2lpc!,
-    par2lpc,
-    lsp2sp!,
-    lsp2sp,
-
-    # Mel-generalized cepstrum conversions
-    mc2b!,
-    mc2b,
-    b2mc!,
-    b2mc,
-    b2c!,
-    b2c,
-    c2acr!,
-    c2acr,
-    c2ir!,
-    c2ir,
-    ic2ir!,
-    ic2ir,
-    c2ndps!,
-    c2ndps,
-    ndps2c!,
-    ndps2c,
-    gc2gc!,
-    gc2gc,
-    gnorm!,
-    gnorm,
-    ignorm!,
-    ignorm,
-    freqt!,
-    freqt,
-    frqtr!,
-    frqtr,
-    mgc2mgc!,
-    mgc2mgc,
-    mgc2sp!,
-    mgc2sp,
-    mgclsp2sp!,
-    mgclsp2sp,
-
-    # F0 estimation
-    swipe,
-
-    # Waveform generation filters
-    poledf,
-    poledf_delay,
-    lmadf,
-    lmadf_delay,
-    lspdf,
-    lspdf_delay,
-    ltcdf,
-    ltcdf_delay,
-    glsadf,
-    glsadf_delay,
-    mlsadf,
-    mlsadf_delay,
-    mglsadf,
-    mglsadf_delay,
-
-    # window functions
-    blackman,
-    hamming,
-    hanning,
-    bartlett,
-    trapezoid,
-    rectangular,
-
-    # Utils
-    lspcheck
 
 deps = joinpath(Pkg.dir("SPTK"), "deps", "deps.jl")
 if isfile(deps)
