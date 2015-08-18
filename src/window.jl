@@ -11,7 +11,7 @@ immutable Cwindow
     end
 end
 
-function _window!(wtype::Cwindow, x::StridedVector{Cdouble}; normalize::Int=0)
+function _window!(wtype::Cwindow, x::StridedVector{Cdouble}; normalize::Int=1)
     # normalize: Int
     #    0 : don't normalize
     #    1 : normalize by power
