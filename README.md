@@ -33,6 +33,6 @@ e.g.
 import SPTK: mcep, mgcep, freqt, mc2b
 ```
 
-## Demonstration notebooks
+## Demonstration notebook
 
-- [Introduction notebook](http://nbviewer.ipython.org/github/r9y9/SPTK.jl/blob/master/examples/SPTK%20demo.ipynb): a brief intruduction to SPTK.jl
+- [Introduction notebook](http://nbviewer.ipython.org/github/r9y9/SPTK.jl/blob/master/examples/Introduction%20to%20SPTK.jl.ipynb): a brief intruduction to SPTK.jl, especially focused on mel-generalized cepstrum analysis
