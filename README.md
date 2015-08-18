@@ -33,6 +33,10 @@ e.g.
 import SPTK: mcep, mgcep, freqt, mc2b
 ```
 
+## Documentation
+
+A reference manual of the original SPTK can be found at http://sp-tk.sourceforge.net/.
+
 ## Demonstration notebook
 
 - [Introduction notebook](http://nbviewer.ipython.org/github/r9y9/SPTK.jl/blob/master/examples/Introduction%20to%20SPTK.jl.ipynb): a brief intruduction to SPTK.jl, especially focused on mel-generalized cepstrum analysis
