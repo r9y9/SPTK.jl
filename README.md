@@ -10,7 +10,6 @@ SPTK.jl is a Julia wrapper for the [Speech Signal Processing Toolkit (SPTK)](htt
 
 **NOTE**: SPTK.jl is based on a modified version of SPTK ([r9y9/SPTK](https://github.com/r9y9/SPTK)).
 
-
 ## Supported Platforms
 
 - Linux
@@ -26,10 +25,14 @@ Pkg.build("SPTK)
 
 ## Getting started
 
-Functions that SPTK.jl provides are basically same as the SPTK, so if you are new to SPTK, please take a look at the original documentation first and then use SPTK.jl for your need. Also Notice that there is no function exported, so you should explicitly import functions if you need. 
+Functions that SPTK.jl provides are basically same as the SPTK, so if you are new to SPTK, please take a look at the original documentation first and then use SPTK.jl for your need. Also Notice that there is no function exported, so you should explicitly import functions if you need.
 
-e.g. 
+e.g.
 
 ```julia
 import SPTK: mcep, mgcep, freqt, mc2b
 ```
+
+## Demonstration notebooks
+
+- [Introduction notebook](http://nbviewer.ipython.org/github/r9y9/SPTK.jl/blob/master/examples/SPTK%20demo.ipynb): a brief intruduction to SPTK.jl
