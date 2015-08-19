@@ -19,8 +19,7 @@ SPTK.jl is a Julia wrapper for the [Speech Signal Processing Toolkit (SPTK)](htt
 ## Installation
 
 ```julia
-Pkg.clone("https://github.com/r9y9/SPTK.jl.git")
-Pkg.build("SPTK)
+Pkg.add("SPTK")
 ```
 
 ## Getting started
