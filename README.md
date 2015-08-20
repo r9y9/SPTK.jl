@@ -10,6 +10,24 @@ SPTK.jl is a Julia wrapper for the [Speech Signal Processing Toolkit (SPTK)](htt
 
 **NOTE**: SPTK.jl is based on a modified version of SPTK ([r9y9/SPTK](https://github.com/r9y9/SPTK)).
 
+## Documentation
+
+A reference manual of the SPTK can be found at http://sp-tk.sourceforge.net/.
+
+## Demonstration notebook
+
+- [Introduction notebook](http://nbviewer.ipython.org/github/r9y9/SPTK.jl/blob/master/examples/Introduction%20to%20SPTK.jl.ipynb): a brief intruduction to SPTK.jl, especially focused on mel-generalized cepstrum analysis
+
+## Getting started
+
+Functions that SPTK.jl provides are basically same as the SPTK, so if you are new to SPTK, please take a look at the original documentation first and then use SPTK.jl for your need. Also notice that there is no function exported, so you should explicitly import functions if you need.
+
+e.g.
+
+```julia
+import SPTK: mcep, mgcep, freqt, mc2b
+```
+
 ## Supported Platforms
 
 - Linux
@@ -21,21 +39,3 @@ SPTK.jl is a Julia wrapper for the [Speech Signal Processing Toolkit (SPTK)](htt
 ```julia
 Pkg.add("SPTK")
 ```
-
-## Getting started
-
-Functions that SPTK.jl provides are basically same as the SPTK, so if you are new to SPTK, please take a look at the original documentation first and then use SPTK.jl for your need. Also Notice that there is no function exported, so you should explicitly import functions if you need.
-
-e.g.
-
-```julia
-import SPTK: mcep, mgcep, freqt, mc2b
-```
-
-## Documentation
-
-A reference manual of the original SPTK can be found at http://sp-tk.sourceforge.net/.
-
-## Demonstration notebook
-
-- [Introduction notebook](http://nbviewer.ipython.org/github/r9y9/SPTK.jl/blob/master/examples/Introduction%20to%20SPTK.jl.ipynb): a brief intruduction to SPTK.jl, especially focused on mel-generalized cepstrum analysis
