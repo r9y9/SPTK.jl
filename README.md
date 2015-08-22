@@ -39,3 +39,10 @@ import SPTK: mcep, mgcep, freqt, mc2b
 ```julia
 Pkg.add("SPTK")
 ```
+
+## Related packages
+
+There are a few packages on top of SPTK.jl, which provide more Julia-like interface:
+
+- [MelGeneralizedCepstrums.jl](https://github.com/r9y9/MelGeneralizedCepstrums.jl): Mel-Generalized Cepstrum analysis
+- [SynthesisFilters.jl](https://github.com/r9y9/SynthesisFilters.jl): Speech waveform synthesis filters 
