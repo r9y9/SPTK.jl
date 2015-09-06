@@ -8,35 +8,12 @@ function test_window_functions()
     srand(98765)
     x = rand(1024)
 
-    println("-- test_blackman")
-    y = blackman(length(x))
-    @test length(y) == length(x)
-    @test !any(isnan(y))
-
-    println("-- test_hamming")
-    y = hamming(length(x))
-    @test length(y) == length(x)
-    @test !any(isnan(y))
-
-    println("-- test_hanning")
-    y = hanning(length(x))
-    @test length(y) == length(x)
-    @test !any(isnan(y))
-
-    println("-- test_bartlett")
-    y = bartlett(length(x))
-    @test length(y) == length(x)
-    @test !any(isnan(y))
-
-    println("-- test_trapezoid")
-    y = trapezoid(length(x))
-    @test length(y) == length(x)
-    @test !any(isnan(y))
-
-    println("-- test_rectangular")
-    y = rectangular(length(x))
-    @test length(y) == length(x)
-    @test !any(isnan(y))
+    for f in [blackman, hamming, hanning, bartlett, trapezoid, rectangular]
+        println("-- test_$f")
+        y = f(length(x))
+        @test length(y) == length(x)
+        @test !any(isnan(y))
+    end
 
     # invalid normalize flag
     @test_throws ArgumentError blackman(512, normalize=-1)

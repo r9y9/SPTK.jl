@@ -50,10 +50,6 @@ function test_gcep_exceptions()
     @test_throws ArgumentError gcep(dummy_input, etype=2, eps=-1.0)
     @test_throws ArgumentError gcep(dummy_input, min_det=-1.0)
 
-    # invalid γ
-    @test_throws ArgumentError gcep(dummy_input, 40, 0.1)
-    @test_throws ArgumentError gcep(dummy_input, 40, -2.1)
-
     # should have error in theq
     @test_throws Exception gcep(ones(256), 40, 0.0)
 end
@@ -75,7 +71,7 @@ function test_mgcep_exceptions()
     @test_throws ArgumentError mgcep(dummy_input, etype=2, eps=-1.0)
     @test_throws ArgumentError mgcep(dummy_input, min_det=-1.0)
     @test_throws ArgumentError mgcep(dummy_input, otype=-1)
-    @test_throws ArgumentError mgcep(dummy_input, otype=-6)
+    @test_throws ArgumentError mgcep(dummy_input, otype=6)
 
     # should have error in theq
     @test_throws Exception mgcep(ones(256))
