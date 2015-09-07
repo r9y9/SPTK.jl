@@ -216,7 +216,7 @@ function fftcep!(c::StridedVector{Cdouble}, logsp::StridedVector{Cdouble};
     order = length(c) - 1
     ccall((:fftcep, libSPTK), Void,
           (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint, Cint, Cdouble),
-          logsp, length(logsp), c, length(c), num_iter, acceleration_factor)
+          logsp, length(logsp), c, order, num_iter, acceleration_factor)
     c
 end
 
