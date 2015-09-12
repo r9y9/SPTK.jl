@@ -1,9 +1,10 @@
 # Conversions
 
-function test_conversion_base(f::Function, src_order, dst_order, args...;
-                              kargs...)
-    f! = eval(symbol(string(f, "!")))
+import SPTK: lpc2c!
 
+function test_conversion_base(f::Function, f!::Function,
+                              src_order, dst_order, args...;
+                              kargs...)
     # expected dst length
     ka = Dict{Symbol,Any}(kargs)
     dst_length = haskey(ka, :dst_length) ? ka[:dst_length] : dst_order + 1
@@ -20,9 +21,7 @@ function test_conversion_base(f::Function, src_order, dst_order, args...;
     @test_approx_eq dst dst_inplace
 end
 
-function test_transform_base(f::Function, order, args...)
-    f! = eval(symbol(string(f, "!")))
-
+function test_transform_base(f::Function, f!::Function, order, args...)
     srand(98765)
     src = rand(order + 1)
     dst_inplace = zeros(order + 1)
@@ -95,14 +94,14 @@ end
 println("-- test_lpc2c")
 for src_order in [15, 20, 25, 30]
     for dst_order in [15, 20, 25, 30]
-        test_conversion_base(lpc2c, src_order, dst_order)
+        test_conversion_base(lpc2c, lpc2c!, src_order, dst_order)
     end
 end
 
 println("-- test_lpc2lsp")
 for order in [15, 20, 25, 30, 40, 50]
     println(" where order = $order")
-    test_transform_base(lpc2lsp, order)
+    test_transform_base(lpc2lsp, lpc2lsp!, order)
     test_lpc2lsp(order)
 end
 
@@ -128,7 +127,7 @@ end
 println("-- test_lpc2par")
 for order in [15, 20, 25, 30]
     println(" where order = $order")
-    test_transform_base(lpc2par, order)
+    test_transform_base(lpc2par, lpc2par!, order)
 end
 
 let
@@ -138,7 +137,7 @@ end
 println("-- test_par2lpc")
 for order in [15, 20, 25, 30]
     println(" where order = $order")
-    test_transform_base(par2lpc, order)
+    test_transform_base(par2lpc, par2lpc!, order)
 end
 
 let
@@ -149,7 +148,8 @@ println("-- test_lsp2sp")
 for order in [15, 20, 25, 30]
     for fftlen in [256, 512, 1024]
         println(" where order = $order, fftlen = $fftlen")
-        test_conversion_base(lsp2sp, order, fftlen; dst_length=fftlen>>1 + 1)
+        test_conversion_base(lsp2sp, lsp2sp!, order, fftlen;
+                             dst_length=fftlen>>1 + 1)
     end
 end
 
@@ -165,7 +165,7 @@ println("-- test_mc2b")
 for order in [15, 20, 25, 30]
     for α in [0.35, 0.41, 0.5]
         println(" where order = $order, α = $α")
-        test_transform_base(mc2b, order, α)
+        test_transform_base(mc2b, mc2b!, order, α)
     end
 end
 
@@ -177,7 +177,7 @@ println("-- test_b2mc")
 for order in [15, 20, 25, 30]
     for α in [0.35, 0.41, 0.5]
         println(" where order = $order, α = $α")
-        test_transform_base(b2mc, order, α)
+        test_transform_base(b2mc, b2mc!, order, α)
     end
 end
 
@@ -190,7 +190,7 @@ for src_order in [15, 20, 25, 30]
     for dst_order in [15, 20, 25, 30]
         for α in [0.35, 0.41, 0.5]
             println(" where src_order = $src_order, dst_order = $dst_order, α = $α")
-            test_conversion_base(b2c, src_order, dst_order, α)
+            test_conversion_base(b2c, b2c!, src_order, dst_order, α)
         end
     end
 end
@@ -200,7 +200,7 @@ for src_order in [15, 20, 25, 30]
     for dst_order in [15, 20, 25, 30]
         for fftlen in [256, 512, 1024]
             println(" where src_order = $src_order, dst_order = $dst_order, fftlen = $fftlen")
-            test_conversion_base(c2acr, src_order, dst_order, fftlen)
+            test_conversion_base(c2acr, c2acr!, src_order, dst_order, fftlen)
         end
     end
 end
@@ -214,7 +214,7 @@ println("-- test_c2ir")
 for order in [15, 20, 25, 30]
     for len in [256, 512, 1024]
         println(" where order = $order, len = $len")
-        test_conversion_base(c2ir, order, len; dst_length=len)
+        test_conversion_base(c2ir, c2ir!, order, len; dst_length=len)
     end
 end
 
@@ -222,7 +222,7 @@ println("-- test_ic2ir")
 for len in [256, 512, 1024]
     for order in [15, 20, 25, 30]
         println(" where len = $len, order = $order")
-        test_conversion_base(ic2ir, len, order)
+        test_conversion_base(ic2ir, ic2ir!, len, order)
     end
 end
 
@@ -262,7 +262,7 @@ println("-- test_gnorm")
 for order in [15, 20, 25, 30]
     for γ in [-1.0, -0.5, 0.0]
         println(" where order = $order, γ = $γ")
-        test_transform_base(gnorm, order, γ)
+        test_transform_base(gnorm, gnorm!, order, γ)
     end
 end
 
@@ -270,7 +270,7 @@ println("-- test_ignorm")
 for order in [15, 20, 25, 30]
     for γ in [-1.0, -0.5, 0.0]
         println(" where order = $order, γ = $γ")
-        test_transform_base(ignorm, order, γ)
+        test_transform_base(ignorm, ignorm!, order, γ)
     end
 end
 
@@ -288,8 +288,8 @@ for src_order in [15, 20, 25, 30]
     for dst_order in [15, 20, 25, 30]
         for α in [0.35, 0.41, 0.5]
             println(" where dst_order = $dst_order, src_order = $src_order, α = $α")
-            test_conversion_base(freqt, src_order, dst_order, α)
-            test_conversion_base(frqtr, src_order, dst_order, α)
+            test_conversion_base(freqt, freqt!, src_order, dst_order, α)
+            test_conversion_base(frqtr, frqtr!, src_order, dst_order, α)
         end
     end
 end
@@ -387,7 +387,8 @@ println("-- test_c2ndps")
 for order in [15, 20, 25, 30]
     for fftlen in [256, 512, 1024]
         println(" where order = $order, fftlen = $fftlen")
-        test_conversion_base(c2ndps, order, fftlen, dst_length=fftlen>>1 + 1)
+        test_conversion_base(c2ndps, c2ndps!, order, fftlen,
+                             dst_length=fftlen>>1 + 1)
     end
 end
 
@@ -403,7 +404,7 @@ println("-- test_ndps2c")
 for order in [15, 20, 25, 30]
     for fftlen in [256, 512, 1024]
         println(" where order = $order, fftlen = $fftlen")
-        test_conversion_base(ndps2c, fftlen>>1, order)
+        test_conversion_base(ndps2c, ndps2c!, fftlen>>1, order)
     end
 end
 
