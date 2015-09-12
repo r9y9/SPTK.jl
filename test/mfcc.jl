@@ -10,7 +10,7 @@ function test_mfcc(len, order)
     if any(isnan(cc))
         @show cc
     end
-    @test !any(isnan(cc))
+    @test all(isfinite(cc))
 end
 
 function test_mfcc_options()

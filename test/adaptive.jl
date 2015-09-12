@@ -8,7 +8,7 @@ function test_acep_base(f::Function, order, args...; kargs...)
     @assert applicable(f, c, first(dummy_input), args...)
     for x in dummy_input
         f(c, x, args...; kargs...)
-        @test !any(isnan(c))
+        @test all(isfinite(c))
     end
 end
 

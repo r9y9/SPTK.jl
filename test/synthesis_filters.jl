@@ -7,7 +7,7 @@ function test_filt_base!(f::Function, order, delay, args...)
 
     @assert applicable(f, first(dummy_input), dummy_mgceps, args..., delay)
     for x in dummy_input
-        @test !isnan(f(x, dummy_mgceps, args..., delay))
+        @test isfinite(f(x, dummy_mgceps, args..., delay))
     end
 end
 
