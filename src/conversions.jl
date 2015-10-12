@@ -251,8 +251,7 @@ function gc2gc(src_ceps::StridedVector{Cdouble}, src_γ=0.0,
     gc2gc!(dst_ceps, dst_γ, src_ceps, src_γ)
 end
 
-function gc2gc{T<:FloatingPoint}(src_ceps::StridedVector{Cdouble}, src_γ::T,
-                                 dst_γ::T)
+function gc2gc(src_ceps::StridedVector{Cdouble}, src_γ, dst_γ)
     gc2gc(src_ceps, src_γ, length(src_ceps)-1, dst_γ)
 end
 
@@ -307,7 +306,7 @@ function freqt(ceps::StridedVector{Cdouble}, order=25, α=0.0)
     freqt!(dst_ceps, ceps, α)
 end
 
-function freqt{T<:FloatingPoint}(ceps::StridedVector{Cdouble}, α::T)
+function freqt(ceps::StridedVector{Cdouble}, α)
     freqt(ceps, length(ceps)-1, α)
 end
 
@@ -326,7 +325,7 @@ function frqtr(ceps::StridedVector{Cdouble}, order=25, α=0.0)
     frqtr!(dst_ceps, ceps, α)
 end
 
-function frqtr{T<:FloatingPoint}(ceps::StridedVector{Cdouble}, α::T)
+function frqtr(ceps::StridedVector{Cdouble}, α)
     frqtr(ceps, length(ceps)-1, α)
 end
 
@@ -351,8 +350,8 @@ function mgc2mgc(src_ceps::StridedVector{Cdouble}, src_α=0.0, src_γ=0.0,
     mgc2mgc!(dst_ceps, dst_α, dst_γ, src_ceps, src_α, src_γ)
 end
 
-function mgc2mgc{T<:FloatingPoint}(src_ceps::StridedVector{Cdouble}, src_α::T,
-                                   src_γ::T, dst_α::T, dst_γ::T)
+function mgc2mgc(src_ceps::StridedVector{Cdouble}, src_α, src_γ,
+                 dst_α, dst_γ)
     mgc2mgc(src_ceps, src_α, src_γ, length(src_ceps)-1, dst_α, dst_γ)
 end
 
