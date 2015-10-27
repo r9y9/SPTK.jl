@@ -14,7 +14,7 @@ end
 
 function lpc2c(src_lpc::StridedVector{Cdouble}, dst_order=length(src_lpc)-1)
     src_order = length(src_lpc) - 1
-    dst_ceps = Array(Cdouble, dst_order+1)
+    dst_ceps = Array{Cdouble}(dst_order+1)
     lpc2c!(dst_ceps, src_lpc)
 end
 
@@ -109,7 +109,7 @@ end
 
 function lsp2sp(lsp::StridedVector{Cdouble}, fftlen=256)
     assert_fftlen(fftlen)
-    sp = Array(Cdouble, fftlen>>1+1)
+    sp = Array{Cdouble}(fftlen>>1+1)
     lsp2sp!(sp, lsp)
 end
 
@@ -156,7 +156,7 @@ function b2c!(dst_ceps::StridedVector{Cdouble}, src_b::StridedVector{Cdouble},
 end
 
 function b2c(src_b::StridedVector{Cdouble}, dst_order=length(src_b)-1, α=0.35)
-    dst_ceps = Array(Cdouble, dst_order + 1)
+    dst_ceps = Array{Cdouble}(dst_order + 1)
     b2c!(dst_ceps, src_b, α)
 end
 
@@ -171,7 +171,7 @@ function c2acr!(r::StridedVector{Cdouble}, c::StridedVector{Cdouble},
 end
 
 function c2acr(c::StridedVector{Cdouble}, order=length(c)-1, fftlen=256)
-    r = Array(Cdouble, order + 1)
+    r = Array{Cdouble}(order + 1)
     c2acr!(r, c, fftlen)
 end
 
@@ -183,7 +183,7 @@ function c2ir!(h::StridedVector{Cdouble}, c::StridedVector{Cdouble})
 end
 
 function c2ir(c::StridedVector{Cdouble}, len=256)
-    h = Array(Cdouble, len)
+    h = Array{Cdouble}(len)
     c2ir!(h, c)
 end
 
@@ -194,14 +194,14 @@ function ic2ir!(c::StridedVector{Cdouble}, h::StridedVector{Cdouble})
 end
 
 function ic2ir(h::StridedVector{Cdouble}, order=25)
-    c = Array(Cdouble, order+1)
+    c = Array{Cdouble}(order+1)
     ic2ir!(c, h)
 end
 
 function c2ndps!(ndps::StridedVector{Cdouble}, c::StridedVector{Cdouble})
     fftlen = (length(ndps) - 1)<<1
     assert_fftlen(fftlen)
-    buf = Array(Cdouble, fftlen)
+    buf = Array{Cdouble}(fftlen)
     m = length(c)-1
     ccall((:c2ndps, libSPTK), Void, (Ptr{Cdouble}, Cint, Ptr{Cdouble}, Cint),
           c, m, buf, fftlen)
@@ -214,7 +214,7 @@ end
 
 function c2ndps(c::StridedVector{Cdouble}, fftlen=256)
     assert_fftlen(fftlen)
-    ndps = Array(Cdouble, fftlen>>1 + 1)
+    ndps = Array{Cdouble}(fftlen>>1 + 1)
     c2ndps!(ndps, c)
 end
 
@@ -228,7 +228,7 @@ function ndps2c!(dst_ceps::StridedVector{Cdouble}, ndps::StridedVector{Cdouble})
 end
 
 function ndps2c(ndps::StridedVector{Cdouble}, order=25)
-    dst_ceps = Array(Cdouble, order + 1)
+    dst_ceps = Array{Cdouble}(order + 1)
     ndps2c!(dst_ceps, ndps)
 end
 
@@ -247,7 +247,7 @@ end
 function gc2gc(src_ceps::StridedVector{Cdouble}, src_γ=0.0,
                dst_order=length(src_ceps)-1, dst_γ=0.0)
     src_order = length(src_ceps) - 1
-    dst_ceps = Array(Cdouble, dst_order + 1)
+    dst_ceps = Array{Cdouble}(dst_order + 1)
     gc2gc!(dst_ceps, dst_γ, src_ceps, src_γ)
 end
 
@@ -302,7 +302,7 @@ function freqt!(dst_ceps::StridedVector{Cdouble},
 end
 
 function freqt(ceps::StridedVector{Cdouble}, order=25, α=0.0)
-    dst_ceps = Array(Cdouble, order + 1)
+    dst_ceps = Array{Cdouble}(order + 1)
     freqt!(dst_ceps, ceps, α)
 end
 
@@ -321,7 +321,7 @@ function frqtr!(dst_ceps::StridedVector{Cdouble},
 end
 
 function frqtr(ceps::StridedVector{Cdouble}, order=25, α=0.0)
-    dst_ceps = Array(Cdouble, order + 1)
+    dst_ceps = Array{Cdouble}(order + 1)
     frqtr!(dst_ceps, ceps, α)
 end
 
@@ -345,7 +345,7 @@ end
 
 function mgc2mgc(src_ceps::StridedVector{Cdouble}, src_α=0.0, src_γ=0.0,
                  dst_order=length(src_ceps)-1, dst_α=0.0, dst_γ=0.0)
-    dst_ceps = Array(Cdouble, dst_order + 1)
+    dst_ceps = Array{Cdouble}(dst_order + 1)
     src_order = length(src_ceps) - 1
     mgc2mgc!(dst_ceps, dst_α, dst_γ, src_ceps, src_α, src_γ)
 end
@@ -376,7 +376,7 @@ end
 function mgc2sp(mgc::StridedVector{Cdouble}, α=0.0, γ=0.0, fftlen=256)
     assert_fftlen(fftlen)
     order = length(mgc) - 1
-    sp = Array(Complex{Cdouble}, fftlen>>1 + 1)
+    sp = Array{Complex{Cdouble}}(fftlen>>1 + 1)
     mgc2sp!(sp, mgc, α, γ)
 end
 
@@ -396,6 +396,6 @@ end
 function mgclsp2sp(lsp::StridedVector{Cdouble}, α=0.0, γ=0.0, fftlen=256;
                    kargs...)
     assert_fftlen(fftlen)
-    sp = Array(Cdouble, fftlen>>1 + 1)
+    sp = Array{Cdouble}(fftlen>>1 + 1)
     mgclsp2sp!(sp, lsp, α, γ; kargs...)
 end

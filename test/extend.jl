@@ -2,7 +2,7 @@ function test_mat2mat_base(f::Function, M, N)
     srand(98765)
     srcmat = repmat(rand(M), 1, N)
     dstlen = length(f(srcmat[:,1]))
-    dstmat = Array(Float64, dstlen, N)
+    dstmat = Array{Float64}(dstlen, N)
     for i = 1:N
         dstmat[:,i] = f(srcmat[:,i])
     end

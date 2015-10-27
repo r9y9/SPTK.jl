@@ -14,7 +14,7 @@ function swipe(x::StridedVector{Cdouble}, fs, hopsize=80;
     end
 
     expectedlen = ceil(Int, length(x) / hopsize)
-    f0 = Array(Cdouble, expectedlen)
+    f0 = Array{Cdouble}(expectedlen)
     ccall((:swipe, libSPTK), Void,
           (Ptr{Cdouble}, Ptr{Cdouble}, Cint, Cint, Cint, Cdouble, Cdouble,
            Cdouble, Cint),
@@ -42,7 +42,7 @@ function rapt(x::StridedVector{Cfloat}, fs, hopsize=80;
     end
 
     expectedlen = ceil(Int, length(x) / hopsize)
-    f0 = Array(Cfloat, expectedlen)
+    f0 = Array{Cfloat}(expectedlen)
     ret = ccall((:rapt, libSPTK), Int,
                 (Ptr{Cfloat}, Ptr{Cfloat}, Cint, Cdouble, Cint, Cdouble, Cdouble,
                  Cdouble, Cint),

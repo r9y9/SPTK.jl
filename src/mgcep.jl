@@ -42,7 +42,7 @@ function mcep!(mc::StridedVector{Cdouble}, windowed::StridedVector{Cdouble},
 end
 
 function mcep(windowed::StridedVector{Cdouble}, order=25, α=0.35; kargs...)
-    mc = Array(Cdouble, order+1)
+    mc = Array{Cdouble}(order+1)
     mcep!(mc, windowed, α; kargs...)
 end
 
@@ -91,7 +91,7 @@ function gcep!(gc::StridedVector{Cdouble}, windowed::StridedVector{Cdouble},
 end
 
 function gcep(windowed::StridedVector{Cdouble}, order=25, γ=0.0; kargs...)
-    gc = Array(Cdouble, order + 1)
+    gc = Array{Cdouble}(order + 1)
     gcep!(gc, windowed, γ; kargs...)
 end
 
@@ -167,7 +167,7 @@ end
 
 function mgcep(windowed::StridedVector{Cdouble}, order=25, α=0.35, γ=0.0;
                kargs...)
-    mgc = Array(Cdouble, order + 1)
+    mgc = Array{Cdouble}(order + 1)
     mgcep!(mgc, windowed, α, γ; kargs...)
 end
 
@@ -206,7 +206,7 @@ function uels!(c::StridedVector{Cdouble}, windowed::StridedVector{Cdouble};
 end
 
 function uels(windowed::StridedVector{Cdouble}, order=25; kargs...)
-    c = Array(Cdouble, order + 1)
+    c = Array{Cdouble}(order + 1)
     uels!(c, windowed; kargs...)
 end
 
@@ -221,7 +221,7 @@ function fftcep!(c::StridedVector{Cdouble}, logsp::StridedVector{Cdouble};
 end
 
 function fftcep(logsp::StridedVector{Cdouble}, order=25; kargs...)
-    c = Array(Cdouble, order + 1)
+    c = Array{Cdouble}(order + 1)
     fftcep!(c, logsp; kargs...)
 end
 
@@ -246,6 +246,6 @@ function lpc!(a::StridedVector{Cdouble}, x::StridedVector{Cdouble};
 end
 
 function lpc(x::StridedVector{Cdouble}, order=25; kargs...)
-    a = Array(Cdouble, order+1)
+    a = Array{Cdouble}(order+1)
     lpc!(a, x; kargs...)
 end
