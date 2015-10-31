@@ -33,6 +33,7 @@ function test_rapt()
     for otype in [0, 1, 2]
         for fs in [16000]
             for hopsize in [40, 80, 160, 320]
+                println(" where otype = $otype, fs = $fs and hopsize = $hopsize")
                 f0 = rapt(dummy_input, fs, hopsize, otype=otype)
                 @test all(isfinite(f0))
                 otype == 0 && @test all(f0 .>= 0)
@@ -51,7 +52,8 @@ function test_rapt()
     @test_throws ArgumentError rapt(dummy_input, fs, 80, min=60.0, max=8000.0)
 
     # valid frame period (corner case)
-    rapt(rand(Float32, 10000), fs, 1600)
+    # TODO: should be 1599 instead of 1600
+    rapt(rand(Float32, 10000), fs, 1599)
 
     # invalid frame_period
     @test_throws ArgumentError rapt(dummy_input, fs, 1601)
