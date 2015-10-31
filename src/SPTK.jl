@@ -45,6 +45,7 @@ for fname in [
               "lib",
               "adaptive",
               "conversions",
+              "excite",
               "f0",
               "mfcc",
               "mgcep",

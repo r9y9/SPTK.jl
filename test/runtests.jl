@@ -69,6 +69,10 @@ import SPTK:
 
      # F0 estimation
      swipe,
+     rapt,
+
+     # Excitation generation
+     excite,
 
      # Waveform generation filters
      poledf,
@@ -102,6 +106,7 @@ for fname in [
               "lib",
               "adaptive",
               "conversions",
+              "excite",
               "f0",
               "mfcc",
               "mgcep",
