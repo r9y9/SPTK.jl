@@ -1,3 +1,23 @@
+function test_f0_otypes()
+    srand(98765)
+    dummy_input = rand(Float64, 4096)
+
+    for (otype_int, otype_str) in zip(0:2, SPTK.supported_otypes)
+        f01 = swipe(dummy_input, 16000, 80, otype=otype_int)
+        f02 = swipe(dummy_input, 16000, 80, otype=otype_str)
+        @test_approx_eq f01 f02
+    end
+
+    srand(98765)
+    dummy_input = rand(Float32, 4096)
+
+    for (otype_int, otype_str) in zip(0:2, SPTK.supported_otypes)
+        f01 = rapt(dummy_input, 16000, 80, otype=otype_int)
+        f02 = rapt(dummy_input, 16000, 80, otype=otype_str)
+        @test_approx_eq f01 f02
+    end
+end
+
 function test_swipe()
     srand(98765)
     dummy_input = rand(1024)
@@ -63,5 +83,6 @@ function test_rapt()
 end
 
 println("test f0 estimation")
+test_f0_otypes()
 test_swipe()
 test_rapt()
