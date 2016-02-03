@@ -108,8 +108,8 @@ end
 let
     srand(98765)
     dummy_lpc = lpc(rand(512), 21)
-    @test_throws Exception lpc2lsp(lpc, otype=2)
-    @test_throws Exception lpc2lsp(lpc, otype=3)
+    @test_throws ErrorException lpc2lsp(dummy_lpc, otype=2)
+    @test_throws ErrorException lpc2lsp(dummy_lpc, otype=3)
     lsp1 = lpc2lsp(dummy_lpc, otype=2, fs=16000)
     lsp2 = lpc2lsp(dummy_lpc, otype=3, fs=16)
     @test_approx_eq lsp1 lsp2

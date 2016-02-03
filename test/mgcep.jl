@@ -30,7 +30,7 @@ function test_mcep_exceptions()
     @test_throws ArgumentError mcep(dummy_input, min_det=-1.0)
 
     # should have error in computing log periodogram
-    @test_throws Exception mcep(ones(256), 40, 0.41)
+    @test_throws ErrorException mcep(ones(256), 40, 0.41)
 end
 
 function test_gcep_exceptions()
@@ -51,7 +51,7 @@ function test_gcep_exceptions()
     @test_throws ArgumentError gcep(dummy_input, min_det=-1.0)
 
     # should have error in theq
-    @test_throws Exception gcep(ones(256), 40, 0.0)
+    @test_throws ErrorException gcep(ones(256), 40, 0.0)
 end
 
 function test_mgcep_exceptions()
@@ -74,7 +74,7 @@ function test_mgcep_exceptions()
     @test_throws ArgumentError mgcep(dummy_input, otype=6)
 
     # should have error in theq
-    @test_throws Exception mgcep(ones(256))
+    @test_throws ErrorException mgcep(ones(256))
 end
 
 function test_uels_exceptions()
@@ -90,12 +90,12 @@ function test_uels_exceptions()
     @test_throws ArgumentError uels(dummy_input, etype=2, eps=-1.0)
 
     # should have error in computing log periodogram
-    @test_throws Exception uels(ones(256), 40)
+    @test_throws ErrorException uels(ones(256), 40)
 end
 
 function test_lpc_exceptions()
     @test_throws ArgumentError lpc(ones(256), 40, min_det=-1.0)
-    @test_throws Exception lpc(zeros(256), 40)
+    @test_throws ErrorException lpc(zeros(256), 40)
 end
 
 println("-- test_mcep")

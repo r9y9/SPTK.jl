@@ -75,7 +75,7 @@ function test_theq()
         t = ones(a)
         h = ones(2length(a)-1)
         b = ones(a)
-        @test_throws Exception theq!(a, t, h, b)
+        @test_throws ErrorException theq!(a, t, h, b)
     end
 
     a = ones(5)
@@ -116,7 +116,7 @@ function test_toeplitz()
         a = ones(m)
         t = ones(a)
         b = ones(a)
-        @test_throws Exception toeplitz!(a, t, b)
+        @test_throws ErrorException toeplitz!(a, t, b)
     end
 
     a = ones(5)

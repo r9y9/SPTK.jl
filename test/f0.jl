@@ -79,7 +79,7 @@ function test_rapt()
     @test_throws ArgumentError rapt(dummy_input, fs, 1601)
 
     # invalid input length (too small)
-    @test_throws Exception rapt(dummy_input[:100], fs, 80)
+    @test_throws ErrorException rapt(dummy_input[1:100], fs, 80)
 end
 
 println("test f0 estimation")
