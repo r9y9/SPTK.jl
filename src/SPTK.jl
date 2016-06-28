@@ -2,6 +2,8 @@ VERSION >= v"0.4.0-dev+6521" && __precompile__()
 
 module SPTK
 
+using Compat
+
 # A thin Julia wrapper for Speech signal Processing Toolkit (SPTK).
 #
 # The original SPTK: http://sp-tk.sourceforge.net/
