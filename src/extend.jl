@@ -39,11 +39,11 @@ const vec2vec = [
 for f in vec2vec
     @eval begin
         function $f(x::StridedMatrix{Cdouble}, args...; kargs...)
-            outbuf = $f(sub(x, :, 1), args...; kargs...)
+            outbuf = $f(view(x, :, 1), args...; kargs...)
             ret = Array{eltype(outbuf)}(length(outbuf), size(x, 2))
             copy!(ret, 1, outbuf, 1, length(outbuf))
             for i = 2:size(x, 2)
-                @inbounds ret[:, i] = $f(sub(x, :, i), args...; kargs...)
+                @inbounds ret[:, i] = $f(view(x, :, i), args...; kargs...)
             end
             ret
         end
