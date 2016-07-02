@@ -1,5 +1,13 @@
 # News for SPTK.jl
 
+## v0.1.2
+
+- Fix deprecations
+
+## v0.1.1
+
+- Fix deprecations
+
 ## v0.1.0
 
 - Add RAPT ([#13])
