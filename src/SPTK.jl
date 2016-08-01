@@ -36,7 +36,7 @@ import Compat: view
 #    unexpected inputs, it should be check if the inputs are supported or not
 #    in Julia before `ccall`.
 
-deps = joinpath(Pkg.dir("SPTK"), "deps", "deps.jl")
+deps = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
 if isfile(deps)
     include(deps)
 else
