@@ -2,6 +2,7 @@
 
 [![SPTK](http://pkg.julialang.org/badges/SPTK_0.3.svg)](http://pkg.julialang.org/?pkg=SPTK&ver=0.3)
 [![SPTK](http://pkg.julialang.org/badges/SPTK_0.4.svg)](http://pkg.julialang.org/?pkg=SPTK&ver=0.4)
+[![SPTK](http://pkg.julialang.org/badges/SPTK_0.5.svg)](http://pkg.julialang.org/?pkg=SPTK&ver=0.5)
 [![Build Status](https://travis-ci.org/r9y9/SPTK.jl.svg?branch=master)](https://travis-ci.org/r9y9/SPTK.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/a1byruqq7l19puu3/branch/master?svg=true)](https://ci.appveyor.com/project/r9y9/sptk-jl/branch/master)
 [![Coverage Status](https://coveralls.io/repos/r9y9/SPTK.jl/badge.svg)](https://coveralls.io/r/r9y9/SPTK.jl)
