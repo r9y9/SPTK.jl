@@ -6,7 +6,7 @@ function test_mgcep_base(f::Function, order, args...; kargs...)
     @assert applicable(f, dummy_input, order, args...)
     c = f(dummy_input, order, args...)
     @test length(c) == order + 1
-    @test all(isfinite(c))
+    @test @compat all(isfinite.(c))
 end
 
 function test_mcep_and_mgcep_consistency(order)
