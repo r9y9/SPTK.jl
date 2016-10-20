@@ -1,13 +1,13 @@
 function test_filt_base!(f::Function, order, delay, args...)
     srand(98765)
     dummy_input = rand(1024)
-    dummy_sp = abs(fft(dummy_input))
-    dummy_logsp = log(dummy_sp)
+    dummy_sp = @compat abs.(fft(dummy_input))
+    dummy_logsp = @compat log.(dummy_sp)
     dummy_mgceps = rand(order + 1)
 
     @assert applicable(f, first(dummy_input), dummy_mgceps, args..., delay)
     for x in dummy_input
-        @test isfinite(f(x, dummy_mgceps, args..., delay))
+        @test @compat isfinite.(f(x, dummy_mgceps, args..., delay))
     end
 end
 
