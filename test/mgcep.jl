@@ -15,7 +15,7 @@ function test_mcep_and_mgcep_consistency(order)
     # mgcep when gamma = 0, the result of mgcep is corresponds to mcep
     mc = mcep(dummy_input, order, 0.41)
     mgc = mgcep(dummy_input, order, 0.41, 0.0)
-    @test mc ≈ mgc atol=1.0e-3
+    @test isapprox(mc, mgc, atol=1.0e-3)
 end
 
 function test_mcep_exceptions()
