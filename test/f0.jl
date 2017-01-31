@@ -5,7 +5,7 @@ function test_f0_otypes()
     for (otype_int, otype_str) in zip(0:2, SPTK.supported_otypes)
         f01 = swipe(dummy_input, 16000, 80, otype=otype_int)
         f02 = swipe(dummy_input, 16000, 80, otype=otype_str)
-        @test_approx_eq f01 f02
+        @test f01 ≈ f02
     end
 
     srand(98765)
@@ -14,7 +14,7 @@ function test_f0_otypes()
     for (otype_int, otype_str) in zip(0:2, SPTK.supported_otypes)
         f01 = rapt(dummy_input, 16000, 80, otype=otype_int)
         f02 = rapt(dummy_input, 16000, 80, otype=otype_str)
-        @test_approx_eq f01 f02
+        @test f01 ≈ f02
     end
 end
 

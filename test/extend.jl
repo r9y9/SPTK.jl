@@ -7,7 +7,7 @@ function test_mat2mat_base(f::Function, M, N)
         dstmat[:,i] = f(srcmat[:,i])
     end
     dstmat2 = f(srcmat)
-    @test_approx_eq dstmat2 dstmat
+    @test dstmat2 ≈ dstmat
 end
 
 function test_mat2mat()

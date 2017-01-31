@@ -18,7 +18,7 @@ function test_conversion_base(f::Function, f!::Function,
     dst = f(src, dst_order, args...)
     f!(dst_inplace, src, args...)
     @test @compat all(isfinite.(dst))
-    @test_approx_eq dst dst_inplace
+    @test dst ≈ dst_inplace
 end
 
 function test_transform_base(f::Function, f!::Function, order, args...)
@@ -31,7 +31,7 @@ function test_transform_base(f::Function, f!::Function, order, args...)
     dst = f(src, args...)
     f!(dst_inplace, src, args...)
     @test @compat all(isfinite.(dst))
-    @test_approx_eq dst dst_inplace
+    @test dst ≈ dst_inplace
 end
 
 function test_lpc2lsp(order)
@@ -42,7 +42,7 @@ function test_lpc2lsp(order)
     lsp = lpc2lsp(dummy_lpc)
     lpc2lsp!(lsp_inplace, dummy_lpc)
     @test @compat all(isfinite.(lsp))
-    @test_approx_eq lsp lsp_inplace
+    @test lsp ≈ lsp_inplace
 end
 
 function test_ic2ir_invertibility(order, len)
@@ -50,7 +50,7 @@ function test_ic2ir_invertibility(order, len)
     dummy_ceps = rand(order+1)
     ir = c2ir(dummy_ceps, len)
     c = ic2ir(ir, order)
-    @test_approx_eq c dummy_ceps
+    @test c ≈ dummy_ceps
 end
 
 function test_gc2gc(src_order, dst_order, src_γ, dst_γ)
@@ -61,7 +61,7 @@ function test_gc2gc(src_order, dst_order, src_γ, dst_γ)
     dst_ceps = gc2gc(src_ceps, src_γ, dst_order, dst_γ)
     gc2gc!(dst_ceps_inplace, dst_γ, src_ceps, src_γ)
     @test @compat all(isfinite.(dst_ceps))
-    @test_approx_eq dst_ceps dst_ceps_inplace
+    @test dst_ceps ≈ dst_ceps_inplace
 end
 
 function test_mgc2mgc(dst_order, dst_α, dst_γ, src_order, src_α, src_γ)
@@ -72,7 +72,7 @@ function test_mgc2mgc(dst_order, dst_α, dst_γ, src_order, src_α, src_γ)
     dst_ceps = mgc2mgc(src_ceps, src_α, src_γ, dst_order, dst_α, dst_γ)
     mgc2mgc!(dst_ceps_inplace, dst_α, dst_γ, src_ceps, src_α, src_γ)
     @test @compat all(isfinite.(dst_ceps))
-    @test_approx_eq dst_ceps dst_ceps_inplace
+    @test dst_ceps ≈ dst_ceps_inplace
 end
 
 function test_mgc2sp(order, α, γ, fftlen)
@@ -112,9 +112,9 @@ let
     @test_throws ErrorException lpc2lsp(dummy_lpc, otype=3)
     lsp1 = lpc2lsp(dummy_lpc, otype=2, fs=16000)
     lsp2 = lpc2lsp(dummy_lpc, otype=3, fs=16)
-    @test_approx_eq lsp1 lsp2
+    @test lsp1 ≈ lsp2
     lsp3 = lpc2lsp(dummy_lpc, otype=3, fs=16, loggain=true)
-    @test_approx_eq first(lsp3) log(first(lsp2))
+    @test first(lsp3) ≈ log(first(lsp2))
 end
 
 let
@@ -255,7 +255,7 @@ let
     srand(98765)
     order = 20
     src = rand(order + 1)
-    @test_approx_eq gc2gc(src, 0.0, order, -0.1) gc2gc(src, 0.0, -0.1)
+    @test gc2gc(src, 0.0, order, -0.1) ≈ gc2gc(src, 0.0, -0.1)
 end
 
 println("-- test_gnorm")
@@ -298,8 +298,8 @@ let
     srand(98765)
     order = 20
     src = rand(order + 1)
-    @test_approx_eq freqt(src, order, 0.41) freqt(src, 0.41)
-    @test_approx_eq frqtr(src, order, 0.41) frqtr(src, 0.41)
+    @test freqt(src, order, 0.41) ≈ freqt(src, 0.41)
+    @test frqtr(src, order, 0.41) ≈ frqtr(src, 0.41)
 end
 
 println("-- test_mgc2mgc")
@@ -329,7 +329,7 @@ let
     srand(98765)
     order = 20
     src = rand(order + 1)
-    @test_approx_eq mgc2mgc(src, 0.0, 0.0, order, 0.41, -0.1) mgc2mgc(src, 0.0, 0.0, 0.41, -0.1)
+    @test mgc2mgc(src, 0.0, 0.0, order, 0.41, -0.1) ≈ mgc2mgc(src, 0.0, 0.0, 0.41, -0.1)
 end
 
 println("-- test_mgc2sp")

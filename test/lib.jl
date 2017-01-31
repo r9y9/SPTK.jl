@@ -4,21 +4,21 @@ import SPTK: agexp, gexp, glog, mseq, theq!, theq, toeplitz!, toeplitz
 
 function test_agexp()
     println("-- test_agexp")
-    @test_approx_eq agexp(1, 1, 1) 5.0
-    @test_approx_eq agexp(1, 2, 3) 18.0
-    @test_approx_eq agexp(2, 3, 5) 12.206555615733702
+    @test agexp(1, 1, 1) ≈ 5.0
+    @test agexp(1, 2, 3) ≈ 18.0
+    @test agexp(2, 3, 5) ≈ 12.206555615733702
 end
 
 function test_gexp()
     println("-- test_gexp")
-    @test_approx_eq gexp(1, 1) 2.0
-    @test_approx_eq gexp(2, 4) 3.0
+    @test gexp(1, 1) ≈ 2.0
+    @test gexp(2, 4) ≈ 3.0
 end
 
 function test_glog()
     println("-- test_glog")
-    @test_approx_eq glog(1, 2) 1.0
-    @test_approx_eq glog(2, 3) 4.0
+    @test glog(1, 2) ≈ 1.0
+    @test glog(2, 3) ≈ 4.0
 end
 
 function test_mseq()
@@ -65,9 +65,9 @@ function test_theq()
 
     # solve (T + H)a = b
     theq!(a, t, h, b)
-    @test_approx_eq a ones(n)
-    @test_approx_eq a theq(t, h, b)
-    @test_approx_eq a (T + H) \ b
+    @test a ≈ ones(n)
+    @test a ≈ theq(t, h, b)
+    @test a ≈ (T + H) \ b
 
     # fail to solve toeplitz plus hankel matrix system
     for m in [3, 5, 10]
@@ -107,9 +107,9 @@ function test_toeplitz()
 
     # solve Ta = b
     toeplitz!(a, t, b)
-    @test_approx_eq a ones(n)
-    @test_approx_eq a toeplitz(t, b)
-    @test_approx_eq a T \ b
+    @test a ≈ ones(n)
+    @test a ≈ toeplitz(t, b)
+    @test a ≈ T \ b
 
     # fail to solve toeplitz set of linear equations
     for m in [3, 5, 10]
