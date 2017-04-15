@@ -8,10 +8,10 @@ sptk = library_dependency("libSPTK", aliases=["libSPTK", "SPTK-3"])
 const version = "3.8.9"
 
 github_root = "https://github.com/r9y9/SPTK"
-arch = WORD_SIZE == 64 ? "x86_64" : "i686"
+arch = Sys.WORD_SIZE == 64 ? "x86_64" : "i686"
 major = version[1]
 provides(Binaries,
-         URI("$(github_root)/releases/download/v$(version)/sptk-$(major)_mingw$(WORD_SIZE)_$(arch).zip"),
+         URI("$(github_root)/releases/download/v$(version)/sptk-$(major)_mingw$(Sys.WORD_SIZE)_$(arch).zip"),
          sptk, unpacked_dir = "usr/lib", os = :Windows)
 
 provides(Sources,
