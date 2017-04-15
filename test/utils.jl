@@ -5,7 +5,7 @@ function test_phidf(order, α)
     delay = zeros(order + 1)
     for x in dummy_input
         SPTK.phidf!(x, order, α, delay)
-        @test @compat all(isfinite.(delay))
+        @test all(isfinite.(delay))
     end
 end
 

@@ -27,7 +27,7 @@ function test_swipe()
         for fs in [16000]
             for hopsize in [40, 80, 160, 320]
                 f0 = swipe(dummy_input, fs, hopsize, otype=otype)
-                @test @compat all(isfinite.(f0))
+                @test all(isfinite.(f0))
                 otype == 0 && @test all(f0 .>= 0)
             end
         end
@@ -55,7 +55,7 @@ function test_rapt()
             for hopsize in [40, 80, 160, 320]
                 println(" where otype = $otype, fs = $fs and hopsize = $hopsize")
                 f0 = rapt(dummy_input, fs, hopsize, otype=otype)
-                @test @compat all(isfinite.(f0))
+                @test all(isfinite.(f0))
                 otype == 0 && @test all(f0 .>= 0)
             end
         end

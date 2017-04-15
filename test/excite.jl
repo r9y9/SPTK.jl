@@ -7,7 +7,7 @@ function test_excite()
     for hopsize in [40, 80, 160, 320]
         for g in [true, false]
             ex = excite(dummy_input, hopsize, gaussian=g)
-            @test @compat all(isfinite.(ex))
+            @test all(isfinite.(ex))
         end
     end
 end

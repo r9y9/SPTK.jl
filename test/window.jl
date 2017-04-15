@@ -12,7 +12,7 @@ function test_window_functions()
         println("-- test_$f")
         y = f(length(x))
         @test length(y) == length(x)
-        @test @compat all(isfinite.(y))
+        @test all(isfinite.(y))
     end
 
     # invalid normalize flag

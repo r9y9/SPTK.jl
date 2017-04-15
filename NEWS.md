@@ -1,5 +1,10 @@
 # News for SPTK.jl
 
+## v0.2.0
+
+- Drop v0.4
+- Fix deprecations
+
 ## v0.1.2
 
 - Fix deprecations

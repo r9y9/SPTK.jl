@@ -1,5 +1,4 @@
 using SPTK
-using Compat
 using Base.Test
 
 import SPTK:
