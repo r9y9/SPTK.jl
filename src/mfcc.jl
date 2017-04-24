@@ -1,6 +1,5 @@
 # MFCC
 
-# Please note that mfcc is NOT stable
 function mfcc(x::StridedVector{Cdouble}, order=13, samplerate=16000;
               α::Float64=0.97,
               eps::Float64=1.0,

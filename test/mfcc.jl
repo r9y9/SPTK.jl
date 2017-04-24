@@ -36,9 +36,8 @@ function test_mfcc_options()
     @test length(cc) == 13
 end
 
-# TODO: Fix this
-# MFCC in SPTK is not really stable; bug(s) should be resolved in C.
-if false
+# TODO: Update binary dependency for windows
+if !is_windows()
 println("-- test_mfcc")
 for len in [256, 512, 1024, 2048]
     for order in [12, 14, 16, 18]
