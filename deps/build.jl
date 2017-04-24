@@ -5,7 +5,7 @@ using BinDeps
 sptk = library_dependency("libSPTK", aliases=["libSPTK", "SPTK-3"])
 
 # TODO: needs update for windows
-const version = is_windows() ? "3.8.9" : "3.10.1"
+const version = is_windows() ? "3.8.9" : "3.10.2"
 
 github_root = "https://github.com/r9y9/SPTK"
 arch = Sys.WORD_SIZE == 64 ? "x86_64" : "i686"
