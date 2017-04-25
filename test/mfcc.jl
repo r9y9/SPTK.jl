@@ -7,7 +7,7 @@ function test_mfcc(len, order)
     # By default, c0 is not contained
     cc = mfcc(dummy, order, czero=true, power=true)
     # @test length(cc) == order
-    if any(isnan(cc))
+    if any(isnan.(cc))
         @show cc
     end
     @test all(isfinite.(cc))
