@@ -1,4 +1,5 @@
 using SPTK
+using FFTW
 using Base.Test
 
 import SPTK:
