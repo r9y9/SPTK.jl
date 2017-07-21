@@ -1,6 +1,6 @@
 # Window functions
 
-immutable Cwindow
+struct Cwindow
     w::Cint
 
     function Cwindow(w)
